@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+       <property>
+     		  <name>hadoop.tmp.dir</name>
+   	          <value>/root/hadoop/tmp/</value>
+       </property>
+
+	<property>
+		<name>fs.default.name</name>
+		<value>hdfs://xxx:9000</value>
+	</property>
+
+      <property>
+               <name>dfs.hosts.exclude</name>
+               <value>excludes</value>
+      </property>
+
+	<property> 
+		<name>hadoop.logfile.size</name> 
+		<value>10000000</value> 
+		<description>The max size of each log file</description> 
+	</property> 
+
+	<property> 
+	  <name>hadoop.logfile.count</name> 
+	  <value>10</value> 
+  	  <description>The max number of log files</description> 
+	</property> 
+
+</configuration>

@@ -1,0 +1,1 @@
+hadoop jar hoss.jar /media/ssd/hoss-dataset/latest-1000/put-latest-1000 /media/ssd/hoss-dataset/latest-1000/get-latest-1000
