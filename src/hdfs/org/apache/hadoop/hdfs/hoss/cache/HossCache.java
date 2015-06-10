@@ -17,6 +17,10 @@
  */
 package org.apache.hadoop.hdfs.hoss.cache;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -94,6 +98,35 @@ public class HossCache {
 		Metadata metadata = null;
 		metadata = hotCache.get(objName, hot);
 		return metadata;
+	}
+	
+	
+	public List<HotObject> topHot(int top){
+		List<HotObject> topHotList = new ArrayList<HotObject>();
+		int cur = 0;
+		if(top > 0){
+			Set<HotObject> hotSet = hotCache.listHot().descendingSet();
+			for(HotObject ho: hotSet){
+				cur++;
+				if(cur > top){
+					break;
+				}
+				topHotList.add(ho);
+			}
+		}
+		return topHotList;
+	}
+	/**
+	 * remove the object from hoss cache
+	 * @param objName
+	 */
+	public void remove(String objName) {
+		if(hotCache.exist(objName)){
+			hotCache.remove(objName);
+		}
+		if(warmCache.exist(objName)){
+			warmCache.remove(objName);
+		}
 	}
 
 }

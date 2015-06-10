@@ -19,10 +19,13 @@ package org.apache.hadoop.hdfs.protocol;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
+import org.apache.hadoop.hdfs.hoss.cache.HotObject;
 import org.apache.hadoop.hdfs.hoss.db.PathPosition;
 import org.apache.hadoop.hdfs.protocol.FSConstants.UpgradeAction;
 import org.apache.hadoop.hdfs.security.token.delegation.DelegationTokenIdentifier;
@@ -665,4 +668,17 @@ public interface ClientProtocol extends VersionedProtocol {
 	 * @return
 	 */
 	public boolean exist(String objName);
+	
+	/**
+	 * get all the objects(name and id)in hoss
+	 * @return
+	 */
+	public Text listObjects(); 
+	
+	/**
+	 * get the top hottest object
+	 * @param top
+	 * @return
+	 */
+	public Text topHotObject(int top);
 }

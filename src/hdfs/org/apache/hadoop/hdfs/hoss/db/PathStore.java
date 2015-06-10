@@ -121,27 +121,5 @@ public class PathStore {
 		fbs.sync();
 		fbs.close();
 	}
-	
-	public static void main(String[] args) {
-		PathStore ps = new PathStore();
-		long start = System.currentTimeMillis();
-		for(int i = 0; i < 10000000; i++) {
-			ps.put(i);
-		}
-		System.out.println("write total time: " + (System.currentTimeMillis() - start) / 1000);
-		start = System.currentTimeMillis();
-		for(int i = 0; i < 10000000; i++) {
-			ps.get(i);
-			//PathPosition pp = ps.get(i);
-			//System.out.println("path: " +pp.getPath() + " offset: " + pp.getOffset());
-		}
-		System.out.println("read total time: " + (System.currentTimeMillis() - start) / 1000);
-		
-		ps.close();
-				
-		
-		
-	}
-	
 
 }

@@ -1549,7 +1549,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       replication = (int)pendingFile.getReplication();
     }
 
-    // choose targets for the new block tobe allocated.
+    // choose targets for the new block to be allocated.
     DatanodeDescriptor targets[] = replicator.chooseTarget(replication,
                                                            clientNode,
                                                            excludedNodes,

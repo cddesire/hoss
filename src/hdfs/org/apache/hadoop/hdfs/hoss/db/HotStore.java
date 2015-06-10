@@ -46,7 +46,14 @@ public class HotStore {
 		fbs.enableMmap();
 		fbs.open();
 	}
-
+	/**
+	 * 
+	 * @param objId
+	 * @param createTime
+	 * @param lastTime
+	 * @param size  object size(unit:MB)
+	 * @return
+	 */
 	public boolean put(long objId, long createTime, long lastTime, long size) {
 		final WriteBuffer wbuf = fbs.set((int) objId);
 		final ByteBuffer buf = wbuf.buf();
@@ -66,7 +73,12 @@ public class HotStore {
 		return size / (1024 * 1024) + 1;
 	}
 	
-	public long getObjectSize(long objId) {
+	/**
+	 * object size(unit:MB)
+	 * @param objId
+	 * @return
+	 */
+	public long getObjectSizeMB(long objId) {
 		final ByteBuffer buf = fbs.get((int) objId);
 		if (buf == null) {
 			LOG.error("Error trying read object " + objId);

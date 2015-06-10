@@ -19,6 +19,8 @@ package org.apache.hadoop.hdfs.hoss.db;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,6 +34,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.hoss.bloomfilter.HosBloomFilter;
 import org.apache.hadoop.hdfs.hoss.cache.HossCache;
+import org.apache.hadoop.hdfs.hoss.cache.HotObject;
 import org.apache.hadoop.hdfs.hoss.cache.Metadata;
 import org.apache.hadoop.hdfs.hoss.util.ByteUtil;
 import org.apache.hadoop.hdfs.hoss.util.FileUtil;
@@ -103,7 +106,7 @@ public class HosMetaData {
 		initialize(hosDir, warmCapacity, hotCapacity);
 		// this.addShutdownHook();
 	}
-	
+
 	private void initialize(String metaDir, int warmCapacity, int hotCapacity) {
 		objectsMap = new ObjectsMap(new File(metaDir));
 		objId = new ObjectId();
@@ -113,8 +116,8 @@ public class HosMetaData {
 		hosBloomFilter = new HosBloomFilter();
 		ps = new PathStore();
 		hs = new HotStore();
-		if(!disablecache){
-		   hossCache = new HossCache(warmCapacity, hotCapacity);
+		if (!disablecache) {
+			hossCache = new HossCache(warmCapacity, hotCapacity);
 		}
 	}
 
@@ -134,7 +137,7 @@ public class HosMetaData {
 	}
 
 	private long nextObjectId() {
-		long id = -1;
+		long id = 0;
 		if (ids.size() != 0) {
 			id = ids.first();
 			ids.remove(id);
@@ -142,6 +145,25 @@ public class HosMetaData {
 			id = currentId.getAndIncrement();
 		}
 		return id;
+	}
+
+	/**
+	 * set object name and object id
+	 * 
+	 * @param objName
+	 * @throws IOException
+	 */
+	public PathPosition setNameId(String objName, long objId) {
+		hosLock.writeLock().lock();
+		PathPosition pp = null;
+		try {
+			objectsMap.put(objName, objId);
+			pp = ps.put(objId);
+			hosBloomFilter.add(objName);
+		} finally {
+			hosLock.writeLock().unlock();
+		}
+		return pp;
 	}
 
 	/**
@@ -188,12 +210,27 @@ public class HosMetaData {
 		hs.put(objId, current, current, size);
 	}
 
-	public synchronized void update(String objName) {
-		// TODO
+	/**
+	 * set object id and pathid 
+	 * @param objId
+	 * @param pathId
+	 * @param offset
+	 */
+	public synchronized void updatePathPos(long objId, long pathId, long offset) {
+		ps.put(objId, pathId, offset);
 	}
 
 	public boolean exist(String objName) {
 		return hosBloomFilter.contain(objName);
+	}
+	/**
+	 * objId is deleted and no reused
+	 * 
+	 * @param objId
+	 * @return
+	 */
+	public boolean exist(long objId) {
+		return ids.contains(objId);
 	}
 
 	/**
@@ -232,7 +269,7 @@ public class HosMetaData {
 		}
 		// requests++;
 		if (!disablecache) {
-			if (hossCache.exist(objName)) {
+			if (hossCache.exist(objName)) {// read from flash
 				// hits++;
 				float hotness = hs.hot(objId);
 				pp = hossCache.hit(objName, hotness).getPathPosition();
@@ -249,22 +286,61 @@ public class HosMetaData {
 	}
 
 	private float getHotness(long objId, PathPosition pp) {
-		long size = hs.getObjectSize(objId);
+		// get from hot store
+		long size = hs.getObjectSizeMB(objId);
 		float hotness = 0f;
 		if (size < 0) {
+			long bytes = getObjectSizeBytes(objId);
+			hotness = hs.firstHot(objId, bytes);
+		} else {
+			hotness = hs.hot(objId);
+		}
+		return hotness;
+	}
+
+	/**
+	 * get from hoss system
+	 * 
+	 * @param objId
+	 * @return object size(unit:bytes), if object has combined return -1;
+	 */
+	public long getObjectSizeBytes(long objId) {
+		long bytes = -1L;
+		PathPosition pp = ps.get(objId);
+		if (pp.getOffset() == 0) {
 			Path f = new Path(pp.getPath());
 			FileStatus status = null;
 			try {
 				status = fs.getFileStatus(f);
 			} catch (IOException e) {
-				LOG.error("set object size error, object id is " + objId);
+				LOG.error("get object size, object id is " + objId);
 			}
-			long curSize = status.getLen();
-			hotness = hs.firstHot(objId, curSize);
-		} else {
-			hotness = hs.hot(objId);
+			// unit:bytes
+			bytes = status.getLen();
 		}
-		return hotness;
+		return bytes;
+	}
+
+	private boolean isSmall(long bytes) {
+		bytes = bytes >>> 20;
+		return bytes < 16 ? true : false;
+	}
+
+	/**
+	 * 
+	 * @return the small objects set (objectId + size bytes)
+	 */
+	public Map<Long, Integer> smallObjects() {
+		Map<Long, Integer> smallObjectsSet = new HashMap<Long, Integer>();
+		long curId = this.currentId.get();
+		for (long i = 1L; i < curId; i++) {
+			//object is combined if bytes is -1, 
+			long bytes = getObjectSizeBytes(i);
+			if (bytes != -1L && isSmall(bytes)) {
+				smallObjectsSet.put(i, (int) bytes);
+			}
+		}
+		return smallObjectsSet;
 	}
 
 	/**
@@ -273,7 +349,7 @@ public class HosMetaData {
 	 * @return
 	 * @throws IOException
 	 */
-	private PathPosition getPathPosition(long objId) {
+	public PathPosition getPathPosition(long objId) {
 		PathPosition pp = ps.get(objId);
 		return pp;
 	}
@@ -298,6 +374,9 @@ public class HosMetaData {
 			if (id > -1) {
 				ids.add(id);
 			}
+			//delete object from cache
+			hossCache.remove(objName);
+			//delete object from bloom filter
 			hosBloomFilter.remove(objName);
 		} finally {
 			hosLock.writeLock().unlock();
@@ -305,13 +384,37 @@ public class HosMetaData {
 		return id;
 	}
 
-	public Map<String, Long> list() throws IOException {
-		return objectsMap.list(hosBloomFilter);
+	/**
+	 * list the object name and object id in hoss
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, Long> listObjects() {
+		Map<String, Long> objects = null;
+		try {
+			objects = objectsMap.list(hosBloomFilter);
+		} catch (IOException e) {
+			LOG.error("get all the objects IOException");
+		}
+		return objects;
 	}
 
+	public List<HotObject> topHotObject(int top) {
+		return hossCache.topHot(top);
+	}
+
+	/**********************************************************************/
+
+	/**
+	 * allocate the global unique object
+	 * 
+	 * @author desire
+	 * 
+	 */
 	class ObjectId {
 
-		private long currentId = 0;
+		private long currentId = 1;
 
 		private TreeSet<Long> deletedIDSet = new TreeSet<Long>();
 		// the file to store deleted ids for recycle use
@@ -389,48 +492,6 @@ public class HosMetaData {
 			byte[] bArray = ByteUtil.toByteArray(ids);
 			FileUtil.writeBytesToFile(deFile, bArray);
 		}
-	}
-
-	public static void main(String[] args) throws IOException {
-		// benchmark();
-
-	}
-
-	public static void print(HosMetaData hosMetaData) throws IOException {
-		Map<String, Long> list = hosMetaData.list();
-		for (Map.Entry<String, Long> entry : list.entrySet()) {
-			PathPosition pp = hosMetaData.getPathPosition(entry.getKey());
-			System.out.println("object name: " + entry.getKey()
-					+ " object id: " + hosMetaData.getId(entry.getKey())
-					+ " path: " + pp.getPath() + " offset: " + pp.getOffset());
-
-		}
-	}
-
-	public static void benchmark() throws IOException {
-		HosMetaData hosMetaData = new HosMetaData();
-		long start = System.currentTimeMillis();
-
-		for (int i = 0; i < 100; i++) {
-			// hosMetaData.put("haha" + i);
-		}
-		System.out.println("write time: "
-				+ (System.currentTimeMillis() - start) / 1000);
-
-		start = System.currentTimeMillis();
-		for (int i = 0; i < 100; i++) {
-			int id = (int) hosMetaData.getId("haha" + i);
-			if (id != i) {
-				// System.out.println("name: " + "haha" + i + " id: " + id);
-				continue;
-			}
-			PathPosition pp = hosMetaData.getPathPosition(id);
-			System.out.println(pp.getPath() + "  " + pp.getOffset());
-
-		}
-		System.out.println("read time: " + (System.currentTimeMillis() - start)
-				/ 1000);
-
 	}
 
 }

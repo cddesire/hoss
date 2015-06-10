@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.protocol.ClientProtocol;
 import org.apache.hadoop.hdfs.server.namenode.NameNode;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.ipc.RPC;
 
 
@@ -32,6 +33,13 @@ public class HosClient {
 	public static void closeRPC() {
 		RPC.stopProxy(client);
 	}
-
-
+	
+	public Text listObjects(){
+		return client.listObjects();
+	}
+	
+	public Text topHotObject(int top){
+		return client.topHotObject(top);
+	}
+	
 }

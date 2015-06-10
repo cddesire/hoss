@@ -20,6 +20,7 @@ package org.apache.hadoop.hdfs.hoss.cache;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 
 public class Cache implements ICache<String, Metadata, Float> {
@@ -173,5 +174,13 @@ public class Cache implements ICache<String, Metadata, Float> {
 		}
 		return cache.toString();
 	}
-
+	
+	public TreeSet<HotObject> listHot(){
+		TreeSet<HotObject> hotSet= new TreeSet<HotObject>();
+		for (Entry<String, Float> entry : name2Hot.entrySet()) {
+			hotSet.add(new HotObject(entry.getValue(), entry.getKey()));
+		}
+		return hotSet;
+	}
+	
 }

@@ -130,7 +130,18 @@ case $startStop in
     fi
 
     hadoop_rotate_log $log
-    echo starting $command, logging to $log
+     ##########################################
+    if [ "$command" == "namenode" ] ; then
+         echo starting  hoss object metadata server
+   fi
+   if [ "$command" == "datanode" ] ; then
+         echo starting  hoss object data server
+   fi
+   if [ "$command" == "secondarynamenode" ] ; then
+         echo starting  hoss secondary metadata server
+   fi
+   
+   # echo starting hoss $command #logging to $log
     cd "$HADOOP_PREFIX"
     nohup nice -n $HADOOP_NICENESS "$HADOOP_PREFIX"/bin/hadoop --config $HADOOP_CONF_DIR $command "$@" > "$log" 2>&1 < /dev/null &
     echo $! > $pid
@@ -141,7 +152,16 @@ case $startStop in
 
     if [ -f $pid ]; then
       if kill -0 `cat $pid` > /dev/null 2>&1; then
-        echo stopping $command
+        if [ "$command" == "namenode" ] ; then
+         echo stopping  hoss object metadata server
+       fi
+       if [ "$command" == "datanode" ] ; then
+         echo stopping  hoss object data server
+       fi
+       if [ "$command" == "secondarynamenode" ] ; then
+         echo stopping  hoss secondary metadata server
+       fi
+        #echo stopping  $command
         kill `cat $pid`
       else
         echo no $command to stop

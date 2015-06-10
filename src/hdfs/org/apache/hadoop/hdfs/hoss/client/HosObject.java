@@ -4,14 +4,20 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.BufferedFSInputStream;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.hoss.db.PathPosition;
+import org.apache.hadoop.hdfs.hoss.smallobject.KeyWritable;
+import org.apache.hadoop.hdfs.hoss.smallobject.SmallObjectsManager;
+import org.apache.hadoop.hdfs.hoss.smallobject.ValueWritable;
 import org.apache.hadoop.hdfs.hoss.util.HDFSUtil;
 import org.apache.hadoop.hdfs.protocol.ClientProtocol;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.io.SequenceFile;
 
 public class HosObject {
 
@@ -43,7 +49,6 @@ public class HosObject {
 		return client.putObject(objName);
 	}
 
-	@SuppressWarnings("unused")
 	private long getObjectId() {
 		return client.getObjectId(objName);
 	}
@@ -72,12 +77,17 @@ public class HosObject {
 				out = fs.create(new Path(pp.getPath()), overwrite, BUFFERSIZE,
 						replication, BLOCKSIZE);
 			} catch (IOException e) {
-				LOG.error("initalize FSDataOutputStream error: " + e);
+				LOG.error("Initalize FSDataOutputStream error: " + e);
 			}
 		}
 		return true;
 	}
-
+	
+		
+	/**
+	 * init the object input stream 
+	 * @return
+	 */
 	private boolean initReader() {
 		if (!isExist()) {
 			LOG.warn("object  " + objName + " not exists");
@@ -85,10 +95,27 @@ public class HosObject {
 		}
 		PathPosition pp = this.getPathPosition();
 		Path path = new Path(pp.getPath());
-		try {
-			in = fs.open(path);
-		} catch (IOException e) {
-			LOG.error("initalize FSDataInputStream error: " + e);
+		long offset = pp.getOffset();
+		//LOG.info("initReader  id " + getObjectId() + " offset " + offset);
+		//read combined small object
+		if (offset > 0) {
+			byte[] buf = getSmallObject(getObjectId(), offset);	
+			try {
+				if(buf != null){
+				in = new FSDataInputStream(new BufferedFSInputStream(
+						               new BytesInputStream(buf), buf.length)) ;
+				} else {
+					return false;
+				}
+			} catch (IOException e) {
+				LOG.error("in combine initalize FSDataInputStream error: " + e);
+			}
+		} else {
+			try {
+				in = fs.open(path);
+			} catch (IOException e) {
+				LOG.error("in uncombined initalize FSDataInputStream error: " + e);
+			}
 		}
 		return true;
 	}
@@ -107,17 +134,19 @@ public class HosObject {
 		}
 		return writer;
 	}
+
 	/**
 	 * get output stream with no overwrite
+	 * 
 	 * @param replication
 	 * @return
 	 */
 	public FSDataOutputStream getWriter(short replication) {
 		return getWriter(replication, false);
 	}
-	
+
 	public FSDataOutputStream getWriter() {
-		return getWriter((short)1, false);
+		return getWriter((short) 1, false);
 	}
 
 	/**
@@ -154,16 +183,43 @@ public class HosObject {
 		}
 		PathPosition pp = this.getPathPosition();
 		Path path = new Path(pp.getPath());
-
+		long offset = pp.getOffset();
 		try {
-			flag = fs.delete(path, false);
+			if(offset == 0){
+				flag = fs.delete(path, false);
+			}
 			this.deleteObj();
 		} catch (IOException e) {
 			LOG.error(e);
 		}
-		if (!flag) {
+		if (offset == 0 && !flag) {
 			LOG.warn("delete object " + objName + "fail");
 		}
+	}
+	
+	public byte[] getSmallObject(long objId, long offset){
+		SequenceFile.Reader reader = null;
+		byte[] bytes = null;
+		try {
+			String superObj = SmallObjectsManager.STABLEOBJECT;
+			reader = new SequenceFile.Reader(fs, new Path(superObj), new Configuration());
+			KeyWritable kw = new KeyWritable();
+			ValueWritable vw = new ValueWritable();
+			reader.seek(offset);
+			reader.next(kw, vw);
+			if(kw.getObjId() == objId) {
+				bytes = vw.getValue();
+			}else{
+				LOG.error("Read small object mismatch excepted object id " + kw.getObjId()
+						+", actual object id " + objId);
+			}
+		} catch (IOException e) {
+			LOG.error("combine small object initilize SequenceFile Reader error: "
+					+ e);
+		} finally {
+			IOUtils.closeStream(reader);
+		}
+		return bytes;
 	}
 
 }

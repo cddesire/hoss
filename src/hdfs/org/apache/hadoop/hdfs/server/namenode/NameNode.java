@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
@@ -42,8 +43,10 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.HDFSPolicyProvider;
+import org.apache.hadoop.hdfs.hoss.cache.HotObject;
 import org.apache.hadoop.hdfs.hoss.db.HosMetaData;
 import org.apache.hadoop.hdfs.hoss.db.PathPosition;
+import org.apache.hadoop.hdfs.hoss.smallobject.SmallObjectsManager;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.BlockListAsLongs;
 import org.apache.hadoop.hdfs.protocol.ClientProtocol;
@@ -74,6 +77,7 @@ import org.apache.hadoop.hdfs.web.AuthFilter;
 import org.apache.hadoop.hdfs.web.WebHdfsFileSystem;
 import org.apache.hadoop.hdfs.web.resources.Param;
 import org.apache.hadoop.http.HttpServer;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.RPC.Server;
@@ -657,7 +661,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 	 */
 	@Override
 	public long getObjectId(String objName) {
-		long id = 0L;
+		long id = -1L;
 		try {
 			id = metaDataDb.getId(objName);
 		} catch (IOException e) {
@@ -674,6 +678,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		PathPosition pp = null;
 		try {
 			pp = metaDataDb.getPathPosition(objName);
+			//LOG.info(" Server name: " + objName + " id: " + getObjectId(objName) + " pp: " + pp);
 		} catch (IOException e) {
 			LOG.error("get object " + objName + " path position error");
 		}
@@ -682,7 +687,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 	
 	@Override
 	public long deleteObject(String objName) {
-		long id = -1;
+		long id = -1L;
 		try {
 			id = metaDataDb.delete(objName);
 		} catch (IOException e) {
@@ -694,6 +699,41 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 	@Override
 	public boolean exist(String objName) {
 		return metaDataDb.exist(objName);
+	}
+	
+	/**
+	 * get all the objects(name and id)in hoss
+	 * @return
+	 */
+	public Text listObjects(){
+		Map<String, Long> objects = metaDataDb.listObjects();
+		StringBuilder sb = new StringBuilder();
+		if(objects != null){
+			for(Entry<String, Long> entry: objects.entrySet()){
+				sb.append(entry.getKey()).append("#").
+				append(entry.getValue()).append("\t");
+			}
+		}
+		String text = sb.toString().trim();
+		return new Text(text);
+	}
+	
+	/**
+	 * get the top hottest object
+	 * @param top
+	 * @return
+	 */
+	public Text topHotObject(int top){
+		List<HotObject> hotObjects = metaDataDb.topHotObject(top);
+		StringBuilder sb = new StringBuilder();
+		if(hotObjects != null){
+			for(HotObject ho: hotObjects){
+				sb.append(ho.getName()).append("#").
+				append(ho.getHot()).append("\t");
+			}
+		}
+		String text = sb.toString().trim();
+		return new Text(text);
 	}
 
 	/** {@inheritDoc} */
@@ -1396,12 +1436,12 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		}
 		DefaultMetricsSystem.initialize("NameNode");
 		NameNode namenode = new NameNode(conf);
-		LOG.info("Hos MetaDataServer start...Zzzzzz");
+		LOG.info("Hoss MetaDataServer start...Zzzzzz");
 		metaDataDb = new HosMetaData();
 		if (metaDataDb != null) {
 			LOG.info("load metadata from disk successfully.");
 		} else {
-			LOG.error("initlize hos db fail.");
+			LOG.error("initlize hoss db fail.");
 		}
 
 		return namenode;
@@ -1409,11 +1449,24 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 
 	@Override
 	public void run() {
+		Configuration conf = new Configuration();
+		int hours = conf.getInt("hoss.time.combinesmallfile", 2);
+		LOG.info("hoss time combine small file:  " +
+		                              conf.get("hoss.time.combinesmallfile"));
 		while (true) {
 			try {
 				// 2 hours.
-				TimeUnit.HOURS.sleep(2);
-				LOG.info("combine small file ......");
+				TimeUnit.HOURS.sleep(hours);
+				//TimeUnit.MINUTES.sleep(2);
+				LOG.info("Combine small object ......");
+				boolean combined = true;
+				synchronized (metaDataDb) {
+					SmallObjectsManager som  = new SmallObjectsManager(metaDataDb);
+					combined = som.combine();
+				}
+				if(combined){
+				   LOG.info("Combine small object successfully");
+				}
 			} catch (InterruptedException e) {
 				LOG.error(StringUtils.stringifyException(e));
 			}
@@ -1453,10 +1506,10 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		try {
 			StringUtils.startupShutdownMessage(NameNode.class, argv, LOG);
 			NameNode namenode = createNameNode(argv, null);
-			if (namenode != null)
+			if (namenode != null){
 				// add hook when hos server close
 				namenode.addShutdownHook();
-
+			}
 			new Thread(namenode).start();
 
 			namenode.join();
@@ -1465,7 +1518,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 			System.exit(-1);
 		}
 	}
-
+	
 	
 
 }

@@ -182,6 +182,12 @@ public class ObjectsMap {
 		return id;
 	}
 
+	/**
+	 * list the object name and object id 
+	 * @param hosBloomFilter
+	 * @return the pair of object name and id
+	 * @throws IOException
+	 */
 	public Map<String, Long> list(HosBloomFilter hosBloomFilter) throws IOException {
 		Map<String, Long> map = new HashMap<String, Long>();
 		// get form the external memory
@@ -196,11 +202,9 @@ public class ObjectsMap {
 						.wrap(value).getLong());
 			}
 		}
-
 		for (Map.Entry<String, Long> entry : memMap.entrySet()) {
 			map.put(entry.getKey(), entry.getValue());
 		}
-
 		return map;
 	}
 
@@ -301,25 +305,4 @@ public class ObjectsMap {
 		FileUtil.appendBytesToFile(new File(dir, HosMetaData.IDSFILE), bigArray);
 	}
 	
-	
-	
-
-	/**
-	 * @param args
-	 * @throws IOException
-	 */
-	public static void main(String[] args) throws IOException {
-		ObjectsMap map = new ObjectsMap(new File("data"));
-
-		map.put("a1a", 11);
-		map.put("b1b", 21);
-		map.put("1c", 31);
-		map.put("1d", 41);
-		map.put("1e", 51);
-		
-		map.delete("aa");
-		map.delete("bb");
-		
-	}
-
 }
