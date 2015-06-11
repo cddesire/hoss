@@ -4,7 +4,7 @@
 
 HOSS is a highly available, scalable, manageable,distributed object storage system based on HDFS. 
 
-# ### **Build HOSS**
+# **Build HOSS**
 
 ***
 ```
