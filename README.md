@@ -6,6 +6,14 @@ Object storage is an approach to storage where data is combined with rich metada
 
 The metadata present in Object Storage gives users the context and content information they need to properly manage and access unstructured data.  They can easily search for data without knowing specific filenames, dates or traditional file designations.  They can also use the metadata to apply policies for routing, retention and deletion as well as automate storage management. 
 
+##	Features:
+-	High performace.
+-	Very easy to use.
+-	Support object put/get/delete/list. 
+-	Support hot object metadata in memory cache(a.k.a. hot-aware cache).
+-	Support small objects combining.
+
+
 ##  Build HOSS
 ``` shell
 cd $HOSS_HOME 
