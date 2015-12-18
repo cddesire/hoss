@@ -99,6 +99,7 @@ public static void list() {
 
 ``` java
 public static void topHot(int top) {
+		lientProtocol client  = HosClient.client();
 		Text namelist = client.topHotObject(top);
 		String[] names = namelist.toString().split("\t");
 		System.out.println("object name # hotness");
