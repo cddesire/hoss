@@ -4,10 +4,16 @@ Object storage is an approach to storage where data is combined with *rich metad
 
 The metadata present in Object Storage gives users the context and content information they need to properly manage and access unstructured data.  They can easily search for data without knowing specific filenames, dates or traditional file designations.  They can also use the metadata to apply policies for routing, retention and deletion as well as automate storage management. 
 
-**HOSS** is a highly available, scalable, manageable,distributed object storage system based on [HDFS](http://hadoop.apache.org/, "hadoop").
+**HOSS** is a highly available, scalable, manageable,distributed object storage system based on [HDFS](http://hadoop.apache.org/, "hadoop"). Consider the scalability, reliability, availability and consistency of object-based storage, HOSS adopts centralized metadata management simplifying the whole storage. In addition, for disadvantages of centralized metadata management, HOSS uses a ***hot-aware heterogeneous metadata management model***. The model defines the hotness of metadata, and according to hot, it migrates metadata to different storage devices, such as DRAM and SSD. 
+In heterogeneous metadata storage, HOSS introduces ***multi-dimensional storage structure*** to manage the metadata on the SSD based on accessed dynamic characteristics and static characteristics of object metadata. The structure simplifies the access of object data, but also improves the utilization of SSD.
+
+
+structure.
 
 ##	Features:
--	High performace.
+-	Heterogeneous metadata management.
+-	Multi-dimensional storage structure.
+-	High performace, scalability, reliability and consistency.
 -	Very easy to use.
 -	Support object put/get/delete/list. 
 -	Support hot object metadata in memory cache(a.k.a. hot-aware cache).
