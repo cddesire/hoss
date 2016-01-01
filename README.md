@@ -8,8 +8,6 @@ The metadata present in Object Storage gives users the context and content infor
 In heterogeneous metadata storage, HOSS introduces ***multi-dimensional storage structure*** to manage the metadata on the SSD based on accessed dynamic characteristics and static characteristics of object metadata. The structure simplifies the access of object data, but also improves the utilization of SSD.
 
 
-structure.
-
 ##	Features:
 -	Heterogeneous metadata management.
 -	Multi-dimensional storage structure.
