@@ -2,31 +2,31 @@ package org.apache.hadoop.hdfs.hoss.cache;
 
 
 public class HotObject implements Comparable<HotObject>{
-	
+	/**
+	* object name
+	*/ 
 	private String name;
+	/**
+	* object hostness
+	*/
 	private Float hot;
 				
 	public String getName() {
 		return name;
 	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
 	public Float getHot() {
 		return hot;
 	}
-
 	public void setHot(float hot) {
 		this.hot = hot;
 	}
-
 	public HotObject(float hot, String name){
 		this.hot = hot;
 		this.name = name;
 	}
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -45,7 +45,6 @@ public class HotObject implements Comparable<HotObject>{
 		}
 		return flag;
 	}
-
 	@Override
 	public int compareTo(HotObject ho) {
 		int result = -1;
