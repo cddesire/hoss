@@ -1,7 +1,10 @@
 package org.apache.hadoop.hdfs.hoss.cache;
 
 import org.apache.hadoop.hdfs.hoss.db.PathPosition;
-
+/**
+ * HOSS object meta 
+ * 
+ * /
 public class Metadata {
 	private String objName;
 	private long objId;
