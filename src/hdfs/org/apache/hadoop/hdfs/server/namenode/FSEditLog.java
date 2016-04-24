@@ -250,6 +250,7 @@ public class FSEditLog {
 
   static class EditLogFileInputStream extends EditLogInputStream {
     private File file;
+    
     private FileInputStream fStream;
 
     EditLogFileInputStream(File name) throws IOException {
