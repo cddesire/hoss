@@ -109,27 +109,23 @@ public abstract class Server {
    * How many calls/handler are allowed in the queue.
    */
   private static final int IPC_SERVER_HANDLER_QUEUE_SIZE_DEFAULT = 100;
-  private static final String  IPC_SERVER_HANDLER_QUEUE_SIZE_KEY = 
-                                            "ipc.server.handler.queue.size";
+  private static final String  IPC_SERVER_HANDLER_QUEUE_SIZE_KEY =  "ipc.server.handler.queue.size";
   
   /**
    * Initial and max size of response buffer
    */
   static int INITIAL_RESP_BUF_SIZE = 10240;
-  static final String IPC_SERVER_RPC_MAX_RESPONSE_SIZE_KEY = 
-                        "ipc.server.max.response.size";
+  static final String IPC_SERVER_RPC_MAX_RESPONSE_SIZE_KEY = "ipc.server.max.response.size";
   static final int IPC_SERVER_RPC_MAX_RESPONSE_SIZE_DEFAULT = 1024*1024;
   
   public static final Log LOG = LogFactory.getLog(Server.class);
-  private static final Log AUDITLOG = 
-    LogFactory.getLog("SecurityLogger."+Server.class.getName());
+  private static final Log AUDITLOG = LogFactory.getLog("SecurityLogger."+Server.class.getName());
   private static final String AUTH_FAILED_FOR = "Auth failed for ";
   private static final String AUTH_SUCCESSFULL_FOR = "Auth successfull for "; 
 
   private static final ThreadLocal<Server> SERVER = new ThreadLocal<Server>();
 
-  private static final Map<String, Class<?>> PROTOCOL_CACHE = 
-    new ConcurrentHashMap<String, Class<?>>();
+  private static final Map<String, Class<?>> PROTOCOL_CACHE = new ConcurrentHashMap<String, Class<?>>();
   
   static Class<?> getProtocolClass(String protocolName, Configuration conf) 
   throws ClassNotFoundException {
@@ -224,16 +220,14 @@ public abstract class Server {
     try {
       socket.bind(address, backlog);
     } catch (BindException e) {
-      BindException bindException = new BindException("Problem binding to " + address
-                                                      + " : " + e.getMessage());
+      BindException bindException = new BindException("Problem binding to " + address + ": " + e.getMessage());
       bindException.initCause(e);
       throw bindException;
     } catch (SocketException e) {
       // If they try to bind to a different host's address, give a better
       // error message.
       if ("Unresolved address".equals(e.getMessage())) {
-        throw new UnknownHostException("Invalid hostname for server: " + 
-                                       address.getHostName());
+        throw new UnknownHostException("Invalid hostname for server: " +  address.getHostName());
       } else {
         throw e;
       }
