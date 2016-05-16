@@ -20,7 +20,6 @@ package org.apache.hadoop.hdfs.hoss.smallobject;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 

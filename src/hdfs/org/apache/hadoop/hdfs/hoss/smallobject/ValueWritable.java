@@ -26,7 +26,9 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 public class ValueWritable  implements Writable {
+
 	private BytesWritable value = new BytesWritable();
+	
 	private Text comment = new Text();
 
 	public ValueWritable(){

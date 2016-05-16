@@ -238,7 +238,10 @@ public class SmallObjectsManager {
 			LOG.error("delete original object error " + e);
 		}
 	}
-
+	/**
+	 * byte array for small object 
+	 *
+	 */
 	public byte[] getSmallObject(long objId, long offset) {
 		SequenceFile.Reader reader = null;
 		byte[] bytes = null;
