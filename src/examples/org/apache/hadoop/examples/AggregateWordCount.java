@@ -68,9 +68,7 @@ public class AggregateWordCount {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) throws IOException {
-    JobConf conf = ValueAggregatorJob.createValueAggregatorJob(args
-        , new Class[] {WordCountPlugInClass.class});
-   
+    JobConf conf = ValueAggregatorJob.createValueAggregatorJob(args, new Class[] {WordCountPlugInClass.class});
     JobClient.runJob(conf);
   }
 
