@@ -75,11 +75,7 @@ public class TeraOutputFormat extends TextOutputFormat<Text,Text> {
     }
   }
 
-  public RecordWriter<Text,Text> getRecordWriter(FileSystem ignored,
-                                                 JobConf job,
-                                                 String name,
-                                                 Progressable progress
-                                                 ) throws IOException {
+  public RecordWriter<Text,Text> getRecordWriter(FileSystem ignored, JobConf job, String name, Progressable progress) throws IOException {
     Path dir = getWorkOutputPath(job);
     FileSystem fs = dir.getFileSystem(job);
     FSDataOutputStream fileOut = fs.create(new Path(dir, name), progress);

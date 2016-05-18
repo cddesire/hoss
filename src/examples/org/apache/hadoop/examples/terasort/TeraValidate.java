@@ -76,9 +76,7 @@ public class TeraValidate extends Configured implements Tool {
         this.output = output;
       } else {
         if (key.compareTo(lastKey) < 0) {
-          output.collect(error, new Text("misorder in " + filename + 
-                                         " last: '" + lastKey + 
-                                         "' current: '" + key + "'"));
+          output.collect(error, new Text("misorder in " + filename +  " last: '" + lastKey + "' current: '" + key + "'"));
         }
       }
       lastKey.set(key);
@@ -114,10 +112,7 @@ public class TeraValidate extends Configured implements Tool {
           firstKey = false;
         } else {
           if (value.compareTo(lastValue) < 0) {
-            output.collect(error, 
-                           new Text("misordered keys last: " + 
-                                    lastKey + " '" + lastValue +
-                                    "' current: " + key + " '" + value + "'"));
+            output.collect(error,  new Text("misordered keys last: " +  lastKey + " '" + lastValue + "' current: " + key + " '" + value + "'"));
           }
         }
         lastKey.set(key);
