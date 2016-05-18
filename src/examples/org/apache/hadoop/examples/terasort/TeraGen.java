@@ -62,8 +62,7 @@ public class TeraGen extends Configured implements Tool {
   /**
    * An input format that assigns ranges of longs to each mapper.
    */
-  static class RangeInputFormat 
-       implements InputFormat<LongWritable, NullWritable> {
+  static class RangeInputFormat implements InputFormat<LongWritable, NullWritable> {
     
     /**
      * An input split consisting of a range on numbers.
@@ -101,8 +100,7 @@ public class TeraGen extends Configured implements Tool {
     /**
      * A record reader that will generate a range of numbers.
      */
-    static class RangeRecordReader 
-          implements RecordReader<LongWritable, NullWritable> {
+    static class RangeRecordReader implements RecordReader<LongWritable, NullWritable> {
       long startRow;
       long finishedRows;
       long totalRows;
@@ -133,8 +131,7 @@ public class TeraGen extends Configured implements Tool {
         return finishedRows / (float) totalRows;
       }
 
-      public boolean next(LongWritable key, 
-                          NullWritable value) {
+      public boolean next(LongWritable key, NullWritable value) {
         if (finishedRows < totalRows) {
           key.set(startRow + finishedRows);
           finishedRows += 1;
@@ -147,8 +144,7 @@ public class TeraGen extends Configured implements Tool {
     }
 
     public RecordReader<LongWritable, NullWritable> 
-      getRecordReader(InputSplit split, JobConf job,
-                      Reporter reporter) throws IOException {
+      getRecordReader(InputSplit split, JobConf job, Reporter reporter) throws IOException {
       return new RangeRecordReader((RangeInputSplit) split);
     }
 
