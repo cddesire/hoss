@@ -19,6 +19,5 @@
              <value>1000</value>
              <description>The size of hot cache</description> 
    </property>
-
-        
+   
 </configuration>
