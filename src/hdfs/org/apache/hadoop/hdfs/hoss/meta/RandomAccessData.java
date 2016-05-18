@@ -20,5 +20,6 @@ package org.apache.hadoop.hdfs.hoss.meta;
 import java.io.IOException;
 
 interface RandomAccessData {
+	
   int readUnsignedByte() throws IOException;
 }

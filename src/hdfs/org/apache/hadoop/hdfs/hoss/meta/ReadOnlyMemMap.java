@@ -238,10 +238,7 @@ final class ReadOnlyMemMap implements RandomAccessData {
 
   @Override
   public String toString() {
-    return "ReadOnlyMemMap{" +
-            ", randomAccessFile=" + randomAccessFile +
-            ", size=" + size +
-            '}';
+    return "ReadOnlyMemMap{" + ", randomAccessFile=" + randomAccessFile + ", size=" + size +'}';
   }
 
 }
