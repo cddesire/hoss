@@ -54,9 +54,6 @@ public class StructTypeID extends TypeID {
    * return the StructTypeiD, if any, of the given field 
    */
   StructTypeID findStruct(String name) {
-    // walk through the list, searching. Not the most efficient way, but this
-    // in intended to be used rarely, so we keep it simple. 
-    // As an optimization, we can keep a hashmap of record name to its RTI, for later.
     for (FieldTypeInfo ti : typeInfos) {
       if ((0 == ti.getFieldID().compareTo(name)) && (ti.getTypeID().getTypeVal() == RIOType.STRUCT)) {
         return (StructTypeID) ti.getTypeID();
@@ -143,7 +140,6 @@ public class StructTypeID extends TypeID {
       return new VectorTypeID(tID);
     }
     default:
-      // shouldn't be here
       throw new IOException("Unknown type read");
     }
   }
