@@ -41,25 +41,25 @@ public interface FSDatasetMBean {
    * @return  the total space used by dfs datanode
    * @throws IOException
    */  
-  public long getDfsUsed() throws IOException;
+  long getDfsUsed() throws IOException;
     
   /**
    * Returns total capacity (in bytes) of storage (used and unused)
    * @return  total capacity of storage (used and unused)
    * @throws IOException
    */
-  public long getCapacity() throws IOException;
+  long getCapacity() throws IOException;
 
   /**
    * Returns the amount of free storage space (in bytes)
    * @return The amount of free storage space
    * @throws IOException
    */
-  public long getRemaining() throws IOException;
+  long getRemaining() throws IOException;
   
   /**
    * Returns the storage id of the underlying storage
    */
-  public String getStorageInfo();
+  String getStorageInfo();
 
 }
