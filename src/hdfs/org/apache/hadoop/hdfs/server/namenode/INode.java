@@ -38,6 +38,9 @@ abstract class INode implements Comparable<byte[]> {
   protected INodeDirectory parent;
   protected long modificationTime;
   protected long accessTime;
+  //Only updated by updatePermissionStatus(...).
+  //Other codes should not modify it.
+  private long permission;
 
   /** Simple wrapper for two counters : 
    *  nsCount (namespace consumed) and dsCount (diskspace consumed).
@@ -55,10 +58,6 @@ abstract class INode implements Comparable<byte[]> {
       return dsCount;
     }
   }
-  
-  //Only updated by updatePermissionStatus(...).
-  //Other codes should not modify it.
-  private long permission;
 
   private static enum PermissionStatusFormat {
     MODE(0, 16),

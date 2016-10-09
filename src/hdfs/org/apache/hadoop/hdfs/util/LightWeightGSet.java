@@ -89,6 +89,7 @@ public class LightWeightGSet<K, E extends K> implements GSet<K, E> {
     } else if (recommended < MIN_ARRAY_LENGTH) {
       return MIN_ARRAY_LENGTH;
     } else {
+      // 取最高位对应的1,2^m
       final int a = Integer.highestOneBit(recommended);
       return a == recommended? a: a << 1;
     }
