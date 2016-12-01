@@ -26,6 +26,7 @@ public class Daemon extends Thread {
   }
 
   Runnable runnable = null;
+  
   /** Construct a daemon thread. */
   public Daemon() {
     super();
