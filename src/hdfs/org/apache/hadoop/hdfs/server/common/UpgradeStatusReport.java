@@ -33,7 +33,9 @@ import org.apache.hadoop.io.WritableFactory;
  */
 public class UpgradeStatusReport implements Writable {
   protected int version;
+
   protected short upgradeStatus;
+  
   protected boolean finalized;
 
   public UpgradeStatusReport() {

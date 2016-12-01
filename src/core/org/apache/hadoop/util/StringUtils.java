@@ -512,8 +512,11 @@ public class StringUtils {
    * @return hostname
    */
   public static String getHostname() {
-    try {return "" + InetAddress.getLocalHost();}
-    catch(UnknownHostException uhe) {return "" + uhe;}
+    try {
+      return "" + InetAddress.getLocalHost();
+    } catch(UnknownHostException uhe) {
+      return "" + uhe;
+    }
   }
 
   /**

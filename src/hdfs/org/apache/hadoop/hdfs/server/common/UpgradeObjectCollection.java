@@ -123,8 +123,9 @@ public class UpgradeObjectCollection {
         continue;
       upgradeObjects.add(sig.instantiate());
     }
-    if(upgradeObjects.size() == 0)
+    if(upgradeObjects.size() == 0) {
       return null;
+    }
     return upgradeObjects;
   }
 }

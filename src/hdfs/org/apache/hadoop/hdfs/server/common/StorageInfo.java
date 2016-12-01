@@ -25,7 +25,9 @@ package org.apache.hadoop.hdfs.server.common;
  */
 public class StorageInfo {
   public int   layoutVersion;  // Version read from the stored file.
+
   public int   namespaceID;    // namespace id of the storage
+  
   public long  cTime;          // creation timestamp
   
   public StorageInfo () {

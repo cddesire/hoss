@@ -31,9 +31,18 @@ import org.apache.hadoop.hdfs.server.protocol.UpgradeCommand;
  */
 public abstract class UpgradeManager {
   protected SortedSet<Upgradeable> currentUpgrades = null;
+
   protected boolean upgradeState = false; // true if upgrade is in progress
+
   protected int upgradeVersion = 0;
+
   protected UpgradeCommand broadcastCommand = null;
+
+  public abstract HdfsConstants.NodeType getType();
+
+  public abstract boolean startUpgrade() throws IOException;
+
+  public abstract void completeUpgrade() throws IOException;
 
   public synchronized UpgradeCommand getBroadcastCommand() {
     return this.broadcastCommand;
@@ -82,8 +91,5 @@ public abstract class UpgradeManager {
     }
     return false;
   }
-
-  public abstract HdfsConstants.NodeType getType();
-  public abstract boolean startUpgrade() throws IOException;
-  public abstract void completeUpgrade() throws IOException;
+  
 }
