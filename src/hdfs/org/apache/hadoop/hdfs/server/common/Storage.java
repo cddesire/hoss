@@ -58,6 +58,7 @@ import org.apache.hadoop.util.VersionInfo;
  * 
  */
 public abstract class Storage extends StorageInfo {
+
   public static final Log LOG = LogFactory.getLog(Storage.class.getName());
 
   // Constants
@@ -67,6 +68,7 @@ public abstract class Storage extends StorageInfo {
   
   // this corresponds to Hadoop-0.14.
   public static final int LAST_UPGRADABLE_LAYOUT_VERSION = -7;
+
   protected static final String LAST_UPGRADABLE_HADOOP_VERSION = "Hadoop-0.14";
 
   /* this should be removed when LAST_UPGRADABLE_LV goes beyond -13.
@@ -77,13 +79,21 @@ public abstract class Storage extends StorageInfo {
   public static final int[] LAYOUT_VERSIONS_203 = {-19, -31};
   
   private   static final String STORAGE_FILE_LOCK     = "in_use.lock";
+
   protected static final String STORAGE_FILE_VERSION  = "VERSION";
+
   public static final String STORAGE_DIR_CURRENT   = "current";
+
   private   static final String STORAGE_DIR_PREVIOUS  = "previous";
+
   private   static final String STORAGE_TMP_REMOVED   = "removed.tmp";
+
   private   static final String STORAGE_TMP_PREVIOUS  = "previous.tmp";
+
   private   static final String STORAGE_TMP_FINALIZED = "finalized.tmp";
+
   private   static final String STORAGE_TMP_LAST_CKPT = "lastcheckpoint.tmp";
+
   private   static final String STORAGE_PREVIOUS_CKPT = "previous.checkpoint";
   
   public enum StorageState {
@@ -110,6 +120,7 @@ public abstract class Storage extends StorageInfo {
   }
   
   private NodeType storageType;    // Type of the node using this storage 
+  
   protected List<StorageDirectory> storageDirs = new ArrayList<StorageDirectory>();
   
   private class DirIterator implements Iterator<StorageDirectory> {

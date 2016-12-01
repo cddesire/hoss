@@ -95,4 +95,5 @@ public interface Upgradeable extends Comparable<Upgradeable> {
    * @throws IOException
    */
   UpgradeStatusReport getUpgradeStatusReport(boolean details) throws IOException;
+  
 }

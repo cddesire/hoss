@@ -40,7 +40,9 @@ public class InconsistentFSStateException extends IOException {
   private static String getFilePath(File dir) {
     try {
       return dir.getCanonicalPath();
-    } catch(IOException e) {}
+    } catch(IOException e) {
+      
+    }
     return dir.getPath();
   }
 }

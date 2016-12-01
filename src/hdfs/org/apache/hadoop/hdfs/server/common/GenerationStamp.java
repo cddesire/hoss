@@ -25,6 +25,7 @@ import org.apache.hadoop.io.*;
  ****************************************************************/
 public class GenerationStamp implements WritableComparable<GenerationStamp> {
   public static final long WILDCARD_STAMP = 1;
+  
   public static final long FIRST_VALID_STAMP = 1000L;
 
   static {                                      // register a ctor

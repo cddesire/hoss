@@ -27,7 +27,7 @@ public class StorageInfo {
   public int   layoutVersion;  // Version read from the stored file.
 
   public int   namespaceID;    // namespace id of the storage
-  
+
   public long  cTime;          // creation timestamp
   
   public StorageInfo () {
@@ -44,9 +44,18 @@ public class StorageInfo {
     setStorageInfo(from);
   }
 
-  public int    getLayoutVersion(){ return layoutVersion; }
-  public int    getNamespaceID()  { return namespaceID; }
-  public long   getCTime()        { return cTime; }
+  public int    getLayoutVersion(){ r
+    eturn layoutVersion; 
+  }
+
+  public int    getNamespaceID()  { 
+    return namespaceID; 
+  }
+
+  public long   getCTime()        { 
+    return cTime; 
+  }
+
 
   public void   setStorageInfo(StorageInfo from) {
     layoutVersion = from.layoutVersion;
