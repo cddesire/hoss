@@ -35,9 +35,11 @@ public class DataChecksum implements Checksum {
   
   // checksum types
   public static final int CHECKSUM_NULL    = 0;
+
   public static final int CHECKSUM_CRC32   = 1;
   
   private static final int CHECKSUM_NULL_SIZE  = 0;
+
   private static final int CHECKSUM_CRC32_SIZE = 4;
   
   
@@ -207,6 +209,7 @@ public class DataChecksum implements Checksum {
   }
   
   public static final int SIZE_OF_INTEGER = Integer.SIZE / Byte.SIZE;
+  
   static public int getChecksumHeaderSize() {
     return 1 + SIZE_OF_INTEGER; // type byte, bytesPerChecksum int
   }

@@ -82,7 +82,7 @@ class BlockSender implements java.io.Closeable, FSConstants {
   private BlockTransferThrottler throttler;
 
   private final String clientTraceFmt; // format of client trace log message
-  
+
   private final MemoizedBlock memoizedBlock;
 
   /**
@@ -495,7 +495,9 @@ class BlockSender implements java.io.Closeable, FSConstants {
     private InputStream inputStream;
     //  visible block length
     private long blockLength;
+
     private final FSDatasetInterface fsDataset;
+    
     private final Block block;
 
     private MemoizedBlock(

@@ -47,6 +47,7 @@ public class BlockMetadataHeader {
    * that occupies 5 bytes. 
    */
   private short version;
+  
   private DataChecksum checksum = null;
     
   BlockMetadataHeader(short version, DataChecksum checksum) {
