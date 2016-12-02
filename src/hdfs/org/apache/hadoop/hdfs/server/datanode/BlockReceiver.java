@@ -49,32 +49,58 @@ import static org.apache.hadoop.hdfs.server.datanode.DataNode.DN_CLIENTTRACE_FOR
  **/
 class BlockReceiver implements java.io.Closeable, FSConstants {
   public static final Log LOG = DataNode.LOG;
+
   static final Log ClientTraceLog = DataNode.ClientTraceLog;
+
   
   private Block block; // the block to receive
+
   protected boolean finalized;
+
   private DataInputStream in = null; // from where data are read
+
   private DataChecksum checksum; // from where chunks of a block can be read
+
   private OutputStream out = null; // to block file at local disk
+
   private DataOutputStream checksumOut = null; // to crc file at local disk
+
   private int bytesPerChecksum;
+
   private int checksumSize;
+
   private ByteBuffer buf; // contains one full packet.
+
   private int bufRead; //amount of valid data in the buf
+
   private int maxPacketReadLen;
+
   protected long offsetInBlock;
+
   protected final String inAddr;
+
   protected final String myAddr;
+
   private String mirrorAddr;
+
   private DataOutputStream mirrorOut;
+
   private Daemon responder = null;
+
   private BlockTransferThrottler throttler;
+
   private FSDataset.BlockWriteStreams streams;
+
   private boolean isRecovery = false;
+
   private String clientName;
+
   DatanodeInfo srcDataNode = null;
+
   private Checksum partialCrc = null;
+
   private DataNode datanode = null;
+
   volatile private boolean mirrorError;
 
   BlockReceiver(Block block, DataInputStream in, String inAddr,
@@ -93,9 +119,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
       this.checksum = DataChecksum.newDataChecksum(in);
       this.bytesPerChecksum = checksum.getBytesPerChecksum();
       this.checksumSize = checksum.getChecksumSize();
-      //
       // Open local disk out
-      //
       streams = datanode.data.writeToBlock(block, isRecovery,
                               clientName == null || clientName.length() == 0);
       this.finalized = false;
@@ -134,7 +158,6 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
    * close files.
    */
   public void close() throws IOException {
-
     IOException ioe = null;
     // close checksum file
     try {
@@ -261,9 +284,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
       toRead = (maxPacketReadLen > 0 ? maxPacketReadLen : buf.capacity())
                - buf.limit();
     }
-    
     int nRead = in.read(buf.array(), buf.limit(), toRead);
-    
     if (nRead < 0) {
       throw new EOFException("while trying to read " + toRead + " bytes");
     }
