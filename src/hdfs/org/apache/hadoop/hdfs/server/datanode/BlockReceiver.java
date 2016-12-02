@@ -393,23 +393,18 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
    * returns size of the packet.
    */
   private int receivePacket() throws IOException {
-    
     int payloadLen = readNextPacket();
-    
     if (payloadLen <= 0) {
       return payloadLen;
     }
-    
     buf.mark();
     //read the header
     buf.getInt(); // packet length
     offsetInBlock = buf.getLong(); // get offset of packet in block
     long seqno = buf.getLong();    // get seqno
     boolean lastPacketInBlock = (buf.get() != 0);
-    
     int endOfHeader = buf.position();
     buf.reset();
-    
     if (LOG.isDebugEnabled()){
       LOG.debug("Receiving one packet for block " + block +
                 " of length " + payloadLen +
@@ -419,7 +414,6 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
     }
     
     setBlockPosition(offsetInBlock);
-    
     // First write the packet to the mirror:
     if (mirrorOut != null && !mirrorError) {
       try {
@@ -432,7 +426,6 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
 
     buf.position(endOfHeader);        
     int len = buf.getInt();
-    
     if (len < 0) {
       throw new IOException("Got wrong length during writeBlock(" + block + 
                             ") from " + inAddr + " at offset " + 
@@ -443,10 +436,8 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
       LOG.debug("Receiving empty packet for block " + block);
     } else {
       offsetInBlock += len;
-
       int checksumLen = ((len + bytesPerChecksum - 1)/bytesPerChecksum)*
                                                             checksumSize;
-
       if ( buf.remaining() != (checksumLen + len)) {
         throw new IOException("Data remaining in packet does not match " +
                               "sum of checksumLen and dataLen");
