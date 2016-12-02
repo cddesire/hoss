@@ -25,10 +25,15 @@ package org.apache.hadoop.hdfs.server.datanode;
  */
 class BlockTransferThrottler {
   private long period;          // period over which bw is imposed
+
   private long periodExtension; // Max period over which bw accumulates.
+
   private long bytesPerPeriod; // total number of bytes can be sent in each period
+
   private long curPeriodStart; // current period starting time
+
   private long curReserve;     // remaining bytes can be sent in the period
+  
   private long bytesAlreadyUsed;
 
   /** Constructor 
