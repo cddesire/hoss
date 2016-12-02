@@ -44,27 +44,45 @@ import org.apache.hadoop.util.StringUtils;
  */
 class BlockSender implements java.io.Closeable, FSConstants {
   public static final Log LOG = DataNode.LOG;
+
   static final Log ClientTraceLog = DataNode.ClientTraceLog;
   
   private Block block; // the block to read from
+
   private InputStream blockIn; // data stream
+
   private long blockInPosition = -1; // updated while using transferTo().
+
   private DataInputStream checksumIn; // checksum datastream
+
   private DataChecksum checksum; // checksum stream
+
   private long offset; // starting position to read
+
   private long endOffset; // ending position
+
   private long blockLength;
+
   private int bytesPerChecksum; // chunk size
+
   private int checksumSize; // checksum size
+
   private boolean corruptChecksumOk; // if need to verify checksum
+
   private boolean chunkOffsetOK; // if need to send chunk offset
+
   private long seqno; // sequence number of packet
 
   private boolean transferToAllowed = true;
+
   private boolean blockReadFully; //set when the whole block is read
+
   private boolean verifyChecksum; //if true, check is verified while reading
+
   private BlockTransferThrottler throttler;
+
   private final String clientTraceFmt; // format of client trace log message
+  
   private final MemoizedBlock memoizedBlock;
 
   /**
