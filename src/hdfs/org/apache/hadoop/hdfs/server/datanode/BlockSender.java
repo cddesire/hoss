@@ -113,11 +113,9 @@ class BlockSender implements java.io.Closeable, FSConstants {
       this.transferToAllowed = datanode.transferToAllowed;
       this.clientTraceFmt = clientTraceFmt;
 
-      if ( !corruptChecksumOk || datanode.data.metaFileExists(block) ) {
+      if (!corruptChecksumOk || datanode.data.metaFileExists(block) ) {
         checksumIn = new DataInputStream(
-                new BufferedInputStream(datanode.data.getMetaDataInputStream(block),
-                                        BUFFER_SIZE));
-
+                new BufferedInputStream(datanode.data.getMetaDataInputStream(block), BUFFER_SIZE));
         // read and handle the common header here. For now just a version
        BlockMetadataHeader header = BlockMetadataHeader.readHeader(checksumIn);
        short version = header.getVersion();
