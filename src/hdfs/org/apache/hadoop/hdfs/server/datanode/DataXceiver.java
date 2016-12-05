@@ -51,17 +51,20 @@ import static org.apache.hadoop.hdfs.server.datanode.DataNode.DN_CLIENTTRACE_FOR
  */
 class DataXceiver implements Runnable, FSConstants {
   public static final Log LOG = DataNode.LOG;
+
   static final Log ClientTraceLog = DataNode.ClientTraceLog;
   
   Socket s;
+
   final String remoteAddress; // address of remote side
+
   final String localAddress;  // local address of this daemon
+
   DataNode datanode;
+
   DataXceiverServer dataXceiverServer;
   
-  public DataXceiver(Socket s, DataNode datanode, 
-      DataXceiverServer dataXceiverServer) {
-    
+  public DataXceiver(Socket s, DataNode datanode, DataXceiverServer dataXceiverServer) {
     this.s = s;
     this.datanode = datanode;
     this.dataXceiverServer = dataXceiverServer;
@@ -144,11 +147,9 @@ class DataXceiver implements Runnable, FSConstants {
    * @throws IOException
    */
   private void readBlock(DataInputStream in) throws IOException {
-    //
     // Read in the header
-    //
     long blockId = in.readLong();          
-    Block block = new Block( blockId, 0 , in.readLong());
+    Block block = new Block(blockId, 0 , in.readLong());
 
     long startOffset = in.readLong();
     long length = in.readLong();

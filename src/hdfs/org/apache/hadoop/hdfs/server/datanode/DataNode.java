@@ -182,8 +182,7 @@ public class DataNode extends Configured
         ", blockid: %s" + // block id
         ", duration: %s"; // duration time
 
-  static final Log ClientTraceLog =
-    LogFactory.getLog(DataNode.class.getName() + ".clienttrace");
+  static final Log ClientTraceLog = LogFactory.getLog(DataNode.class.getName() + ".clienttrace");
 
   /**
    * Use {@link NetUtils#createSocketAddr(String)} instead.
@@ -193,44 +192,75 @@ public class DataNode extends Configured
                                                    ) throws IOException {
     return NetUtils.createSocketAddr(target);
   }
-  
+  // 与NameNode通信的ipc客户端类
   public DatanodeProtocol namenode = null;
+  // 管理一系列的数据块，每个块在本地磁盘上都有唯一的名字和扩展名。所有和数据块相关的操作，都在FSDataset相关的类中进行处理
   public FSDatasetInterface data = null;
+  // DataNode向NameNode的注册信息，包含名字(datanode机器名:dfs.datanode.address端口),info的http端口,ipc的端口等
   public DatanodeRegistration dnRegistration = null;
 
   volatile boolean shouldRun = true;
+  // 已经接收的数据块,定期通知namenode接收完毕时，会移除
   private LinkedList<Block> receivedBlockList = new LinkedList<Block>();
-  /** list of blocks being recovered */
+  // 存放正在从本地块恢复到其他DataNode的数据块,恢复完毕后移除,在其他DataNode的数据块副本损坏或丢失时会使用
   private final Map<Block, Block> ongoingRecovery = new HashMap<Block, Block>();
+  // 需要删除的块，一般是被替换时才会被删除,也是在定期通知namenode后，会移除
   private LinkedList<String> delHints = new LinkedList<String>();
+
   public final static String EMPTY_DEL_HINT = "";
+
   AtomicInteger xmitsInProgress = new AtomicInteger();
+  // 用于读写数据的服务器，接收客户端和其他DataNode的请求，它不用于内部hadoop ipc机制,端口是dfs.datanode.address
   Daemon dataXceiverServer = null;
+
   ThreadGroup threadGroup = null;
+  // 数据块报告周期,默认是60*60秒，即一个小时
   long blockReportInterval;
-  //disallow the sending of BR before instructed to do so
+  // 记录最近的数据块报告时间，与blockReportInterval联合使用
   long lastBlockReport = 0;
+
   boolean resetBlockReportTime = true;
+
   long initialBlockReportDelay = BLOCKREPORT_INITIAL_DELAY * 1000L;
+  // 记录最近和namenode的心跳时间
   long lastHeartbeat = 0;
+  // 和namenode的心跳周期，默认是3s
   long heartBeatInterval;
+  // DataStorage提供了format方法，用于创建DataNode上的Storage，对DataNode的升级/回滚/提交过程，就是对DataStorage的doUpgrade/doRollback/doFinalize分析得到的。同时，利用StorageDirectory，DataStorage管理存储系统的状态。
   private DataStorage storage = null;
+  // 查看DataNode状态信息的http服务器,端口是dfs.datanode.http.address
   private HttpServer infoServer = null;
+
   DataNodeInstrumentation myMetrics;
+
   private static InetSocketAddress nameNodeAddr;
+
   private InetSocketAddress selfAddr;
+
   private static DataNode datanodeObject = null;
+
   private Thread dataNodeThread = null;
+
   String machineName;
+
   private static String dnThreadName;
+
   int socketTimeout;
+
   int socketWriteTimeout = 0;  
+
   boolean transferToAllowed = true;
+
   int writePacketSize = 0;
+
   private boolean supportAppends;
+
   boolean isBlockTokenEnabled;
+
   BlockTokenSecretManager blockTokenSecretManager;
+
   boolean isBlockTokenInitialized = false;
+
   final String userWithLocalPathAccess;
 
   /**
@@ -238,27 +268,28 @@ public class DataNode extends Configured
    * to the namenode. This can help find bugs in append.
    */
   int artificialBlockReceivedDelay = 0;
-  
+  // 检测它所管理的所有Block数据块的一致性，因此，对已DataNode节点上的每一个Block，它都会每隔scanPeriod ms(默认三个星期)利用Block对应的校验和文件来检测该Block一次，看看这个Block的数据是否已经损坏。
   public DataBlockScanner blockScanner = null;
+
   public Daemon blockScannerThread = null;
   
   private static final Random R = new Random();
   
   public static final String DATA_DIR_KEY = "dfs.data.dir";
-  public final static String DATA_DIR_PERMISSION_KEY = 
-    "dfs.datanode.data.dir.perm";
+
+  public final static String DATA_DIR_PERMISSION_KEY = "dfs.datanode.data.dir.perm";
+
   private static final String DEFAULT_DATA_DIR_PERMISSION = "755";
 
   // Thresholds for when we start to log when a block report is
   // taking a long time to generate. Under heavy disk load and
   // memory pressure, it's normal for block reports to take
   // several minutes, since they cause many disk seeks.
-  private static final long LATE_BLOCK_REPORT_WARN_THRESHOLD =
-      10 * 60 * 1000; // 10m
-  private static final long LATE_BLOCK_REPORT_INFO_THRESHOLD =
-      3 * 60 * 1000; // 3m
+  private static final long LATE_BLOCK_REPORT_WARN_THRESHOLD =  10 * 60 * 1000; // 10m
+  
+  private static final long LATE_BLOCK_REPORT_INFO_THRESHOLD =  3 * 60 * 1000; // 3m
 
-  // For InterDataNodeProtocol
+  // 内部datanode调用的ipc服务器，用于客户端,端口是dfs.datanode.ipc.address
   public Server ipcServer;
 
   private SecureResources secureResources = null;
