@@ -57,9 +57,9 @@ class BlockSender implements java.io.Closeable, FSConstants {
 
   private DataChecksum checksum; // checksum stream
 
-  private long offset; // starting position to read
+  private long offset; // 待读取的数据在Block中的开始位置 
 
-  private long endOffset; // ending position
+  private long endOffset; // 待读取的数据在Block中的结束位置
 
   private long blockLength;
 
@@ -67,9 +67,9 @@ class BlockSender implements java.io.Closeable, FSConstants {
 
   private int checksumSize; // checksum size
 
-  private boolean corruptChecksumOk; // if need to verify checksum
+  private boolean corruptChecksumOk; // 是否忽略读取校验信息的出错
 
-  private boolean chunkOffsetOK; // if need to send chunk offset
+  private boolean chunkOffsetOK;  // 是否要在发送数据之前先发送读取数据的起始位置信息  
 
   private long seqno; // sequence number of packet
 
@@ -500,10 +500,7 @@ class BlockSender implements java.io.Closeable, FSConstants {
     
     private final Block block;
 
-    private MemoizedBlock(
-      InputStream inputStream,
-      long blockLength,
-      FSDatasetInterface fsDataset, Block block) {
+    private MemoizedBlock(InputStream inputStream, long blockLength, FSDatasetInterface fsDataset, Block block) {
       this.inputStream = inputStream;
       this.blockLength = blockLength;
       this.fsDataset = fsDataset;
@@ -532,5 +529,7 @@ class BlockSender implements java.io.Closeable, FSConstants {
             currentLength > blockLength;
       }
     }
+
+
   }
 }

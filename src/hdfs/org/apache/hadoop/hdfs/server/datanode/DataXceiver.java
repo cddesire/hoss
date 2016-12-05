@@ -80,9 +80,7 @@ class DataXceiver implements Runnable, FSConstants {
   public void run() {
     DataInputStream in=null; 
     try {
-      in = new DataInputStream(
-          new BufferedInputStream(NetUtils.getInputStream(s), 
-                                  SMALL_BUFFER_SIZE));
+      in = new DataInputStream(new BufferedInputStream(NetUtils.getInputStream(s),  SMALL_BUFFER_SIZE));
       short version = in.readShort();
       if ( version != DataTransferProtocol.DATA_TRANSFER_VERSION ) {
         throw new IOException( "Version Mismatch" );
@@ -97,9 +95,9 @@ class DataXceiver implements Runnable, FSConstants {
                               + dataXceiverServer.maxXceiverCount);
       }
       long startTime = DataNode.now();
-      switch ( op ) {
+      switch (op) {
       case DataTransferProtocol.OP_READ_BLOCK:
-        readBlock( in );
+        readBlock(in);
         datanode.myMetrics.addReadBlockOp(DataNode.now() - startTime);
         if (local)
           datanode.myMetrics.incrReadsFromLocalClient();
@@ -107,7 +105,7 @@ class DataXceiver implements Runnable, FSConstants {
           datanode.myMetrics.incrReadsFromRemoteClient();
         break;
       case DataTransferProtocol.OP_WRITE_BLOCK:
-        writeBlock( in );
+        writeBlock(in);
         datanode.myMetrics.addWriteBlockOp(DataNode.now() - startTime);
         if (local)
           datanode.myMetrics.incrWritesFromLocalClient();
@@ -119,7 +117,7 @@ class DataXceiver implements Runnable, FSConstants {
         datanode.myMetrics.addReplaceBlockOp(DataNode.now() - startTime);
         break;
       case DataTransferProtocol.OP_COPY_BLOCK:
-            // for balancing purpose; send to a proxy source
+        // for balancing purpose; send to a proxy source
         copyBlock(in);
         datanode.myMetrics.addCopyBlockOp(DataNode.now() - startTime);
         break;
@@ -156,10 +154,8 @@ class DataXceiver implements Runnable, FSConstants {
     String clientName = Text.readString(in);
     Token<BlockTokenIdentifier> accessToken = new Token<BlockTokenIdentifier>();
     accessToken.readFields(in);
-    OutputStream baseStream = NetUtils.getOutputStream(s, 
-        datanode.socketWriteTimeout);
-    DataOutputStream out = new DataOutputStream(
-                 new BufferedOutputStream(baseStream, SMALL_BUFFER_SIZE));
+    OutputStream baseStream = NetUtils.getOutputStream(s, datanode.socketWriteTimeout);
+    DataOutputStream out = new DataOutputStream(new BufferedOutputStream(baseStream, SMALL_BUFFER_SIZE));
     
     if (datanode.isBlockTokenEnabled) {
       try {

@@ -368,35 +368,29 @@ void startDataNode(Configuration conf,
     }
     InetSocketAddress nameNodeAddr = NameNode.getServiceAddress(conf, true);
     
-    this.socketTimeout =  conf.getInt("dfs.socket.timeout",
-                                      HdfsConstants.READ_TIMEOUT);
-    this.socketWriteTimeout = conf.getInt("dfs.datanode.socket.write.timeout",
-                                          HdfsConstants.WRITE_TIMEOUT);
+    this.socketTimeout =  conf.getInt("dfs.socket.timeout", HdfsConstants.READ_TIMEOUT);
+    this.socketWriteTimeout = conf.getInt("dfs.datanode.socket.write.timeout", HdfsConstants.WRITE_TIMEOUT);
     /* Based on results on different platforms, we might need set the default 
      * to false on some of them. */
-    this.transferToAllowed = conf.getBoolean("dfs.datanode.transferTo.allowed", 
-                                             true);
+    this.transferToAllowed = conf.getBoolean("dfs.datanode.transferTo.allowed",  true);
     this.writePacketSize = conf.getInt("dfs.write.packet.size", 64*1024);
-
+    // 获取DataNode的数据块流的读写的端口
     InetSocketAddress socAddr = DataNode.getStreamingAddr(conf);
     int tmpPort = socAddr.getPort();
+    // 管理数据目录的类，完成格式化,升级,回滚等功能
     storage = new DataStorage();
     // construct registration
     this.dnRegistration = new DatanodeRegistration(machineName + ":" + tmpPort);
 
     // connect to name node
     this.namenode = (DatanodeProtocol) 
-      RPC.waitForProxy(DatanodeProtocol.class,
-                       DatanodeProtocol.versionID,
-                       nameNodeAddr, 
-                       conf);
-    // get version and id info from the name-node
+      RPC.waitForProxy(DatanodeProtocol.class, DatanodeProtocol.versionID, nameNodeAddr, conf);
+    //从NameNode获取版本和id信息
     NamespaceInfo nsInfo = handshake();
     StartupOption startOpt = getStartupOption(conf);
     assert startOpt != null : "Startup option must be set.";
     
-    boolean simulatedFSDataset = 
-        conf.getBoolean("dfs.datanode.simulateddatastorage", false);
+    boolean simulatedFSDataset = conf.getBoolean("dfs.datanode.simulateddatastorage", false);
     if (simulatedFSDataset) {
         setNewStorageID(dnRegistration);
         dnRegistration.storageInfo.layoutVersion = FSConstants.LAYOUT_VERSION;
@@ -418,21 +412,19 @@ void startDataNode(Configuration conf,
       // adjust
       this.dnRegistration.setStorageInfo(storage);
       // initialize data node internal structure
-      this.data = new FSDataset(storage, conf);
+      this.data = new FSDataset(storage, conf);  //  一切数据块读写的实际操作类
     }
       
     // register datanode MXBean
     this.registerMXBean(conf); // register the MXBean for DataNode
     
     // Allow configuration to delay block reports to find bugs
-    artificialBlockReceivedDelay = conf.getInt(
-        "dfs.datanode.artificialBlockReceivedDelay", 0);
+    artificialBlockReceivedDelay = conf.getInt("dfs.datanode.artificialBlockReceivedDelay", 0);
 
     // find free port or use privileged port provide
     ServerSocket ss;
     if(secureResources == null) {
-      ss = (socketWriteTimeout > 0) ? 
-        ServerSocketChannel.open().socket() : new ServerSocket();
+      ss = (socketWriteTimeout > 0) ? ServerSocketChannel.open().socket() : new ServerSocket();
       Server.bind(ss, socAddr, 0);
     } else {
       ss = resources.getStreamingSocket();
@@ -440,25 +432,24 @@ void startDataNode(Configuration conf,
     ss.setReceiveBufferSize(DEFAULT_DATA_SOCKET_SIZE); 
     // adjust machine name with the actual port
     tmpPort = ss.getLocalPort();
-    selfAddr = new InetSocketAddress(ss.getInetAddress().getHostAddress(),
-                                     tmpPort);
+    selfAddr = new InetSocketAddress(ss.getInetAddress().getHostAddress(), tmpPort);
     this.dnRegistration.setName(machineName + ":" + tmpPort);
     LOG.info("Opened info server at " + tmpPort);
       
     this.threadGroup = new ThreadGroup("dataXceiverServer");
-    this.dataXceiverServer = new Daemon(threadGroup, 
-        new DataXceiverServer(ss, conf, this));
+    // 初始化数据块的流读写服务器
+    this.dataXceiverServer = new Daemon(threadGroup, new DataXceiverServer(ss, conf, this));
     this.threadGroup.setDaemon(true); // auto destroy when empty
 
-    this.blockReportInterval =
-      conf.getLong("dfs.blockreport.intervalMsec", BLOCKREPORT_INTERVAL);
-    this.initialBlockReportDelay = conf.getLong("dfs.blockreport.initialDelay",
-                                            BLOCKREPORT_INITIAL_DELAY)* 1000L; 
+    this.blockReportInterval = conf.getLong("dfs.blockreport.intervalMsec", BLOCKREPORT_INTERVAL);
+    // 初始化数据块报告周期,默认是一个小时
+    this.initialBlockReportDelay = conf.getLong("dfs.blockreport.initialDelay", BLOCKREPORT_INITIAL_DELAY)* 1000L; 
     if (this.initialBlockReportDelay >= blockReportInterval) {
       this.initialBlockReportDelay = 0;
       LOG.info("dfs.blockreport.initialDelay is greater than " +
         "dfs.blockreport.intervalMsec." + " Setting initial delay to 0 msec:");
     }
+    // 初始化与namenode心跳周期,默认是3秒
     this.heartBeatInterval = conf.getLong("dfs.heartbeat.interval", HEARTBEAT_INTERVAL) * 1000L;
     DataNode.nameNodeAddr = nameNodeAddr;
 
@@ -466,9 +457,10 @@ void startDataNode(Configuration conf,
     String reason = null;
     if (conf.getInt("dfs.datanode.scan.period.hours", 0) < 0) {
       reason = "verification is turned off by configuration";
-    } else if ( !(data instanceof FSDataset) ) {
+    } else if (!(data instanceof FSDataset)) {
       reason = "verifcation is supported only with FSDataset";
     } 
+    // 初始化数据块一致性检测类
     if ( reason == null ) {
       blockScanner = new DataBlockScanner(this, (FSDataset)data, conf);
     } else {
@@ -476,7 +468,7 @@ void startDataNode(Configuration conf,
                reason + ".");
     }
 
-    //create a servlet to serve full-file content
+    // DataNode的状态信息查询的http服务器地址
     InetSocketAddress infoSocAddr = DataNode.getInfoAddr(conf);
     String infoHost = infoSocAddr.getHostName();
     int tmpInfoPort = infoSocAddr.getPort();
@@ -495,15 +487,13 @@ void startDataNode(Configuration conf,
           "ssl-server.xml"));
       this.infoServer.addSslListener(secInfoSocAddr, sslConf, needClientAuth);
     }
+    // 添加infoServer一些Servlet的映射url和类
     this.infoServer.addInternalServlet(null, "/streamFile/*", StreamFile.class);
-    this.infoServer.addInternalServlet(null, "/getFileChecksum/*",
-        FileChecksumServlets.GetServlet.class);
-
+    this.infoServer.addInternalServlet(null, "/getFileChecksum/*", FileChecksumServlets.GetServlet.class);
     this.infoServer.setAttribute("datanode", this);
     this.infoServer.setAttribute("datanode.blockScanner", blockScanner);
     this.infoServer.setAttribute(JspHelper.CURRENT_CONF, conf);
-    this.infoServer.addServlet(null, "/blockScannerReport", 
-                               DataBlockScanner.Servlet.class);
+    this.infoServer.addServlet(null, "/blockScannerReport", DataBlockScanner.Servlet.class);
 
     if (WebHdfsFileSystem.isEnabled(conf, LOG)) {
       infoServer.addJerseyResourcePackage(DatanodeWebHdfsMethods.class
@@ -513,27 +503,21 @@ void startDataNode(Configuration conf,
     this.infoServer.start();
     // adjust info port
     this.dnRegistration.setInfoPort(this.infoServer.getPort());
-    myMetrics = DataNodeInstrumentation.create(conf,
-                                               dnRegistration.getStorageID());
-    
+    myMetrics = DataNodeInstrumentation.create(conf, dnRegistration.getStorageID());   
     // set service-level authorization security policy
-    if (conf.getBoolean(
-          ServiceAuthorizationManager.SERVICE_AUTHORIZATION_CONFIG, false)) {
+    if (conf.getBoolean(ServiceAuthorizationManager.SERVICE_AUTHORIZATION_CONFIG, false)) {
       ServiceAuthorizationManager.refresh(conf, new HDFSPolicyProvider());
     }
 
     // BlockTokenSecretManager is created here, but it shouldn't be
     // used until it is initialized in register().
-    this.blockTokenSecretManager = new BlockTokenSecretManager(false,
-        0, 0);
-    //init ipc server
-    InetSocketAddress ipcAddr = NetUtils.createSocketAddr(
-        conf.get("dfs.datanode.ipc.address"));
+    this.blockTokenSecretManager = new BlockTokenSecretManager(false, 0, 0);
+    // 初始化内部hadoop ipc服务器
+    InetSocketAddress ipcAddr = NetUtils.createSocketAddr(conf.get("dfs.datanode.ipc.address"));
     ipcServer = RPC.getServer(this, ipcAddr.getHostName(), ipcAddr.getPort(), 
         conf.getInt("dfs.datanode.handler.count", 3), false, conf,
         blockTokenSecretManager);
     dnRegistration.setIpcPort(ipcServer.getListenerAddress().getPort());
-
     LOG.info("dnRegistration = " + dnRegistration);
   }
   
@@ -904,44 +888,24 @@ public static InetSocketAddress getInfoAddr(Configuration conf) {
     return threadGroup == null ? 0 : threadGroup.activeCount();
   }
     
-  /**
-   * Main loop for the DataNode.  Runs until shutdown,
-   * forever calling remote NameNode functions.
-   */
+  //DataNode提供服务，定时发送心跳给NameNode,响应NameNode返回的命令并执行,通知namenode接收完毕的数据块和删除的数据块，定时上报数据块
   public void offerService() throws Exception {
-     
     LOG.info("using BLOCKREPORT_INTERVAL of " + blockReportInterval + "msec" + 
        " Initial delay: " + initialBlockReportDelay + "msec");
-
-    //
-    // Now loop for a long time....
-    //
-
     while (shouldRun) {
       try {
         long startTime = now();
-
-        //
         // Every so often, send heartbeat or block-report
-        //
-        
         if (startTime - lastHeartbeat > heartBeatInterval) {
-          //
           // All heartbeat messages include following info:
           // -- Datanode name
           // -- data transfer port
           // -- Total capacity
           // -- Bytes remaining
-          //
           lastHeartbeat = startTime;
-          DatanodeCommand[] cmds = namenode.sendHeartbeat(dnRegistration,
-                                                       data.getCapacity(),
-                                                       data.getDfsUsed(),
-                                                       data.getRemaining(),
-                                                       xmitsInProgress.get(),
-                                                       getXceiverCount());
+          DatanodeCommand[] cmds = namenode.sendHeartbeat(dnRegistration, data.getCapacity(), data.getDfsUsed(), data.getRemaining(), xmitsInProgress.get(), getXceiverCount());
           myMetrics.addHeartBeat(now() - startTime);
-          //LOG.info("Just sent heartbeat, with name " + localName);
+          // 响应namenode返回的命令做处理
           if (!processCommand(cmds))
             continue;
         }
@@ -953,27 +917,27 @@ public static InetSocketAddress getInfoAddr(Configuration conf) {
           synchronized(delHints) {
             int numBlocks = receivedBlockList.size();
             if (numBlocks > 0) {
-              if(numBlocks!=delHints.size()) {
+              if(numBlocks != delHints.size()) {
                 LOG.warn("Panic: receiveBlockList and delHints are not of the same length" );
               }
-              //
               // Send newly-received blockids to namenode
-              //
               blockArray = receivedBlockList.toArray(new Block[numBlocks]);
               delHintArray = delHints.toArray(new String[numBlocks]);
             }
           }
         }
+
         if (blockArray != null) {
           if(delHintArray == null || delHintArray.length != blockArray.length ) {
             LOG.warn("Panic: block array & delHintArray are not the same" );
           }
+          // 通知NameNode已经接收完毕的块,以及删除的块
           namenode.blockReceived(dnRegistration, blockArray, delHintArray);
           synchronized (receivedBlockList) {
             synchronized (delHints) {
-              for(int i=0; i<blockArray.length; i++) {
-                receivedBlockList.remove(blockArray[i]);
-                delHints.remove(delHintArray[i]);
+              for(int i = 0; i < blockArray.length; i++) {
+                receivedBlockList.remove(blockArray[i]); //清空保存接收完毕的块
+                delHints.remove(delHintArray[i]); //清空保存删除完毕的块
               }
             }
           }
@@ -988,6 +952,7 @@ public static InetSocketAddress getInfoAddr(Configuration conf) {
             
             // Send block report
             long brSendStartTime = now();
+            // 向NameNode上报数据块信息
             DatanodeCommand cmd = namenode.blockReport(dnRegistration,
                     BlockListAsLongs.convertToArrayLongs(bReport));
             
@@ -1020,6 +985,7 @@ public static InetSocketAddress getInfoAddr(Configuration conf) {
             }
             processCommand(cmd);
           } else {
+            // 请求异步准备好数据块上报信息
             data.requestAsyncBlockReport();
             if (lastBlockReport > 0) { // this isn't the first report
               long waitingFor =
@@ -1480,14 +1446,14 @@ public static InetSocketAddress getInfoAddr(Configuration conf) {
    */
   public void run() {
     LOG.info(dnRegistration + "In DataNode.run, data = " + data);
-
     // start dataXceiveServer
     dataXceiverServer.start();
     ipcServer.start();
-        
     while (shouldRun) {
       try {
+        // 检测是否需要升级hadoop文件系统
         startDistributedUpgradeIfNeeded();
+        // DataNode提供服务，定时发送心跳给NameNode,响应NameNode返回的命令并执行
         offerService();
       } catch (Exception ex) {
         LOG.error("Exception: " + StringUtils.stringifyException(ex));
@@ -1547,6 +1513,7 @@ public static InetSocketAddress getInfoAddr(Configuration conf) {
           " anymore. RackID resolution is handled by the NameNode.");
       System.exit(-1);
     }
+    // 获取DataNode管理的本地目录集合
     String[] dataDirs = conf.getStrings(DATA_DIR_KEY);
     dnThreadName = "DataNode: [" +
                         StringUtils.arrayToString(dataDirs) + "]";
@@ -1600,8 +1567,8 @@ public static InetSocketAddress getInfoAddr(Configuration conf) {
     LocalFileSystem localFS = FileSystem.getLocal(conf);
     ArrayList<File> dirs = new ArrayList<File>();
     FsPermission dataDirPermission = 
-      new FsPermission(conf.get(DATA_DIR_PERMISSION_KEY, 
-                                DEFAULT_DATA_DIR_PERMISSION));
+      new FsPermission(conf.get(DATA_DIR_PERMISSION_KEY, DEFAULT_DATA_DIR_PERMISSION));
+    // 检查本地目录集合的合法性  
     for (String dir : dataDirs) {
       try {
         DiskChecker.checkDir(localFS, new Path(dir), dataDirPermission);
@@ -2161,8 +2128,7 @@ public static InetSocketAddress getStreamingAddr(Configuration conf) {
    * @return bandwidth Blanacer bandwidth in bytes per second for this datanode.
    */
   public Long getBalancerBandwidth() {
-    DataXceiverServer dxcs =
-                       (DataXceiverServer) this.dataXceiverServer.getRunnable();
+    DataXceiverServer dxcs = (DataXceiverServer) this.dataXceiverServer.getRunnable();
     return dxcs.balanceThrottler.getBandwidth();
   }
 }
