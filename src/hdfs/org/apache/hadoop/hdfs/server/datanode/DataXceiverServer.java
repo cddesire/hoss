@@ -41,10 +41,13 @@ import org.apache.hadoop.util.StringUtils;
  * Hadoop IPC mechanism.
  */
 class DataXceiverServer implements Runnable, FSConstants {
+
   public static final Log LOG = DataNode.LOG;
   
   ServerSocket ss;
+
   DataNode datanode;
+
   // Record all sockets opend for data transfer
   Map<Socket, Socket> childSockets = Collections.synchronizedMap(
                                        new HashMap<Socket, Socket>());
@@ -55,6 +58,7 @@ class DataXceiverServer implements Runnable, FSConstants {
    * running out of memory.
    */
   static final int MAX_XCEIVER_COUNT = 256;
+
   int maxXceiverCount = MAX_XCEIVER_COUNT;
 
   /** A manager to make sure that cluster balancing does not
@@ -92,6 +96,7 @@ class DataXceiverServer implements Runnable, FSConstants {
    synchronized void release() {
      numThreads--;
    }
+
   }
 
   BlockBalanceThrottler balanceThrottler;
@@ -108,19 +113,13 @@ class DataXceiverServer implements Runnable, FSConstants {
   
   
   DataXceiverServer(ServerSocket ss, Configuration conf, 
-      DataNode datanode) {
-    
+      DataNode datanode) {    
     this.ss = ss;
     this.datanode = datanode;
-    
-    this.maxXceiverCount = conf.getInt("dfs.datanode.max.xcievers",
-        MAX_XCEIVER_COUNT);
-    
+    this.maxXceiverCount = conf.getInt("dfs.datanode.max.xcievers", MAX_XCEIVER_COUNT);
     this.estimateBlockSize = conf.getLong("dfs.block.size", DEFAULT_BLOCK_SIZE);
-    
     //set up parameter for cluster balancing
-    this.balanceThrottler = new BlockBalanceThrottler(
-      conf.getLong("dfs.balance.bandwidthPerSec", 1024L*1024));
+    this.balanceThrottler = new BlockBalanceThrottler(conf.getLong("dfs.balance.bandwidthPerSec", 1024L*1024));
   }
 
   /**
