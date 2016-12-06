@@ -183,8 +183,7 @@ class DataXceiver implements Runnable, FSConstants {
             s.getInetAddress();
     try {
       try {
-        blockSender = new BlockSender(block, startOffset, length,
-            true, true, false, datanode, clientTraceFmt);
+        blockSender = new BlockSender(block, startOffset, length, true, true, false, datanode, clientTraceFmt);
       } catch(IOException e) {
         out.writeShort(DataTransferProtocol.OP_STATUS_ERROR);
         throw e;
