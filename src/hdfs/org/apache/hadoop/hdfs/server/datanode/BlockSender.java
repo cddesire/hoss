@@ -247,13 +247,9 @@ class BlockSender implements java.io.Closeable, FSConstants {
    * {@link SocketOutputStream#transferToFully(FileChannel, long, int)} to
    * send data (and updates blockInPosition).
    */
-  private int sendChunks(ByteBuffer pkt, int maxChunks, OutputStream out) 
-                         throws IOException {
+  private int sendChunks(ByteBuffer pkt, int maxChunks, OutputStream out) throws IOException {
     // Sends multiple chunks in one packet with a single write().
-
-    int len = Math.min((int) (endOffset - offset),
-                       bytesPerChecksum*maxChunks);
-    
+    int len = Math.min((int) (endOffset - offset), bytesPerChecksum*maxChunks);
     // truncate len so that any partial chunks will be sent as a final packet.
     // this is not necessary for correctness, but partial chunks are 
     // ones that may be recomputed and sent via buffer copy, so try to minimize
@@ -313,13 +309,12 @@ class BlockSender implements java.io.Closeable, FSConstants {
         int cOff = checksumOff;
         int dLeft = len;
 
-        for (int i=0; i<numChunks; i++) {
+        for (int i = 0; i < numChunks; i++) {
           checksum.reset();
           int dLen = Math.min(dLeft, bytesPerChecksum);
           checksum.update(buf, dOff, dLen);
           if (!checksum.compare(buf, cOff)) {
-            throw new ChecksumException("Checksum failed at " + 
-                                        (offset + len - dLeft), len);
+            throw new ChecksumException("Checksum failed at " +  (offset + len - dLeft), len);
           }
           dLeft -= dLen;
           dOff += dLen;
@@ -330,9 +325,7 @@ class BlockSender implements java.io.Closeable, FSConstants {
       // only recompute checksum if we can't trust the meta data due to 
       // concurrent writes
       if (memoizedBlock.hasBlockChanged(len)) {
-        ChecksumUtil.updateChunkChecksum(
-          buf, checksumOff, dataOff, len, checksum
-        );
+        ChecksumUtil.updateChunkChecksum(buf, checksumOff, dataOff, len, checksum);
       }
       
       try {
@@ -345,19 +338,11 @@ class BlockSender implements java.io.Closeable, FSConstants {
         //use transferTo(). Checks on out and blockIn are already done. 
         SocketOutputStream sockOut = (SocketOutputStream) out;
         FileChannel fileChannel = ((FileInputStream) blockIn).getChannel();
-
         if (memoizedBlock.hasBlockChanged(len)) {
           fileChannel.position(blockInPosition);
-          IOUtils.readFileChannelFully(
-            fileChannel,
-            buf,
-            dataOff,
-            len
-          );
+          IOUtils.readFileChannelFully(fileChannel, buf, dataOff, len);
           
-          ChecksumUtil.updateChunkChecksum(
-            buf, checksumOff, dataOff, len, checksum
-          );          
+          ChecksumUtil.updateChunkChecksum(buf, checksumOff, dataOff, len, checksum);          
           sockOut.write(buf, 0, dataOff + len);
         } else {
           //first write the packet
@@ -396,8 +381,7 @@ class BlockSender implements java.io.Closeable, FSConstants {
    * @param throttler for sending data.
    * @return total bytes reads, including crc.
    */
-  long sendBlock(DataOutputStream out, OutputStream baseStream, 
-                 BlockTransferThrottler throttler) throws IOException {
+  long sendBlock(DataOutputStream out, OutputStream baseStream, BlockTransferThrottler throttler) throws IOException {
     if( out == null ) {
       throw new IOException( "out stream is null" );
     }
@@ -411,8 +395,8 @@ class BlockSender implements java.io.Closeable, FSConstants {
     try {
       try {
         checksum.writeHeader(out);
-        if ( chunkOffsetOK ) {
-          out.writeLong( offset );
+        if (chunkOffsetOK) {
+          out.writeLong(offset);
         }
         out.flush();
       } catch (IOException e) { //socket error
@@ -422,16 +406,11 @@ class BlockSender implements java.io.Closeable, FSConstants {
       int maxChunksPerPacket;
       int pktSize = DataNode.PKT_HEADER_LEN + SIZE_OF_INTEGER;
       
-      if (transferToAllowed && !verifyChecksum && 
-          baseStream instanceof SocketOutputStream && 
-          blockIn instanceof FileInputStream) {
-        
+      if (transferToAllowed && !verifyChecksum && baseStream instanceof SocketOutputStream &&  blockIn instanceof FileInputStream) {
         FileChannel fileChannel = ((FileInputStream)blockIn).getChannel();
-        
         // blockInPosition also indicates sendChunks() uses transferTo.
         blockInPosition = fileChannel.position();
         streamForSendChunks = baseStream;
-        
         // assure a mininum buffer size.
         maxChunksPerPacket = (Math.max(BUFFER_SIZE,
                                        MIN_BUFFER_WITH_TRANSFERTO)
@@ -449,11 +428,9 @@ class BlockSender implements java.io.Closeable, FSConstants {
       ByteBuffer pktBuf = ByteBuffer.allocate(pktSize);
 
       while (endOffset > offset) {
-        long len = sendChunks(pktBuf, maxChunksPerPacket, 
-                              streamForSendChunks);
+        long len = sendChunks(pktBuf, maxChunksPerPacket, streamForSendChunks);
         offset += len;
-        totalRead += len + ((len + bytesPerChecksum - 1)/bytesPerChecksum*
-                            checksumSize);
+        totalRead += len + ((len + bytesPerChecksum - 1) / bytesPerChecksum * checksumSize);
         seqno++;
       }
       try {
@@ -462,22 +439,17 @@ class BlockSender implements java.io.Closeable, FSConstants {
       } catch (IOException e) { //socket error
         throw ioeToSocketException(e);
       }
-    }
-    catch (RuntimeException e) {
+    } catch (RuntimeException e) {
       LOG.error("unexpected exception sending block", e);
-      
       throw new IOException("unexpected runtime exception", e);
-    } 
-    finally {
+    } finally {
       if (clientTraceFmt != null) {
         final long endTime = System.nanoTime();
         ClientTraceLog.info(String.format(clientTraceFmt, totalRead, initialOffset, endTime - startTime));
       }
       close();
     }
-
     blockReadFully = (initialOffset == 0 && offset >= blockLength);
-
     return totalRead;
   }
   
