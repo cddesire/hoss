@@ -1,3 +1,6 @@
+[![Build Status](https://api.travis-ci.org/DozerMapper/dozer.png)](https://github.com/cddesire)
+[![Dependency Status](https://www.versioneye.com/user/projects/5325a858ec137554460002e1/badge.png)](https://github.com/cddesire)
+
 ## HOSS(***H***DFS-based ***O***bject ***S***torage ***S***ystem)
 ======
 Object storage is an approach to storage where data is combined with *rich metadata* in order to preserve information about both the context and the content of the data.
