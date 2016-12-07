@@ -160,8 +160,7 @@ public class NetUtils {
    */
   public static InetSocketAddress makeSocketAddr(String host, int port) {
     String staticHost = getStaticResolution(host);
-    String resolveHost = (staticHost != null) ? staticHost : host;
-    
+    String resolveHost = (staticHost != null) ? staticHost : host;    
     InetSocketAddress addr;
     try {
       InetAddress iaddr = SecurityUtil.getByName(resolveHost);
@@ -210,8 +209,7 @@ public class NetUtils {
   // cache the canonicalized hostnames;  the cache currently isn't expired,
   // but the canonicals will only change if the host's resolver configuration
   // changes
-  private static ConcurrentHashMap<String, String> canonicalizedHostCache =
-      new ConcurrentHashMap<String, String>();
+  private static ConcurrentHashMap<String, String> canonicalizedHostCache = new ConcurrentHashMap<String, String>();
 
   private static String canonicalizeHost(String host) {
     // check if the host has already been canonicalized
@@ -238,10 +236,7 @@ public class NetUtils {
    * @return the complete address from the configuration
    */
   @Deprecated
-  public static String getServerAddress(Configuration conf,
-                                        String oldBindAddressName,
-                                        String oldPortName,
-                                        String newBindAddressName) {
+  public static String getServerAddress(Configuration conf, String oldBindAddressName, String oldPortName, String newBindAddressName) {
     String oldAddr = conf.get(oldBindAddressName);
     String oldPort = conf.get(oldPortName);
     String newAddrPort = conf.get(newBindAddressName);
@@ -356,8 +351,7 @@ public class NetUtils {
    * @return InputStream for reading from the socket.
    * @throws IOException
    */
-  public static InputStream getInputStream(Socket socket) 
-                                           throws IOException {
+  public static InputStream getInputStream(Socket socket) throws IOException {
     return getInputStream(socket, socket.getSoTimeout());
   }
   
@@ -380,8 +374,7 @@ public class NetUtils {
    * @return InputStream for reading from the socket.
    * @throws IOException
    */
-  public static InputStream getInputStream(Socket socket, long timeout) 
-                                           throws IOException {
+  public static InputStream getInputStream(Socket socket, long timeout) throws IOException {
     return (socket.getChannel() == null) ? 
           socket.getInputStream() : new SocketInputStream(socket, timeout);
   }
