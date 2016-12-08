@@ -308,6 +308,7 @@ public class InMemoryFileSystem extends ChecksumFileSystem {
         return true;
       }
     }
+    
     public void unreserveSpace(Path f) {
       synchronized (this) {
         FileAttributes fAttr = tempFileAttribs.remove(getPath(f));
