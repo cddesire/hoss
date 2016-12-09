@@ -100,20 +100,23 @@ import org.slf4j.Logger;
  */
 class BlockSender implements java.io.Closeable {
   static final Logger LOG = DataNode.LOG;
+
   static final Log ClientTraceLog = DataNode.ClientTraceLog;
-  private static final boolean is32Bit = 
-      System.getProperty("sun.arch.data.model").equals("32");
+  private static final boolean is32Bit = System.getProperty("sun.arch.data.model").equals("32");
   /**
    * Minimum buffer used while sending data to clients. Used only if
    * transferTo() is enabled. 64KB is not that large. It could be larger, but
    * not sure if there will be much more improvement.
    */
   private static final int MIN_BUFFER_WITH_TRANSFERTO = 64*1024;
+
   private static final int IO_FILE_BUFFER_SIZE;
+
   static {
     HdfsConfiguration conf = new HdfsConfiguration();
     IO_FILE_BUFFER_SIZE = DFSUtilClient.getIoFileBufferSize(conf);
   }
+
   private static final int TRANSFERTO_BUFFER_SIZE = Math.max(
       IO_FILE_BUFFER_SIZE, MIN_BUFFER_WITH_TRANSFERTO);
   
@@ -148,7 +151,9 @@ class BlockSender implements java.io.Closeable {
   private final boolean verifyChecksum;
   /** Format used to print client trace log messages */
   private final String clientTraceFmt;
+
   private volatile ChunkChecksum lastChunkChecksum = null;
+  
   private DataNode datanode;
 
   /** The replica of the block that is being read. */

@@ -70,13 +70,14 @@ public class BlockRecoveryWorker {
   /** A convenient class used in block recovery. */
   static class BlockRecord {
     private final DatanodeID id;
+
     private final InterDatanodeProtocol datanode;
+
     private final ReplicaRecoveryInfo rInfo;
 
     private String storageID;
 
-    BlockRecord(DatanodeID id, InterDatanodeProtocol datanode,
-        ReplicaRecoveryInfo rInfo) {
+    BlockRecord(DatanodeID id, InterDatanodeProtocol datanode, ReplicaRecoveryInfo rInfo) {
       this.id = id;
       this.datanode = datanode;
       this.rInfo = rInfo;
@@ -102,9 +103,13 @@ public class BlockRecoveryWorker {
   /** A block recovery task for a contiguous block. */
   class RecoveryTaskContiguous {
     private final RecoveringBlock rBlock;
+
     private final ExtendedBlock block;
+
     private final String bpid;
+
     private final DatanodeInfo[] locs;
+
     private final long recoveryId;
 
     RecoveryTaskContiguous(RecoveringBlock rBlock) {
@@ -239,8 +244,7 @@ public class BlockRecoveryWorker {
       // Calculate list of nodes that will participate in the recovery
       // and the new block size
       List<BlockRecord> participatingList = new ArrayList<>();
-      final ExtendedBlock newBlock = new ExtendedBlock(bpid, blockId,
-          -1, recoveryId);
+      final ExtendedBlock newBlock = new ExtendedBlock(bpid, blockId, -1, recoveryId);
       switch(bestState) {
       case FINALIZED:
         assert finalizedLength > 0 : "finalizedLength is not positive";
@@ -399,8 +403,7 @@ public class BlockRecoveryWorker {
       for (int i = 0; i < locs.length; i++) {
         DatanodeID id = locs[i];
         try {
-          DatanodeID bpReg = new DatanodeID(
-              datanode.getBPOfferService(bpid).bpRegistration);
+          DatanodeID bpReg = new DatanodeID(datanode.getBPOfferService(bpid).bpRegistration);
           InterDatanodeProtocol proxyDN = bpReg.equals(id) ?
               datanode : DataNode.createInterDataNodeProtocolProxy(id, conf,
               dnConf.socketTimeout, dnConf.connectToDnViaHostname);
