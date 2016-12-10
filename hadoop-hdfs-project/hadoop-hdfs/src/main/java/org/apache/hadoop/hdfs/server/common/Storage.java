@@ -98,7 +98,7 @@ public abstract class Storage extends StorageInfo {
   public    static final String STORAGE_TMP_FINALIZED = "finalized.tmp";
 
   public    static final String STORAGE_TMP_LAST_CKPT = "lastcheckpoint.tmp";
-  
+
   public    static final String STORAGE_PREVIOUS_CKPT = "previous.checkpoint";
   
   /**
@@ -552,8 +552,7 @@ public abstract class Storage extends StorageInfo {
         // if current/ does not exist, it's safe to format it.
         return;
       }
-      try(DirectoryStream<java.nio.file.Path> dirStream =
-          Files.newDirectoryStream(currentDir.toPath())) {
+      try(DirectoryStream<java.nio.file.Path> dirStream = Files.newDirectoryStream(currentDir.toPath())) {
         if (dirStream.iterator().hasNext()) {
           throw new InconsistentFSStateException(root,
               "Can't format the storage directory because the current/ "
