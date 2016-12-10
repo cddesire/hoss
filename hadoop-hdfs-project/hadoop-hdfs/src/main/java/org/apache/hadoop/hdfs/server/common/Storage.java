@@ -79,18 +79,26 @@ public abstract class Storage extends StorageInfo {
   
   // this corresponds to Hadoop-0.18
   public static final int LAST_UPGRADABLE_LAYOUT_VERSION = -16;
+
   protected static final String LAST_UPGRADABLE_HADOOP_VERSION = "Hadoop-0.18";
   
   /** Layout versions of 0.20.203 release */
   public static final int[] LAYOUT_VERSIONS_203 = {-19, -31};
 
   public    static final String STORAGE_FILE_LOCK     = "in_use.lock";
+
   public    static final String STORAGE_DIR_CURRENT   = "current";
+
   public    static final String STORAGE_DIR_PREVIOUS  = "previous";
+
   public    static final String STORAGE_TMP_REMOVED   = "removed.tmp";
+
   public    static final String STORAGE_TMP_PREVIOUS  = "previous.tmp";
+
   public    static final String STORAGE_TMP_FINALIZED = "finalized.tmp";
+
   public    static final String STORAGE_TMP_LAST_CKPT = "lastcheckpoint.tmp";
+  
   public    static final String STORAGE_PREVIOUS_CKPT = "previous.checkpoint";
   
   /**
