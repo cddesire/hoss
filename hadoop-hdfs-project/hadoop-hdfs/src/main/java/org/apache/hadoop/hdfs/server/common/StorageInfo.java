@@ -43,9 +43,13 @@ import com.google.common.base.Joiner;
  */
 @InterfaceAudience.Private
 public class StorageInfo {
+
   public int   layoutVersion;   // layout version of the storage data
+
   public int   namespaceID;     // id of the file system
+
   public String clusterID;      // id of the cluster
+
   public long  cTime;           // creation time of the file system state
 
   protected final NodeType storageType; // Type of the node using this storage 
@@ -65,14 +69,13 @@ public class StorageInfo {
   }
   
   public StorageInfo(StorageInfo from) {
-    this(from.layoutVersion, from.namespaceID, from.clusterID, from.cTime,
-        from.storageType);
+    this(from.layoutVersion, from.namespaceID, from.clusterID, from.cTime, from.storageType);
   }
 
   /**
    * Layout version of the storage data.
    */
-  public int    getLayoutVersion(){ return layoutVersion; }
+  public int    getLayoutVersion()  { return layoutVersion; }
 
   /**
    * Namespace id of the file system.<p>
@@ -90,7 +93,7 @@ public class StorageInfo {
    * Creation time of the file system state.<p>
    * Modified during upgrades.
    */
-  public long   getCTime()        { return cTime; }
+  public long   getCTime() { return cTime; }
   
   public void   setStorageInfo(StorageInfo from) {
     layoutVersion = from.layoutVersion;
@@ -137,8 +140,7 @@ public class StorageInfo {
   /**
    * Read properties from the the previous/VERSION file in the given storage directory.
    */
-  public void readPreviousVersionProperties(StorageDirectory sd)
-      throws IOException {
+  public void readPreviousVersionProperties(StorageDirectory sd) throws IOException {
     Properties props = readPropertiesFile(sd.getPreviousVersionFile());
     setFieldsFromProperties(props, sd);
   }
@@ -150,8 +152,7 @@ public class StorageInfo {
    * @param props properties
    * @throws IOException on error
    */
-  protected void setFieldsFromProperties(
-      Properties props, StorageDirectory sd) throws IOException {
+  protected void setFieldsFromProperties(Properties props, StorageDirectory sd) throws IOException {
     setLayoutVersion(props, sd);
     setNamespaceID(props, sd);
     setcTime(props, sd);
@@ -160,8 +161,7 @@ public class StorageInfo {
   }
   
   /** Validate and set storage type from {@link Properties}*/
-  protected void checkStorageType(Properties props, StorageDirectory sd)
-      throws InconsistentFSStateException {
+  protected void checkStorageType(Properties props, StorageDirectory sd) throws InconsistentFSStateException {
     if (storageType == null) { //don't care about storage type
       return;
     }
