@@ -132,8 +132,7 @@ public abstract class ECCommand extends Command {
         dfs.setErasureCodingPolicy(item.path, ecPolicy);
         out.println("EC policy set successfully at " + item.path);
       } catch (IOException e) {
-        throw new IOException("Unable to set EC policy for the path "
-            + item.path + ". " + e.getMessage());
+        throw new IOException("Unable to set EC policy for the path " + item.path + ". " + e.getMessage());
       }
     }
   }
@@ -143,7 +142,9 @@ public abstract class ECCommand extends Command {
    */
   static class GetECPolicyCommand extends ECCommand {
     public static final String NAME = "getPolicy";
+
     public static final String USAGE = "<path>";
+
     public static final String DESCRIPTION =
         "Get erasure coding policy information about at specified path\n";
 
@@ -180,7 +181,9 @@ public abstract class ECCommand extends Command {
    */
   static class ListPolicies extends ECCommand {
     public static final String NAME = "listPolicies";
+
     public static final String USAGE = "";
+    
     public static final String DESCRIPTION = 
         "Get the list of erasure coding policies supported\n";
 

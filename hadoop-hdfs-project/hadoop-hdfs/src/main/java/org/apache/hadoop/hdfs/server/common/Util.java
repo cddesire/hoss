@@ -90,8 +90,7 @@ public final class Util {
    * @param names collection of strings to convert to URIs
    * @return collection of URIs
    */
-  public static List<URI> stringCollectionAsURIs(
-                                  Collection<String> names) {
+  public static List<URI> stringCollectionAsURIs(Collection<String> names) {
     List<URI> uris = new ArrayList<URI>(names.size());
     for(String name : names) {
       try {
