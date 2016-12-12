@@ -338,7 +338,6 @@ public class RPC {
       if (System.currentTimeMillis()-connTimeout >= startTime) {
         throw ioe;
       }
-
       // wait for retry
       try {
         Thread.sleep(1000);
@@ -471,7 +470,6 @@ public class RPC {
     for (int i = 0; i < values.length; i++)
       if (wrappedValues[i] != null)
         values[i] = ((ObjectWritable)wrappedValues[i]).get();
-    
     return values;
     } finally {
       CLIENTS.stopClient(client);
