@@ -137,8 +137,7 @@ public class RPC {
 
   /* Cache a client using its socket factory as the hash key */
   static private class ClientCache {
-    private Map<SocketFactory, Client> clients =
-      new HashMap<SocketFactory, Client>();
+    private Map<SocketFactory, Client> clients = new HashMap<SocketFactory, Client>();
 
     /**
      * Construct & cache an IPC client with the user-provided SocketFactory 
