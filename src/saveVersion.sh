@@ -18,6 +18,7 @@
 
 # This file is used to generate the BuildStamp.java class that
 # records the user, url, revision and timestamp.
+
 unset LANG
 unset LC_CTYPE
 version=$1
