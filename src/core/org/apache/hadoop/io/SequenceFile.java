@@ -2964,8 +2964,7 @@ public class SequenceFile {
             //queue
             this.close();
             
-            SegmentDescriptor tempSegment = 
-              new SegmentDescriptor(0, fs.getLength(outputFile), outputFile);
+            SegmentDescriptor tempSegment = new SegmentDescriptor(0, fs.getLength(outputFile), outputFile);
             //put the segment back in the TreeMap
             sortedSegmentSizes.put(tempSegment, null);
             numSegments = sortedSegmentSizes.size();
@@ -2993,8 +2992,8 @@ public class SequenceFile {
       public SegmentDescriptor[] getSegmentDescriptors(int numDescriptors) {
         if (numDescriptors > sortedSegmentSizes.size())
           numDescriptors = sortedSegmentSizes.size();
-        SegmentDescriptor[] SegmentDescriptors = 
-          new SegmentDescriptor[numDescriptors];
+        
+        SegmentDescriptor[] SegmentDescriptors = new SegmentDescriptor[numDescriptors];
         Iterator iter = sortedSegmentSizes.keySet().iterator();
         int i = 0;
         while (i < numDescriptors) {
@@ -3024,8 +3023,7 @@ public class SequenceFile {
        * @param segmentLength the length of the segment
        * @param segmentPathName the path name of the file containing the segment
        */
-      public SegmentDescriptor (long segmentOffset, long segmentLength, 
-                                Path segmentPathName) {
+      public SegmentDescriptor (long segmentOffset, long segmentLength, Path segmentPathName) {
         this.segmentOffset = segmentOffset;
         this.segmentLength = segmentLength;
         this.segmentPathName = segmentPathName;
@@ -3062,8 +3060,7 @@ public class SequenceFile {
         SegmentDescriptor that = (SegmentDescriptor)o;
         if (this.segmentLength == that.segmentLength &&
             this.segmentOffset == that.segmentOffset &&
-            this.segmentPathName.toString().equals(
-              that.segmentPathName.toString())) {
+            this.segmentPathName.toString().equals(that.segmentPathName.toString())) {
           return true;
         }
         return false;
@@ -3083,6 +3080,7 @@ public class SequenceFile {
           if (fs.getUri().getScheme().startsWith("ramfs")) {
             bufferSize = conf.getInt("io.bytes.per.checksum", 512);
           }
+          
           Reader reader = new Reader(fs, segmentPathName, 
                                      bufferSize, segmentOffset, 
                                      segmentLength, conf, false);
@@ -3091,17 +3089,14 @@ public class SequenceFile {
           if (ignoreSync) reader.sync = null;
 
           if (reader.getKeyClass() != keyClass)
-            throw new IOException("wrong key class: " + reader.getKeyClass() +
-                                  " is not " + keyClass);
+            throw new IOException("wrong key class: " + reader.getKeyClass() + " is not " + keyClass);
           if (reader.getValueClass() != valClass)
-            throw new IOException("wrong value class: "+reader.getValueClass()+
-                                  " is not " + valClass);
+            throw new IOException("wrong value class: " + reader.getValueClass() + " is not " + valClass);
           this.in = reader;
           rawKey = new DataOutputBuffer();
         }
         rawKey.reset();
-        int keyLength = 
-          in.nextRawKey(rawKey);
+        int keyLength = in.nextRawKey(rawKey);
         return (keyLength >= 0);
       }
 
@@ -3187,8 +3182,7 @@ public class SequenceFile {
           long segmentOffset = WritableUtils.readVLong(fsIndexIn);
           long segmentLength = WritableUtils.readVLong(fsIndexIn);
           Path segmentName = inName;
-          segments.add(new LinkedSegmentsDescriptor(segmentOffset, 
-                                                    segmentLength, segmentName, this));
+          segments.add(new LinkedSegmentsDescriptor(segmentOffset, segmentLength, segmentName, this));
         }
         fsIndexIn.close();
         fs.delete(indexIn, true);
