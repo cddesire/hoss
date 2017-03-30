@@ -55,7 +55,8 @@ public class MapFile {
   /** The name of the data file. */
   public static final String DATA_FILE_NAME = "data";
 
-  protected MapFile() {}                          // no public ctor
+  // no public ctor
+  protected MapFile() {}                          
 
   /** Writes a new map. */
   public static class Writer implements java.io.Closeable {
@@ -138,28 +139,19 @@ public class MapFile {
     public Writer(Configuration conf, FileSystem fs, String dirName,
                   WritableComparator comparator, Class valClass,
                   SequenceFile.CompressionType compress, CompressionCodec codec,
-                  Progressable progress)
-      throws IOException {
-
+                  Progressable progress) throws IOException {
       this.indexInterval = conf.getInt(INDEX_INTERVAL, this.indexInterval);
-
       this.comparator = comparator;
       this.lastKey = comparator.newKey();
-
       Path dir = new Path(dirName);
       if (!fs.mkdirs(dir)) {
         throw new IOException("Mkdirs failed to create directory " + dir.toString());
       }
       Path dataFile = new Path(dir, DATA_FILE_NAME);
       Path indexFile = new Path(dir, INDEX_FILE_NAME);
-
       Class keyClass = comparator.getKeyClass();
-      this.data =
-        SequenceFile.createWriter
-        (fs, conf, dataFile, keyClass, valClass, compress, codec, progress);
-      this.index =
-        SequenceFile.createWriter
-        (fs, conf, indexFile, keyClass, LongWritable.class,
+      this.data = Sequenceie.createWrer(fs, conf, dataFile, keyClass, valClass, compress, codec, progress);
+      this.index = SequenceFile.createWriter(fs, conf, indexFile, keyClass, LongWritable.class,
          CompressionType.BLOCK, progress);
     }
     
@@ -186,16 +178,12 @@ public class MapFile {
 
     /** Append a key/value pair to the map.  The key must be greater or equal
      * to the previous key added to the map. */
-    public synchronized void append(WritableComparable key, Writable val)
-      throws IOException {
-
-      checkKey(key);
-      
+    public synchronized void append(WritableComparable key, Writable val) throws IOException {
+      checkKey(key);   
       if (size % indexInterval == 0) {            // add an index entry
         position.set(data.getLength());           // point to current eof
         index.append(key, position);
       }
-
       data.append(key, val);                      // append key/value to data
       size++;
     }
@@ -203,8 +191,7 @@ public class MapFile {
     private void checkKey(WritableComparable key) throws IOException {
       // check that keys are well-ordered
       if (size != 0 && comparator.compare(lastKey, key) > 0)
-        throw new IOException("key out of order: "+key+" after "+lastKey);
-          
+        throw new IOException("key out of order: "+key+" after "+lastKey);     
       // update lastKey with a copy of key by writing and reading
       outBuf.reset();
       key.write(outBuf);                          // write new key
