@@ -38,7 +38,9 @@ import org.apache.hadoop.util.StringUtils;
  *****************************************************************/
 public abstract class ChecksumFileSystem extends FilterFileSystem {
   private static final byte[] CHECKSUM_VERSION = new byte[] {'c', 'r', 'c', 0};
+
   private int bytesPerChecksum = 512;
+
   private boolean verifyChecksum = true;
 
   public static double getApproxChkSumLength(long size) {
@@ -103,16 +105,20 @@ public abstract class ChecksumFileSystem extends FilterFileSystem {
    * It verifies that data matches checksums.
    *******************************************************/
   private static class ChecksumFSInputChecker extends FSInputChecker {
+
     public static final Log LOG 
       = LogFactory.getLog(FSInputChecker.class);
     
     private ChecksumFileSystem fs;
+
     private FSDataInputStream datas;
+
     private FSDataInputStream sums;
     
     private static final int HEADER_LENGTH = 8;
     
     private int bytesPerSum = 1;
+
     private long fileLen = -1L;
     
     public ChecksumFSInputChecker(ChecksumFileSystem fs, Path file)
@@ -265,7 +271,7 @@ public abstract class ChecksumFileSystem extends FilterFileSystem {
      */
 
     public synchronized void seek(long pos) throws IOException {
-      if(pos>getFileLength()) {
+      if(pos > getFileLength()) {
         throw new IOException("Cannot seek after EOF");
       }
       super.seek(pos);

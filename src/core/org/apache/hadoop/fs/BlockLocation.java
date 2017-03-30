@@ -37,9 +37,13 @@ public class BlockLocation implements Writable {
   }
 
   private String[] hosts; //hostnames of datanodes
+
   private String[] names; //hostname:portNumber of datanodes
+
   private String[] topologyPaths; // full path name in network topology
+
   private long offset;  //offset of the of the block in the file
+  
   private long length;
 
   /**

@@ -51,17 +51,20 @@ import static org.apache.hadoop.hdfs.server.datanode.DataNode.DN_CLIENTTRACE_FOR
  */
 class DataXceiver implements Runnable, FSConstants {
   public static final Log LOG = DataNode.LOG;
+
   static final Log ClientTraceLog = DataNode.ClientTraceLog;
   
   Socket s;
+
   final String remoteAddress; // address of remote side
+
   final String localAddress;  // local address of this daemon
+
   DataNode datanode;
+
   DataXceiverServer dataXceiverServer;
   
-  public DataXceiver(Socket s, DataNode datanode, 
-      DataXceiverServer dataXceiverServer) {
-    
+  public DataXceiver(Socket s, DataNode datanode, DataXceiverServer dataXceiverServer) {
     this.s = s;
     this.datanode = datanode;
     this.dataXceiverServer = dataXceiverServer;
@@ -77,9 +80,7 @@ class DataXceiver implements Runnable, FSConstants {
   public void run() {
     DataInputStream in=null; 
     try {
-      in = new DataInputStream(
-          new BufferedInputStream(NetUtils.getInputStream(s), 
-                                  SMALL_BUFFER_SIZE));
+      in = new DataInputStream(new BufferedInputStream(NetUtils.getInputStream(s),  SMALL_BUFFER_SIZE));
       short version = in.readShort();
       if ( version != DataTransferProtocol.DATA_TRANSFER_VERSION ) {
         throw new IOException( "Version Mismatch" );
@@ -94,9 +95,9 @@ class DataXceiver implements Runnable, FSConstants {
                               + dataXceiverServer.maxXceiverCount);
       }
       long startTime = DataNode.now();
-      switch ( op ) {
+      switch (op) {
       case DataTransferProtocol.OP_READ_BLOCK:
-        readBlock( in );
+        readBlock(in);
         datanode.myMetrics.addReadBlockOp(DataNode.now() - startTime);
         if (local)
           datanode.myMetrics.incrReadsFromLocalClient();
@@ -104,7 +105,7 @@ class DataXceiver implements Runnable, FSConstants {
           datanode.myMetrics.incrReadsFromRemoteClient();
         break;
       case DataTransferProtocol.OP_WRITE_BLOCK:
-        writeBlock( in );
+        writeBlock(in);
         datanode.myMetrics.addWriteBlockOp(DataNode.now() - startTime);
         if (local)
           datanode.myMetrics.incrWritesFromLocalClient();
@@ -116,7 +117,7 @@ class DataXceiver implements Runnable, FSConstants {
         datanode.myMetrics.addReplaceBlockOp(DataNode.now() - startTime);
         break;
       case DataTransferProtocol.OP_COPY_BLOCK:
-            // for balancing purpose; send to a proxy source
+        // for balancing purpose; send to a proxy source
         copyBlock(in);
         datanode.myMetrics.addCopyBlockOp(DataNode.now() - startTime);
         break;
@@ -144,21 +145,17 @@ class DataXceiver implements Runnable, FSConstants {
    * @throws IOException
    */
   private void readBlock(DataInputStream in) throws IOException {
-    //
     // Read in the header
-    //
     long blockId = in.readLong();          
-    Block block = new Block( blockId, 0 , in.readLong());
+    Block block = new Block(blockId, 0 , in.readLong());
 
     long startOffset = in.readLong();
     long length = in.readLong();
     String clientName = Text.readString(in);
     Token<BlockTokenIdentifier> accessToken = new Token<BlockTokenIdentifier>();
     accessToken.readFields(in);
-    OutputStream baseStream = NetUtils.getOutputStream(s, 
-        datanode.socketWriteTimeout);
-    DataOutputStream out = new DataOutputStream(
-                 new BufferedOutputStream(baseStream, SMALL_BUFFER_SIZE));
+    OutputStream baseStream = NetUtils.getOutputStream(s, datanode.socketWriteTimeout);
+    DataOutputStream out = new DataOutputStream(new BufferedOutputStream(baseStream, SMALL_BUFFER_SIZE));
     
     if (datanode.isBlockTokenEnabled) {
       try {
@@ -186,8 +183,7 @@ class DataXceiver implements Runnable, FSConstants {
             s.getInetAddress();
     try {
       try {
-        blockSender = new BlockSender(block, startOffset, length,
-            true, true, false, datanode, clientTraceFmt);
+        blockSender = new BlockSender(block, startOffset, length, true, true, false, datanode, clientTraceFmt);
       } catch(IOException e) {
         out.writeShort(DataTransferProtocol.OP_STATUS_ERROR);
         throw e;

@@ -51,7 +51,9 @@ import org.apache.hadoop.util.Daemon;
 public class DataStorage extends Storage {
   // Constants
   final static String BLOCK_SUBDIR_PREFIX = "subdir";
+
   final static String BLOCK_FILE_PREFIX = "blk_";
+
   final static String COPY_FILE_PREFIX = "dncp_";
   
   private String storageID;
@@ -136,8 +138,7 @@ public class DataStorage extends Storage {
     }
 
     if (dataDirs.size() == 0)  // none of the data dirs exist
-      throw new IOException(
-                            "All specified directories are not accessible or do not exist.");
+      throw new IOException("All specified directories are not accessible or do not exist.");
 
     // 2. Do transitions
     // Each storage directory is treated individually.

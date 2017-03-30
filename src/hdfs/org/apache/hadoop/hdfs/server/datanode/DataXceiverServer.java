@@ -41,13 +41,15 @@ import org.apache.hadoop.util.StringUtils;
  * Hadoop IPC mechanism.
  */
 class DataXceiverServer implements Runnable, FSConstants {
+
   public static final Log LOG = DataNode.LOG;
   
   ServerSocket ss;
+
   DataNode datanode;
+
   // Record all sockets opend for data transfer
-  Map<Socket, Socket> childSockets = Collections.synchronizedMap(
-                                       new HashMap<Socket, Socket>());
+  Map<Socket, Socket> childSockets = Collections.synchronizedMap(new HashMap<Socket, Socket>());
   
   /**
    * Maximal number of concurrent xceivers per node.
@@ -55,6 +57,7 @@ class DataXceiverServer implements Runnable, FSConstants {
    * running out of memory.
    */
   static final int MAX_XCEIVER_COUNT = 256;
+
   int maxXceiverCount = MAX_XCEIVER_COUNT;
 
   /** A manager to make sure that cluster balancing does not
@@ -92,6 +95,7 @@ class DataXceiverServer implements Runnable, FSConstants {
    synchronized void release() {
      numThreads--;
    }
+
   }
 
   BlockBalanceThrottler balanceThrottler;
@@ -107,20 +111,13 @@ class DataXceiverServer implements Runnable, FSConstants {
   long estimateBlockSize;
   
   
-  DataXceiverServer(ServerSocket ss, Configuration conf, 
-      DataNode datanode) {
-    
+  DataXceiverServer(ServerSocket ss, Configuration conf, DataNode datanode) {    
     this.ss = ss;
     this.datanode = datanode;
-    
-    this.maxXceiverCount = conf.getInt("dfs.datanode.max.xcievers",
-        MAX_XCEIVER_COUNT);
-    
+    this.maxXceiverCount = conf.getInt("dfs.datanode.max.xcievers", MAX_XCEIVER_COUNT);
     this.estimateBlockSize = conf.getLong("dfs.block.size", DEFAULT_BLOCK_SIZE);
-    
     //set up parameter for cluster balancing
-    this.balanceThrottler = new BlockBalanceThrottler(
-      conf.getLong("dfs.balance.bandwidthPerSec", 1024L*1024));
+    this.balanceThrottler = new BlockBalanceThrottler(conf.getLong("dfs.balance.bandwidthPerSec", 1024L*1024));
   }
 
   /**
@@ -130,8 +127,7 @@ class DataXceiverServer implements Runnable, FSConstants {
       try {
         Socket s = ss.accept();
         s.setTcpNoDelay(true);
-        new Daemon(datanode.threadGroup, 
-            new DataXceiver(s, datanode, this)).start();
+        new Daemon(datanode.threadGroup, new DataXceiver(s, datanode, this)).start();
       } catch (SocketTimeoutException ignored) {
         // wake up to see if should continue to run
       } catch (AsynchronousCloseException ace) {
@@ -168,14 +164,15 @@ class DataXceiverServer implements Runnable, FSConstants {
 
     // close all the sockets that were accepted earlier
     synchronized (childSockets) {
-      for (Iterator<Socket> it = childSockets.values().iterator();
-           it.hasNext();) {
+      for (Iterator<Socket> it = childSockets.values().iterator(); it.hasNext();) {
         Socket thissock = it.next();
         try {
           thissock.close();
         } catch (IOException e) {
         }
       }
-    }
-  }
+    } // synchronized
+  }  // kill
+
+
 }

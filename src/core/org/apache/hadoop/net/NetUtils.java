@@ -48,8 +48,7 @@ import org.apache.hadoop.util.ReflectionUtils;
 public class NetUtils {
   private static final Log LOG = LogFactory.getLog(NetUtils.class);
     
-  private static Map<String, String> hostToResolved = 
-                                     new HashMap<String, String>();
+  private static Map<String, String> hostToResolved = new HashMap<String, String>();
 
   /**
    * Get the socket factory for the given class according to its
@@ -64,19 +63,14 @@ public class NetUtils {
    * @param clazz the class (usually a {@link VersionedProtocol})
    * @return a socket factory
    */
-  public static SocketFactory getSocketFactory(Configuration conf,
-      Class<?> clazz) {
-
+  public static SocketFactory getSocketFactory(Configuration conf, Class<?> clazz) {
     SocketFactory factory = null;
-
     String propValue =
         conf.get("hadoop.rpc.socket.factory.class." + clazz.getSimpleName());
     if ((propValue != null) && (propValue.length() > 0))
       factory = getSocketFactoryFromProperty(conf, propValue);
-
     if (factory == null)
       factory = getDefaultSocketFactory(conf);
-
     return factory;
   }
 
@@ -90,11 +84,9 @@ public class NetUtils {
    *         contain a default socket factory property.
    */
   public static SocketFactory getDefaultSocketFactory(Configuration conf) {
-
     String propValue = conf.get("hadoop.rpc.socket.factory.class.default");
     if ((propValue == null) || (propValue.length() == 0))
       return SocketFactory.getDefault();
-
     return getSocketFactoryFromProperty(conf, propValue);
   }
 
@@ -107,13 +99,10 @@ public class NetUtils {
    *        SocketFactory to instantiate; assumed non null and non empty.
    * @return a socket factory as defined in the property value.
    */
-  public static SocketFactory getSocketFactoryFromProperty(
-      Configuration conf, String propValue) {
-
+  public static SocketFactory getSocketFactoryFromProperty(Configuration conf, String propValue) {
     try {
       Class<?> theClass = conf.getClassByName(propValue);
       return (SocketFactory) ReflectionUtils.newInstance(theClass, conf);
-
     } catch (ClassNotFoundException cnfe) {
       throw new RuntimeException("Socket Factory class not found: " + cnfe);
     }
@@ -121,7 +110,7 @@ public class NetUtils {
 
   /**
    * Util method to build socket addr from either:
-   *   <host>:<post>
+   *   <host>:<port>
    *   <fs>://<host>:<port>/<path>
    */
   public static InetSocketAddress createSocketAddr(String target) {
@@ -131,11 +120,10 @@ public class NetUtils {
   /**
    * Util method to build socket addr from either:
    *   <host>
-   *   <host>:<post>
+   *   <host>:<port>
    *   <fs>://<host>:<port>/<path>
    */
-  public static InetSocketAddress createSocketAddr(String target,
-                                                   int defaultPort) {
+  public static InetSocketAddress createSocketAddr(String target, int defaultPort) {
     if (target == null) {
       throw new IllegalArgumentException("Socket address is null");
     }
@@ -144,9 +132,7 @@ public class NetUtils {
     try {
       uri = hasScheme ? URI.create(target) : URI.create("dummyscheme://"+target);
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException(
-          "Does not contain a valid host:port authority: " + target
-      );
+      throw new IllegalArgumentException("Does not contain a valid host:port authority: " + target);
     }
 
     String host = uri.getHost();
@@ -155,13 +141,8 @@ public class NetUtils {
       port = defaultPort;
     }
     String path = uri.getPath();
-    
-    if ((host == null) || (port < 0) ||
-        (!hasScheme && path != null && !path.isEmpty()))
-    {
-      throw new IllegalArgumentException(
-          "Does not contain a valid host:port authority: " + target
-      );
+    if ((host == null) || (port < 0) || (!hasScheme && path != null && !path.isEmpty())) {
+      throw new IllegalArgumentException("Does not contain a valid host:port authority: " + target);
     }
     return makeSocketAddr(host, port);
   }
@@ -179,8 +160,7 @@ public class NetUtils {
    */
   public static InetSocketAddress makeSocketAddr(String host, int port) {
     String staticHost = getStaticResolution(host);
-    String resolveHost = (staticHost != null) ? staticHost : host;
-    
+    String resolveHost = (staticHost != null) ? staticHost : host;    
     InetSocketAddress addr;
     try {
       InetAddress iaddr = SecurityUtil.getByName(resolveHost);
@@ -229,8 +209,7 @@ public class NetUtils {
   // cache the canonicalized hostnames;  the cache currently isn't expired,
   // but the canonicals will only change if the host's resolver configuration
   // changes
-  private static ConcurrentHashMap<String, String> canonicalizedHostCache =
-      new ConcurrentHashMap<String, String>();
+  private static ConcurrentHashMap<String, String> canonicalizedHostCache = new ConcurrentHashMap<String, String>();
 
   private static String canonicalizeHost(String host) {
     // check if the host has already been canonicalized
@@ -257,10 +236,7 @@ public class NetUtils {
    * @return the complete address from the configuration
    */
   @Deprecated
-  public static String getServerAddress(Configuration conf,
-                                        String oldBindAddressName,
-                                        String oldPortName,
-                                        String newBindAddressName) {
+  public static String getServerAddress(Configuration conf, String oldBindAddressName, String oldPortName, String newBindAddressName) {
     String oldAddr = conf.get(oldBindAddressName);
     String oldPort = conf.get(oldPortName);
     String newAddrPort = conf.get(newBindAddressName);
@@ -375,8 +351,7 @@ public class NetUtils {
    * @return InputStream for reading from the socket.
    * @throws IOException
    */
-  public static InputStream getInputStream(Socket socket) 
-                                           throws IOException {
+  public static InputStream getInputStream(Socket socket) throws IOException {
     return getInputStream(socket, socket.getSoTimeout());
   }
   
@@ -399,8 +374,7 @@ public class NetUtils {
    * @return InputStream for reading from the socket.
    * @throws IOException
    */
-  public static InputStream getInputStream(Socket socket, long timeout) 
-                                           throws IOException {
+  public static InputStream getInputStream(Socket socket, long timeout) throws IOException {
     return (socket.getChannel() == null) ? 
           socket.getInputStream() : new SocketInputStream(socket, timeout);
   }

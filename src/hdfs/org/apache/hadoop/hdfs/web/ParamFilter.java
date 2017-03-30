@@ -34,6 +34,7 @@ import com.sun.jersey.spi.container.ResourceFilter;
  * so that parameter names are considered as case insensitive.
  */
 public class ParamFilter implements ResourceFilter {
+	
   private static final ContainerRequestFilter LOWER_CASE
       = new ContainerRequestFilter() {
     @Override
@@ -82,4 +83,5 @@ public class ParamFilter implements ResourceFilter {
     }
     return b.build();
   }
+
 }
