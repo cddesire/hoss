@@ -33,9 +33,11 @@ public class TaskTracker {
   static final Log LOG = LogFactory.getLog(TaskTracker.class);
   
   final private String trackerName;
+  
   private TaskTrackerStatus status;
 
   private JobInProgress jobForFallowMapSlot;
+  
   private JobInProgress jobForFallowReduceSlot;
   
   /**
@@ -106,8 +108,7 @@ public class TaskTracker {
    *         <code>null</code> if there are no fallow slots
    */
   public JobInProgress getJobForFallowSlot(TaskType taskType) {
-    return 
-      (taskType == TaskType.MAP) ? jobForFallowMapSlot : jobForFallowReduceSlot;
+    return (taskType == TaskType.MAP) ? jobForFallowMapSlot : jobForFallowReduceSlot;
   }
 
   /**
@@ -174,7 +175,6 @@ public class TaskTracker {
                                    jobForFallowReduceSlot + "; being"  +
                                    " asked to un-reserve for " + jobId);
       }
-      
       jobForFallowReduceSlot = null;
     }
     
@@ -198,4 +198,5 @@ public class TaskTracker {
       unreserveSlots(TaskType.REDUCE, jobForFallowReduceSlot);
     }
   }
+  
 }
