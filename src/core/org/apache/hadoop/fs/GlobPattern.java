@@ -25,8 +25,11 @@ import java.util.regex.PatternSyntaxException;
  * A class for POSIX glob pattern with brace expansions.
  */
 public class GlobPattern {
+  
   private static final char BACKSLASH = '\\';
+  
   private Pattern compiled;
+  
   private boolean hasWildcard = false;
 
   /**
