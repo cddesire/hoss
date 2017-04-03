@@ -26,8 +26,7 @@ import java.io.IOException;
  */
 
 
-public class BufferedFSInputStream extends BufferedInputStream
-implements Seekable, PositionedReadable {
+public class BufferedFSInputStream extends BufferedInputStream implements Seekable, PositionedReadable {
   /**
    * Creates a <code>BufferedFSInputStream</code>
    * with the specified buffer size,
@@ -58,13 +57,13 @@ implements Seekable, PositionedReadable {
   }
 
   public void seek(long pos) throws IOException {
-    if( pos<0 ) {
+    if(pos < 0) {
       return;
     }
     // optimize: check if the pos is in the buffer
     long end = ((FSInputStream)in).getPos();
     long start = end - count;
-    if( pos>=start && pos<end) {
+    if(pos >= start && pos < end) {
       this.pos = (int)(pos-start);
       return;
     }
