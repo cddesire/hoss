@@ -65,8 +65,7 @@ public class DistributedFileSystem extends FileSystem {
   }
 
   /** @deprecated */
-  public DistributedFileSystem(InetSocketAddress namenode,
-    Configuration conf) throws IOException {
+  public DistributedFileSystem(InetSocketAddress namenode, Configuration conf) throws IOException {
     initialize(NameNode.getUri(namenode), conf);
   }
 
@@ -113,8 +112,7 @@ public class DistributedFileSystem extends FileSystem {
   public void setWorkingDirectory(Path dir) {
     String result = makeAbsolute(dir).toUri().getPath();
     if (!DFSUtil.isValidName(result)) {
-      throw new IllegalArgumentException("Invalid DFS directory name " + 
-                                         result);
+      throw new IllegalArgumentException("Invalid DFS directory name " + result);
     }
     workingDir = makeAbsolute(dir);
   }
@@ -128,15 +126,13 @@ public class DistributedFileSystem extends FileSystem {
     checkPath(file);
     String result = makeAbsolute(file).toUri().getPath();
     if (!DFSUtil.isValidName(result)) {
-      throw new IllegalArgumentException("Pathname " + result + " from " +
-                                         file+" is not a valid DFS filename.");
+      throw new IllegalArgumentException("Pathname " + result + " from " + file+" is not a valid DFS filename.");
     }
     return result;
   }
   
 
-  public BlockLocation[] getFileBlockLocations(FileStatus file, long start,
-      long len) throws IOException {
+  public BlockLocation[] getFileBlockLocations(FileStatus file, long start, long len) throws IOException {
     if (file == null) {
       return null;
     }
@@ -166,22 +162,17 @@ public class DistributedFileSystem extends FileSystem {
   }
 
   /** This optional operation is not yet supported. */
-  public FSDataOutputStream append(Path f, int bufferSize,
-      Progressable progress) throws IOException {
+  public FSDataOutputStream append(Path f, int bufferSize, Progressable progress) throws IOException {
     statistics.incrementWriteOps(1);
     return dfs.append(getPathName(f), bufferSize, progress, statistics);
   }
 
-  public FSDataOutputStream create(Path f, FsPermission permission,
-    boolean overwrite,
-    int bufferSize, short replication, long blockSize,
-    Progressable progress) throws IOException {
-
+  public FSDataOutputStream create(Path f, FsPermission permission, boolean overwrite,
+    int bufferSize, short replication, long blockSize, Progressable progress) throws IOException {
     statistics.incrementWriteOps(1);
     return new FSDataOutputStream
        (dfs.create(getPathName(f), permission,
-                   overwrite, true, replication, blockSize, progress, bufferSize),
-        statistics);
+                   overwrite, true, replication, blockSize, progress, bufferSize), statistics);
   }
 
   /**
@@ -190,19 +181,15 @@ public class DistributedFileSystem extends FileSystem {
    */
   @Override
   public FSDataOutputStream createNonRecursive(Path f, FsPermission permission,
-      boolean overwrite,
-      int bufferSize, short replication, long blockSize, 
+      boolean overwrite, int bufferSize, short replication, long blockSize,
       Progressable progress) throws IOException {
-
     return new FSDataOutputStream
         (dfs.create(getPathName(f), permission, 
                     overwrite, false, replication, blockSize, progress, bufferSize), 
          statistics);
   }
 
-  public boolean setReplication(Path src, 
-                                short replication
-                               ) throws IOException {
+  public boolean setReplication(Path src, short replication ) throws IOException {
     statistics.incrementWriteOps(1);
     return dfs.setReplication(getPathName(src), replication);
   }
@@ -242,17 +229,14 @@ public class DistributedFileSystem extends FileSystem {
   /** Set a directory's quotas
    * @see org.apache.hadoop.hdfs.protocol.ClientProtocol#setQuota(String, long, long) 
    */
-  public void setQuota(Path src, long namespaceQuota, long diskspaceQuota) 
-                       throws IOException {
+  public void setQuota(Path src, long namespaceQuota, long diskspaceQuota) throws IOException {
     dfs.setQuota(getPathName(src), namespaceQuota, diskspaceQuota);
   }
   
   private FileStatus makeQualified(HdfsFileStatus f, Path parent) {
     return new FileStatus(f.getLen(), f.isDir(), f.getReplication(),
-        f.getBlockSize(), f.getModificationTime(),
-        f.getAccessTime(),
-        f.getPermission(), f.getOwner(), f.getGroup(),
-        f.getFullPath(parent).makeQualified(this)); // fully-qualify path
+        f.getBlockSize(), f.getModificationTime(), f.getAccessTime(),
+        f.getPermission(), f.getOwner(), f.getGroup(), f.getFullPath(parent).makeQualified(this)); // fully-qualify path
   }
 
   /**
@@ -268,8 +252,7 @@ public class DistributedFileSystem extends FileSystem {
     String src = getPathName(p);
     
     // fetch the first batch of entries in the directory
-    DirectoryListing thisListing = dfs.listPaths(
-        src, HdfsFileStatus.EMPTY_NAME);
+    DirectoryListing thisListing = dfs.listPaths(src, HdfsFileStatus.EMPTY_NAME);
     
     if (thisListing == null) { // the directory does not exist
       return null;
@@ -287,10 +270,8 @@ public class DistributedFileSystem extends FileSystem {
     
     // The directory size is too big that it needs to fetch more
     // estimate the total number of entries in the directory
-    int totalNumEntries = 
-      partialListing.length + thisListing.getRemainingEntries();
-    ArrayList<FileStatus> listing = 
-      new ArrayList<FileStatus>(totalNumEntries);
+    int totalNumEntries = partialListing.length + thisListing.getRemainingEntries();
+    ArrayList<FileStatus> listing = new ArrayList<FileStatus>(totalNumEntries);
     // add the first batch of entries to the array list
     for (HdfsFileStatus fileStatus : partialListing) {
       listing.add(makeQualified(fileStatus, p));
@@ -465,9 +446,7 @@ public class DistributedFileSystem extends FileSystem {
    * is corrupt but we will report both to the namenode.  In the future,
    * we can consider figuring out exactly which block is corrupt.
    */
-  public boolean reportChecksumFailure(Path f, 
-    FSDataInputStream in, long inPos, 
-    FSDataInputStream sums, long sumsPos) {
+  public boolean reportChecksumFailure(Path f, FSDataInputStream in, long inPos, FSDataInputStream sums, long sumsPos) {
 
     LocatedBlock lblocks[] = new LocatedBlock[2];
 
@@ -481,8 +460,7 @@ public class DistributedFileSystem extends FileSystem {
     DatanodeInfo[] dataNode = {dfsIn.getCurrentDatanode()}; 
     lblocks[0] = new LocatedBlock(dataBlock, dataNode);
     LOG.info("Found checksum error in data stream at block="
-        + dataBlock + " on datanode="
-        + dataNode[0].getName());
+        + dataBlock + " on datanode=" + dataNode[0].getName());
 
     // Find block in checksum stream
     DFSClient.DFSDataInputStream dfsSums = (DFSClient.DFSDataInputStream) sums;
@@ -494,8 +472,7 @@ public class DistributedFileSystem extends FileSystem {
     DatanodeInfo[] sumsNode = {dfsSums.getCurrentDatanode()}; 
     lblocks[1] = new LocatedBlock(sumsBlock, sumsNode);
     LOG.info("Found checksum error in checksum stream at block="
-        + sumsBlock + " on datanode="
-        + sumsNode[0].getName());
+        + sumsBlock + " on datanode=" + sumsNode[0].getName());
 
     // Ask client to delete blocks.
     dfs.reportChecksumFailure(f.toString(), lblocks);
@@ -524,15 +501,13 @@ public class DistributedFileSystem extends FileSystem {
   }
 
   /** {@inheritDoc }*/
-  public void setPermission(Path p, FsPermission permission
-      ) throws IOException {
+  public void setPermission(Path p, FsPermission permission) throws IOException {
     statistics.incrementWriteOps(1);
     dfs.setPermission(getPathName(p), permission);
   }
 
   /** {@inheritDoc }*/
-  public void setOwner(Path p, String username, String groupname
-      ) throws IOException {
+  public void setOwner(Path p, String username, String groupname) throws IOException {
     if (username == null && groupname == null) {
       throw new IOException("username == null && groupname == null");
     }
@@ -541,8 +516,7 @@ public class DistributedFileSystem extends FileSystem {
   }
 
   /** {@inheritDoc }*/
-  public void setTimes(Path p, long mtime, long atime
-      ) throws IOException {
+  public void setTimes(Path p, long mtime, long atime) throws IOException {
     statistics.incrementWriteOps(1);
     dfs.setTimes(getPathName(p), mtime, atime);
   }
@@ -554,8 +528,7 @@ public class DistributedFileSystem extends FileSystem {
 
   @Override
   public 
-  Token<DelegationTokenIdentifier> getDelegationToken(String renewer
-                                                      ) throws IOException {
+  Token<DelegationTokenIdentifier> getDelegationToken(String renewer) throws IOException {
     Token<DelegationTokenIdentifier> result =
       dfs.getDelegationToken(renewer == null ? null : new Text(renewer));
     return result;
@@ -575,8 +548,7 @@ public class DistributedFileSystem extends FileSystem {
    * @Deprecated use {@link #getDelegationToken(String)}
    */
   @Deprecated
-  public Token<DelegationTokenIdentifier> getDelegationToken(Text renewer)
-      throws IOException {
+  public Token<DelegationTokenIdentifier> getDelegationToken(Text renewer) throws IOException {
     return getDelegationToken(renewer.toString());
   }
 
@@ -588,8 +560,7 @@ public class DistributedFileSystem extends FileSystem {
    * @throws IOException
    * @deprecated Use Token.renew instead.
    */
-  public long renewDelegationToken(Token<DelegationTokenIdentifier> token)
-      throws InvalidToken, IOException {
+  public long renewDelegationToken(Token<DelegationTokenIdentifier> token) throws InvalidToken, IOException {
     try {
       return token.renew(getConf());
     } catch (InterruptedException ie) {
@@ -604,8 +575,7 @@ public class DistributedFileSystem extends FileSystem {
    * @throws IOException
    * @deprecated Use Token.cancel instead.
    */
-  public void cancelDelegationToken(Token<DelegationTokenIdentifier> token)
-      throws IOException {
+  public void cancelDelegationToken(Token<DelegationTokenIdentifier> token) throws IOException {
     try {
       token.cancel(getConf());
     } catch (InterruptedException ie) {
