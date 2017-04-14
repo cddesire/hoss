@@ -26,6 +26,7 @@ import java.lang.reflect.Array;
  * generic-array-creation-vs-array-newinstance" >Generic array-creation</a>
  */
 public class GenericFactory<T> {
+	
 	public final Class<T> type;
 
 	public GenericFactory(final Class<T> type) {
