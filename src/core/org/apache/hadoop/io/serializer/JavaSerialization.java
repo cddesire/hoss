@@ -33,8 +33,7 @@ import java.io.Serializable;
  */
 public class JavaSerialization implements Serialization<Serializable> {
   
-  static class JavaSerializationDeserializer<T extends Serializable>
-    implements Deserializer<T> {
+  static class JavaSerializationDeserializer<T extends Serializable> implements Deserializer<T> {
 
     private ObjectInputStream ois;
 
