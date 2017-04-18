@@ -42,25 +42,21 @@ import org.apache.hadoop.mapreduce.server.tasktracker.userlogs.*;
  */
 public class UserLogCleaner extends Thread {
   private static final Log LOG = LogFactory.getLog(UserLogCleaner.class);
-  static final String USERLOGCLEANUP_SLEEPTIME = 
-    "mapreduce.tasktracker.userlogcleanup.sleeptime";
+  static final String USERLOGCLEANUP_SLEEPTIME = "mapreduce.tasktracker.userlogcleanup.sleeptime";
   static final int DEFAULT_USER_LOG_RETAIN_HOURS = 24; // 1 day
   static final long DEFAULT_THREAD_SLEEP_TIME = 1000 * 60 * 60; // 1 hour
 
   private UserLogManager userLogManager;
-  private Map<JobID, Long> completedJobs = Collections
-      .synchronizedMap(new HashMap<JobID, Long>());
+  private Map<JobID, Long> completedJobs = Collections.synchronizedMap(new HashMap<JobID, Long>());
   private final long threadSleepTime;
   private CleanupQueue cleanupQueue;
 
   private Clock clock;
   private FileSystem localFs;
 
-  public UserLogCleaner(UserLogManager userLogManager, Configuration conf)
-      throws IOException {
+  public UserLogCleaner(UserLogManager userLogManager, Configuration conf) throws IOException {
     this.userLogManager = userLogManager;
-    threadSleepTime = conf.getLong(USERLOGCLEANUP_SLEEPTIME,
-        DEFAULT_THREAD_SLEEP_TIME);
+    threadSleepTime = conf.getLong(USERLOGCLEANUP_SLEEPTIME, DEFAULT_THREAD_SLEEP_TIME);
     cleanupQueue = CleanupQueue.getInstance();
     localFs = FileSystem.getLocal(conf);
     setClock(new Clock());
@@ -130,8 +126,7 @@ public class UserLogCleaner extends Thread {
    * @param conf 
    * @throws IOException
    */
-  public void addOldUserLogsForDeletion(File loc, Configuration conf)  
-  			throws IOException  {
+  public void addOldUserLogsForDeletion(File loc, Configuration conf) throws IOException  {
     if (loc.exists()) {
         long now = clock.getTime();
         for(String logDir: loc.list()) {
@@ -166,9 +161,8 @@ public class UserLogCleaner extends Thread {
     addOldUserLogsForDeletion(userLogDir, conf);
     String[] localDirs = conf.getStrings(JobConf.MAPRED_LOCAL_DIR_PROPERTY);
     for(String localDir : localDirs) {
-    	File mapredLocalUserLogDir = new File(localDir + 
-    			File.separatorChar + TaskLog.USERLOGS_DIR_NAME);
-    	addOldUserLogsForDeletion(mapredLocalUserLogDir, conf);
+      File mapredLocalUserLogDir = new File(localDir + File.separatorChar + TaskLog.USERLOGS_DIR_NAME);
+      addOldUserLogsForDeletion(mapredLocalUserLogDir, conf);
     }
   }
 
@@ -195,8 +189,7 @@ public class UserLogCleaner extends Thread {
   public void markJobLogsForDeletion(long jobCompletionTime, int retainHours,
       org.apache.hadoop.mapreduce.JobID jobid) {
     long retainTimeStamp = jobCompletionTime + (retainHours * 1000L * 60L * 60L);
-    LOG.info("Adding " + jobid + " for user-log deletion with retainTimeStamp:"
-        + retainTimeStamp);
+    LOG.info("Adding " + jobid + " for user-log deletion with retainTimeStamp:" + retainTimeStamp);
     completedJobs.put(jobid, Long.valueOf(retainTimeStamp));
   }
 
@@ -218,39 +211,39 @@ public class UserLogCleaner extends Thread {
    * @throws IOException
    */
   private String getLogUser(String logPath) throws IOException{
-	//Get user from <hadoop.log.dir>/userlogs/jobid path
-	String logRoot = TaskLog.getUserLogDir().toString();
-	String user = null;
-	try{
-		user = localFs.getFileStatus(new Path(logRoot, logPath)).getOwner();
-	}catch(Exception e){
-		//Ignore this exception since this path might have been deleted.
-	}
-	
-	//If we found the user for this logPath, then return this user
-	if(user != null) return user; 
+    //Get user from <hadoop.log.dir>/userlogs/jobid path
+    String logRoot = TaskLog.getUserLogDir().toString();
+    String user = null;
+    try{
+      user = localFs.getFileStatus(new Path(logRoot, logPath)).getOwner();
+    }catch(Exception e){
+      //Ignore this exception since this path might have been deleted.
+    }
+    
+    //If we found the user for this logPath, then return this user
+    if(user != null) return user; 
 
-	//If <hadoop.log.dir>/userlogs/jobid not found, then get user from 
-	//any one of existing <mapred.local.dir>/userlogs/jobid path(s)
-	String[] localDirs = 
-	   userLogManager.getTaskController().getLocalDirs();
-	for(String localDir : localDirs) {
-		try{
-		   logRoot = localDir + File.separator + TaskLog.USERLOGS_DIR_NAME;
-		   user = localFs.getFileStatus(new Path(logRoot, logPath)).getOwner();
-		   //If we found the user for this logPath, then break this loop
-		   if(user != null) break; 
-			
-		}catch(Exception e){
-			//Ignore this exception since this path might have been deleted.
-		}
-	}
-	
-	if(user == null) {
-		throw new IOException("Userlog path not found for " + logPath);
-	}
-	
-	return user;
+    //If <hadoop.log.dir>/userlogs/jobid not found, then get user from 
+    //any one of existing <mapred.local.dir>/userlogs/jobid path(s)
+    String[] localDirs = 
+       userLogManager.getTaskController().getLocalDirs();
+    for(String localDir : localDirs) {
+      try{
+         logRoot = localDir + File.separator + TaskLog.USERLOGS_DIR_NAME;
+         user = localFs.getFileStatus(new Path(logRoot, logPath)).getOwner();
+         //If we found the user for this logPath, then break this loop
+         if(user != null) break; 
+        
+      }catch(Exception e){
+        //Ignore this exception since this path might have been deleted.
+      }
+    }
+    
+    if(user == null) {
+      throw new IOException("Userlog path not found for " + logPath);
+    }
+    
+    return user;
   }
   
   /**
