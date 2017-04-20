@@ -33,6 +33,7 @@ import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
 
 public class BlockTokenIdentifier extends TokenIdentifier {
+
   static final Text KIND_NAME = new Text("HDFS_BLOCK_TOKEN");
 
   private long expiryDate;
@@ -181,7 +182,6 @@ public class BlockTokenIdentifier extends TokenIdentifier {
   @Override
   public byte[] getBytes() {
     if(cache == null) cache = super.getBytes();
-    
     return cache;
   }
   
