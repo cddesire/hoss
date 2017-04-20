@@ -33,8 +33,7 @@ import org.apache.hadoop.security.token.TokenIdentifier;
  * A daemon thread that waits for the next file system to renew.
  */
 @InterfaceAudience.Private
-public class DelegationTokenRenewer<T extends FileSystem & DelegationTokenRenewer.Renewable>
-    extends Thread {
+public class DelegationTokenRenewer<T extends FileSystem & DelegationTokenRenewer.Renewable> extends Thread {
   /** The renewable interface used by the renewer. */
   public interface Renewable {
     /** @return the renew token. */
@@ -48,8 +47,7 @@ public class DelegationTokenRenewer<T extends FileSystem & DelegationTokenRenewe
    * An action that will renew and replace the file system's delegation 
    * tokens automatically.
    */
-  private static class RenewAction<T extends FileSystem & Renewable>
-      implements Delayed {
+  private static class RenewAction<T extends FileSystem & Renewable> implements Delayed {
     /** when should the renew happen */
     private long renewalTime;
     /** a weak reference to the file system so that it can be garbage collected */
