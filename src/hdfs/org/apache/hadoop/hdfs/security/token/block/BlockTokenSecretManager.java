@@ -43,10 +43,10 @@ import org.apache.hadoop.security.token.Token;
  * master and slave can generate and verify block tokens. Typically, master mode
  * is used by NN and slave mode is used by DN.
  */
-public class BlockTokenSecretManager extends
-    SecretManager<BlockTokenIdentifier> {
-  public static final Log LOG = LogFactory
-      .getLog(BlockTokenSecretManager.class);
+public class BlockTokenSecretManager extends SecretManager<BlockTokenIdentifier> {
+  
+  public static final Log LOG = LogFactory .getLog(BlockTokenSecretManager.class);
+
   public static final Token<BlockTokenIdentifier> DUMMY_TOKEN = new Token<BlockTokenIdentifier>();
 
   private final boolean isMaster;
@@ -133,8 +133,7 @@ public class BlockTokenSecretManager extends
   /**
    * Set block keys, only to be used in slave mode
    */
-  public synchronized void setKeys(ExportedBlockKeys exportedKeys)
-      throws IOException {
+  public synchronized void setKeys(ExportedBlockKeys exportedKeys) throws IOException {
     if (isMaster || exportedKeys == null)
       return;
     LOG.info("Setting block keys");
@@ -311,8 +310,7 @@ public class BlockTokenSecretManager extends
    * @throws InvalidToken
    */
   @Override
-  public byte[] retrievePassword(BlockTokenIdentifier identifier)
-      throws InvalidToken {
+  public byte[] retrievePassword(BlockTokenIdentifier identifier) throws InvalidToken {
     if (isExpired(identifier.getExpiryDate())) {
       throw new InvalidToken("Block token with " + identifier.toString()
           + " is expired.");
