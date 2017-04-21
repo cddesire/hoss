@@ -47,10 +47,7 @@ public class DFSUtil {
     StringTokenizer tokens = new StringTokenizer(src, Path.SEPARATOR);
     while(tokens.hasMoreTokens()) {
       String element = tokens.nextToken();
-      if (element.equals("..") || 
-          element.equals(".")  ||
-          (element.indexOf(":") >= 0)  ||
-          (element.indexOf("/") >= 0)) {
+      if (element.equals("..") || element.equals(".")  || (element.indexOf(":") >= 0)  || (element.indexOf("/") >= 0)) {
         return false;
       }
     }
@@ -102,13 +99,10 @@ public class DFSUtil {
       for (int hCnt = 0; hCnt < locations.length; hCnt++) {
         hosts[hCnt] = locations[hCnt].getHostName();
         names[hCnt] = locations[hCnt].getName();
-        NodeBase node = new NodeBase(names[hCnt], 
-                                     locations[hCnt].getNetworkLocation());
+        NodeBase node = new NodeBase(names[hCnt], locations[hCnt].getNetworkLocation());
         racks[hCnt] = node.toString();
       }
-      blkLocations[idx] = new BlockLocation(names, hosts, racks,
-                                            blk.getStartOffset(),
-                                            blk.getBlockSize());
+      blkLocations[idx] = new BlockLocation(names, hosts, racks, blk.getStartOffset(), blk.getBlockSize());
       idx++;
     }
     return blkLocations;
@@ -117,8 +111,7 @@ public class DFSUtil {
   /** Create a URI from the scheme and address */
   public static URI createUri(String scheme, InetSocketAddress address) {
     try {
-      return new URI(scheme, null, address.getHostName(), address.getPort(),
-          null, null, null);
+      return new URI(scheme, null, address.getHostName(), address.getPort(), null, null, null);
     } catch (URISyntaxException ue) {
       throw new IllegalArgumentException(ue);
     }

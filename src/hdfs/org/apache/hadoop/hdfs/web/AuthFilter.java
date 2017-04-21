@@ -45,6 +45,7 @@ import org.apache.hadoop.security.authentication.server.PseudoAuthenticationHand
  * obtains Hadoop-Auth configuration for webhdfs.
  */
 public class AuthFilter extends AuthenticationFilter {
+
   private static final String CONF_PREFIX = "dfs.web.authentication.";
 
   /**
@@ -58,12 +59,11 @@ public class AuthFilter extends AuthenticationFilter {
    * @throws ServletException 
    */
   @Override
-  protected Properties getConfiguration(String prefix, FilterConfig config)
-      throws ServletException {
+  protected Properties getConfiguration(String prefix, FilterConfig config) throws ServletException {
     final Properties p = super.getConfiguration(CONF_PREFIX, config);
     // set authentication type
-    p.setProperty(AUTH_TYPE, UserGroupInformation.isSecurityEnabled()?
-        KerberosAuthenticationHandler.TYPE: PseudoAuthenticationHandler.TYPE);
+    p.setProperty(AUTH_TYPE, UserGroupInformation.isSecurityEnabled() ?
+        KerberosAuthenticationHandler.TYPE : PseudoAuthenticationHandler.TYPE);
     //For Pseudo Authentication, allow anonymous.
     p.setProperty(PseudoAuthenticationHandler.ANONYMOUS_ALLOWED, "true");
     //set cookie path

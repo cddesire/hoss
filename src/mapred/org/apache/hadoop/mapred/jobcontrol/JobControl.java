@@ -49,12 +49,17 @@ public class JobControl implements Runnable{
   private int runnerState;			// the thread state
 	
   private Map<String, Job> waitingJobs;
+
   private Map<String, Job> readyJobs;
+
   private Map<String, Job> runningJobs;
+
   private Map<String, Job> successfulJobs;
+
   private Map<String, Job> failedJobs;
 	
   private long nextJobID;
+
   private String groupName;
 	
   /** 
@@ -132,17 +137,25 @@ public class JobControl implements Runnable{
 	
   private Map<String, Job> getQueue(int state) {
     Map<String, Job> retv = null;
-    if (state == Job.WAITING) {
-      retv = this.waitingJobs;
-    } else if (state == Job.READY) {
-      retv = this.readyJobs;
-    } else if (state == Job.RUNNING) {
-      retv = this.runningJobs;
-    } else if (state == Job.SUCCESS) {
-      retv = this.successfulJobs;
-    } else if (state == Job.FAILED || state == Job.DEPENDENT_FAILED) {
-      retv = this.failedJobs;
-    } 
+    switch(state) {
+      case Job.WAITING:
+        retv = this.waitingJobs;
+        break;
+      case Job.READY:
+        retv = this.readyJobs;
+        break;
+      case Job.RUNNING:
+        retv = this.runningJobs;
+        break;
+      case Job.SUCCESS:
+        retv = this.successfulJobs;
+        break;
+      case Job.FAILED:
+      case Job.DEPENDENT_FAILED
+        retv = this.failedJobs;
+        break;
+      
+    }
     return retv;
   }
 
@@ -203,19 +216,12 @@ public class JobControl implements Runnable{
   }
 	
   synchronized private void checkRunningJobs() {
-		
     Map<String, Job> oldJobs = null;
     oldJobs = this.runningJobs;
     this.runningJobs = new Hashtable<String, Job>();
 		
     for (Job nextJob : oldJobs.values()) {
       int state = nextJob.checkState();
-      /*
-        if (state != Job.RUNNING) {
-        System.out.println("The state of the running job " +
-        nextJob.getJobName() + " has changed to: " + nextJob.getState());
-        }
-      */
       this.addToQueue(nextJob);
     }
   }
@@ -224,15 +230,8 @@ public class JobControl implements Runnable{
     Map<String, Job> oldJobs = null;
     oldJobs = this.waitingJobs;
     this.waitingJobs = new Hashtable<String, Job>();
-		
     for (Job nextJob : oldJobs.values()) {
       int state = nextJob.checkState();
-      /*
-        if (state != Job.WAITING) {
-        System.out.println("The state of the waiting job " +
-        nextJob.getJobName() + " has changed to: " + nextJob.getState());
-        }
-      */
       this.addToQueue(nextJob);
     }
   }

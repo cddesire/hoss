@@ -88,8 +88,8 @@ public class UpgradeObjectCollection {
       }
 
       public int hashCode() {
-        return version ^ ((type==null)?0:type.hashCode()) 
-                       ^ ((className==null)?0:className.hashCode());
+        return version ^ ((type==null) ? 0 : type.hashCode()) 
+                       ^ ((className==null) ? 0 : className.hashCode());
       }
   }
 

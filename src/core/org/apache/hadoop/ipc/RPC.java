@@ -137,8 +137,7 @@ public class RPC {
 
   /* Cache a client using its socket factory as the hash key */
   static private class ClientCache {
-    private Map<SocketFactory, Client> clients =
-      new HashMap<SocketFactory, Client>();
+    private Map<SocketFactory, Client> clients = new HashMap<SocketFactory, Client>();
 
     /**
      * Construct & cache an IPC client with the user-provided SocketFactory 
@@ -339,7 +338,6 @@ public class RPC {
       if (System.currentTimeMillis()-connTimeout >= startTime) {
         throw ioe;
       }
-
       // wait for retry
       try {
         Thread.sleep(1000);
@@ -472,7 +470,6 @@ public class RPC {
     for (int i = 0; i < values.length; i++)
       if (wrappedValues[i] != null)
         values[i] = ((ObjectWritable)wrappedValues[i]).get();
-    
     return values;
     } finally {
       CLIENTS.stopClient(client);

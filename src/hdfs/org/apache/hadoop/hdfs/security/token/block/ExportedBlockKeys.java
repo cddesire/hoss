@@ -70,10 +70,7 @@ public class ExportedBlockKeys implements Writable {
     return allKeys;
   }
   
-  // ///////////////////////////////////////////////
-  // Writable
-  // ///////////////////////////////////////////////
-  static { // register a ctor
+  static { 
     WritableFactories.setFactory(ExportedBlockKeys.class,
         new WritableFactory() {
           public Writable newInstance() {
@@ -82,8 +79,6 @@ public class ExportedBlockKeys implements Writable {
         });
   }
 
-  /**
-   */
   public void write(DataOutput out) throws IOException {
     out.writeBoolean(isBlockTokenEnabled);
     out.writeLong(keyUpdateInterval);
@@ -95,8 +90,6 @@ public class ExportedBlockKeys implements Writable {
     }
   }
 
-  /**
-   */
   public void readFields(DataInput in) throws IOException {
     isBlockTokenEnabled = in.readBoolean();
     keyUpdateInterval = in.readLong();

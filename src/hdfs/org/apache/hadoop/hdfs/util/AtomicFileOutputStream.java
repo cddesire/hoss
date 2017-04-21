@@ -44,10 +44,10 @@ public class AtomicFileOutputStream extends FilterOutputStream {
 
   private static final String TMP_EXTENSION = ".tmp";
   
-  private final static Log LOG = LogFactory.getLog(
-      AtomicFileOutputStream.class);
+  private final static Log LOG = LogFactory.getLog(AtomicFileOutputStream.class);
   
   private final File origFile;
+
   private final File tmpFile;
   
   public AtomicFileOutputStream(File f) throws FileNotFoundException {
@@ -64,7 +64,6 @@ public class AtomicFileOutputStream extends FilterOutputStream {
     try {
       flush();
       ((FileOutputStream)out).getChannel().force(true);
-
       triedToClose = true;
       super.close();
       success = true;

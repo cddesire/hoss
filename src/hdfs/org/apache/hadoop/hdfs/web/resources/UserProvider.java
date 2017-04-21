@@ -39,22 +39,18 @@ import com.sun.jersey.spi.inject.InjectableProvider;
 
 /** Inject user information to http operations. */
 @Provider
-public class UserProvider
-    extends AbstractHttpContextInjectable<UserGroupInformation>
+public class UserProvider extends AbstractHttpContextInjectable<UserGroupInformation>
     implements InjectableProvider<Context, Type> {
   @Context HttpServletRequest request;
   @Context ServletContext servletcontext;
 
   @Override
   public UserGroupInformation getValue(final HttpContext context) {
-    final Configuration conf = (Configuration) servletcontext
-        .getAttribute(JspHelper.CURRENT_CONF);
+    final Configuration conf = (Configuration) servletcontext.getAttribute(JspHelper.CURRENT_CONF);
     try {
-      return JspHelper.getUGI(servletcontext, request, conf,
-          AuthenticationMethod.KERBEROS, false);
+      return JspHelper.getUGI(servletcontext, request, conf, AuthenticationMethod.KERBEROS, false);
     } catch (IOException e) {
-      throw new SecurityException(
-          "Failed to obtain user group information: " + e, e);
+      throw new SecurityException("Failed to obtain user group information: " + e, e);
     }
   }
 
@@ -65,8 +61,7 @@ public class UserProvider
 
   @Override
   public Injectable<UserGroupInformation> getInjectable(
-      final ComponentContext componentContext, final Context context,
-      final Type type) {
+      final ComponentContext componentContext, final Context context, final Type type) {
     return type.equals(UserGroupInformation.class)? this : null;
   }
 }

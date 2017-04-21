@@ -31,8 +31,7 @@ import org.apache.hadoop.util.StringUtils;
  */
 
 abstract public class FSInputChecker extends FSInputStream {
-  public static final Log LOG 
-  = LogFactory.getLog(FSInputChecker.class);
+  public static final Log LOG = LogFactory.getLog(FSInputChecker.class);
   
   /** The file name from which data is read from */
   protected Path file;
@@ -53,7 +52,7 @@ abstract public class FSInputChecker extends FSInputStream {
    * @param file The name of the file to be read
    * @param numOfRetries Number of read retries when ChecksumError occurs
    */
-  protected FSInputChecker( Path file, int numOfRetries) {
+  protected FSInputChecker(Path file, int numOfRetries) {
     this.file = file;
     this.numOfRetries = numOfRetries;
   }

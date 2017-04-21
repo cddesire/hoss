@@ -40,9 +40,7 @@ public class IOUtils {
    * @param close whether or not close the InputStream and 
    * OutputStream at the end. The streams are closed in the finally clause.  
    */
-  public static void copyBytes(InputStream in, OutputStream out, int buffSize, boolean close) 
-    throws IOException {
-
+  public static void copyBytes(InputStream in, OutputStream out, int buffSize, boolean close) throws IOException {
     try {
       copyBytes(in, out, buffSize);
     } finally {
@@ -60,9 +58,7 @@ public class IOUtils {
    * @param out OutputStream to write to
    * @param buffSize the size of the buffer 
    */
-  public static void copyBytes(InputStream in, OutputStream out, int buffSize) 
-    throws IOException {
-
+  public static void copyBytes(InputStream in, OutputStream out, int buffSize) throws IOException {
     PrintStream ps = out instanceof PrintStream ? (PrintStream)out : null;
     byte buf[] = new byte[buffSize];
     int bytesRead = in.read(buf);
@@ -82,8 +78,7 @@ public class IOUtils {
    * @param out OutputStream to write to
    * @param conf the Configuration object 
    */
-  public static void copyBytes(InputStream in, OutputStream out, Configuration conf)
-    throws IOException {
+  public static void copyBytes(InputStream in, OutputStream out, Configuration conf) throws IOException {
     copyBytes(in, out, conf.getInt("io.file.buffer.size", 4096), true);
   }
   
@@ -95,8 +90,7 @@ public class IOUtils {
    * @param close whether or not close the InputStream and 
    * OutputStream at the end. The streams are closed in the finally clause.
    */
-  public static void copyBytes(InputStream in, OutputStream out, Configuration conf, boolean close)
-    throws IOException {
+  public static void copyBytes(InputStream in, OutputStream out, Configuration conf, boolean close) throws IOException {
     copyBytes(in, out, conf.getInt("io.file.buffer.size", 4096),  close);
   }
   
@@ -110,9 +104,7 @@ public class IOUtils {
    * @param close whether to close the streams
    * @throws IOException if bytes can not be read or written
    */
-  public static void copyBytes(InputStream in, OutputStream out,
-      final long length, final int bufferSize, final boolean close
-      ) throws IOException {
+  public static void copyBytes(InputStream in, OutputStream out, final long length, final int bufferSize, final boolean close) throws IOException {
     final byte buf[] = new byte[bufferSize];
     try {
       int n = 0;
@@ -146,12 +138,11 @@ public class IOUtils {
    * @throws IOException if it could not read requested number of bytes 
    * for any reason (including EOF)
    */
-  public static void readFully( InputStream in, byte buf[],
-      int off, int len ) throws IOException {
+  public static void readFully(InputStream in, byte buf[], int off, int len) throws IOException {
     int toRead = len;
-    while ( toRead > 0 ) {
-      int ret = in.read( buf, off, toRead );
-      if ( ret < 0 ) {
+    while (toRead > 0) {
+      int ret = in.read(buf, off, toRead);
+      if (ret < 0) {
         throw new IOException( "Premature EOF from inputStream");
       }
       toRead -= ret;
@@ -167,13 +158,12 @@ public class IOUtils {
    * @throws IOException if it could not read requested number of bytes 
    * for any reason (including EOF)
    */
-  public static void readFileChannelFully( FileChannel fileChannel, byte buf[],
-      int off, int len ) throws IOException {
+  public static void readFileChannelFully(FileChannel fileChannel, byte buf[], int off, int len) throws IOException {
     int toRead = len;
     ByteBuffer byteBuffer = ByteBuffer.wrap(buf, off, len);
-    while ( toRead > 0 ) {
+    while (toRead > 0) {
       int ret = fileChannel.read(byteBuffer);
-      if ( ret < 0 ) {
+      if (ret < 0) {
         throw new IOException( "Premeture EOF from inputStream");
       }
       toRead -= ret;
@@ -187,11 +177,11 @@ public class IOUtils {
    * @throws IOException if it could not skip requested number of bytes 
    * for any reason (including EOF)
    */
-  public static void skipFully( InputStream in, long len ) throws IOException {
-    while ( len > 0 ) {
-      long ret = in.skip( len );
-      if ( ret < 0 ) {
-        throw new IOException( "Premature EOF from inputStream");
+  public static void skipFully(InputStream in, long len) throws IOException {
+    while (len > 0) {
+      long ret = in.skip(len);
+      if (ret < 0) {
+        throw new IOException("Premature EOF from inputStream");
       }
       len -= ret;
     }
@@ -222,7 +212,7 @@ public class IOUtils {
    * Must only be called in cleaning up from exception handlers.
    * @param stream the Stream to close
    */
-  public static void closeStream( java.io.Closeable stream ) {
+  public static void closeStream(java.io.Closeable stream) {
     cleanup(null, stream);
   }
   
@@ -232,7 +222,7 @@ public class IOUtils {
    */
   public static void closeSocket( Socket sock ) {
     // avoids try { close() } dance
-    if ( sock != null ) {
+    if (sock != null) {
       try {
        sock.close();
       } catch ( IOException ignored ) {
@@ -249,4 +239,5 @@ public class IOUtils {
     public void write(int b) throws IOException {
     }
   }  
+  
 }

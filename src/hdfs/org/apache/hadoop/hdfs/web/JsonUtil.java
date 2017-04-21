@@ -49,17 +49,17 @@ import org.mortbay.util.ajax.JSON;
 
 /** JSON Utilities */
 public class JsonUtil {
+
   private static final Object[] EMPTY_OBJECT_ARRAY = {};
+
   private static final DatanodeInfo[] EMPTY_DATANODE_INFO_ARRAY = {};
 
   /** Convert a token object to a Json string. */
-  public static String toJsonString(final Token<? extends TokenIdentifier> token
-      ) throws IOException {
+  public static String toJsonString(final Token<? extends TokenIdentifier> token ) throws IOException {
     return toJsonString(Token.class, toJsonMap(token));
   }
 
-  private static Map<String, Object> toJsonMap(
-      final Token<? extends TokenIdentifier> token) throws IOException {
+  private static Map<String, Object> toJsonMap(final Token<? extends TokenIdentifier> token) throws IOException {
     if (token == null) {
       return null;
     }
@@ -70,30 +70,26 @@ public class JsonUtil {
   }
 
   /** Convert a Json map to a Token. */
-  public static Token<? extends TokenIdentifier> toToken(
-      final Map<?, ?> m) throws IOException {
+  public static Token<? extends TokenIdentifier> toToken(final Map<?, ?> m) throws IOException {
     if (m == null) {
       return null;
     }
 
-    final Token<DelegationTokenIdentifier> token
-        = new Token<DelegationTokenIdentifier>();
+    final Token<DelegationTokenIdentifier> token = new Token<DelegationTokenIdentifier>();
     token.decodeFromUrlString((String)m.get("urlString"));
     return token;
   }
 
   /** Convert a Json map to a Token of DelegationTokenIdentifier. */
   @SuppressWarnings("unchecked")
-  public static Token<DelegationTokenIdentifier> toDelegationToken(
-      final Map<?, ?> json) throws IOException {
+  public static Token<DelegationTokenIdentifier> toDelegationToken(final Map<?, ?> json) throws IOException {
     final Map<?, ?> m = (Map<?, ?>)json.get(Token.class.getSimpleName());
     return (Token<DelegationTokenIdentifier>)toToken(m);
   }
 
   /** Convert a Json map to a Token of BlockTokenIdentifier. */
   @SuppressWarnings("unchecked")
-  private static Token<BlockTokenIdentifier> toBlockToken(
-      final Map<?, ?> m) throws IOException {
+  private static Token<BlockTokenIdentifier> toBlockToken(final Map<?, ?> m) throws IOException {
     return (Token<BlockTokenIdentifier>)toToken(m);
   }
 
@@ -139,13 +135,12 @@ public class JsonUtil {
     FILE, DIRECTORY;
     
     static PathType valueOf(HdfsFileStatus status) {
-      return status.isDir()? DIRECTORY: FILE;
+      return status.isDir() ? DIRECTORY : FILE;
     }
   }
 
   /** Convert a HdfsFileStatus object to a Json string. */
-  public static String toJsonString(final HdfsFileStatus status,
-      boolean includeType) {
+  public static String toJsonString(final HdfsFileStatus status, boolean includeType) {
     if (status == null) {
       return null;
     }
@@ -169,8 +164,7 @@ public class JsonUtil {
       return null;
     }
 
-    final Map<?, ?> m = includesType ? 
-        (Map<?, ?>)json.get(FileStatus.class.getSimpleName()) : json;
+    final Map<?, ?> m = includesType ? (Map<?, ?>)json.get(FileStatus.class.getSimpleName()) : json;
     final String localName = (String) m.get("pathSuffix");
     final PathType type = PathType.valueOf((String) m.get("type"));
 
@@ -289,8 +283,7 @@ public class JsonUtil {
   }
   
   /** Convert a LocatedBlock to a Json map. */
-  private static Map<String, Object> toJsonMap(final LocatedBlock locatedblock
-      ) throws IOException {
+  private static Map<String, Object> toJsonMap(final LocatedBlock locatedblock) throws IOException {
     if (locatedblock == null) {
       return null;
     }
@@ -312,8 +305,7 @@ public class JsonUtil {
     }
 
     final Block b = toBlock((Map<?, ?>)m.get("block"));
-    final DatanodeInfo[] locations = toDatanodeInfoArray(
-        (Object[])m.get("locations"));
+    final DatanodeInfo[] locations = toDatanodeInfoArray((Object[])m.get("locations"));
     final long startOffset = (Long)m.get("startOffset");
     final boolean isCorrupt = (Boolean)m.get("isCorrupt");
 
@@ -355,8 +347,7 @@ public class JsonUtil {
   }
 
   /** Convert LocatedBlocks to a Json string. */
-  public static String toJsonString(final LocatedBlocks locatedblocks
-      ) throws IOException {
+  public static String toJsonString(final LocatedBlocks locatedblocks) throws IOException {
     if (locatedblocks == null) {
       return null;
     }
@@ -370,8 +361,7 @@ public class JsonUtil {
   }
 
   /** Convert a Json map to LocatedBlock. */
-  public static LocatedBlocks toLocatedBlocks(final Map<?, ?> json
-      ) throws IOException {
+  public static LocatedBlocks toLocatedBlocks(final Map<?, ?> json) throws IOException {
     if (json == null) {
       return null;
     }
@@ -379,8 +369,7 @@ public class JsonUtil {
     final Map<?, ?> m = (Map<?, ?>)json.get(LocatedBlocks.class.getSimpleName());
     final long fileLength = (Long)m.get("fileLength");
     final boolean isUnderConstruction = (Boolean)m.get("isUnderConstruction");
-    final List<LocatedBlock> locatedBlocks = toLocatedBlockList(
-        (Object[])m.get("locatedBlocks"));
+    final List<LocatedBlock> locatedBlocks = toLocatedBlockList((Object[])m.get("locatedBlocks"));
     return new LocatedBlocks(fileLength, locatedBlocks, isUnderConstruction);
   }
 
@@ -414,8 +403,7 @@ public class JsonUtil {
     final long spaceConsumed = (Long)m.get("spaceConsumed");
     final long spaceQuota = (Long)m.get("spaceQuota");
 
-    return new ContentSummary(length, fileCount, directoryCount,
-        quota, spaceConsumed, spaceQuota);
+    return new ContentSummary(length, fileCount, directoryCount, quota, spaceConsumed, spaceQuota);
   }
 
   /** Convert a MD5MD5CRC32FileChecksum to a Json string. */
@@ -432,8 +420,7 @@ public class JsonUtil {
   }
 
   /** Convert a Json map to a MD5MD5CRC32FileChecksum. */
-  public static MD5MD5CRC32FileChecksum toMD5MD5CRC32FileChecksum(
-      final Map<?, ?> json) throws IOException {
+  public static MD5MD5CRC32FileChecksum toMD5MD5CRC32FileChecksum(final Map<?, ?> json) throws IOException {
     if (json == null) {
       return null;
     }
@@ -454,8 +441,7 @@ public class JsonUtil {
     final String alg = "MD5-of-" + crcPerBlock + "MD5-of-" + bytesPerCRC + "CRC32";
     if (!alg.equals(algorithm)) {
       throw new IOException("Algorithm not matched: algorithm=" + algorithm
-          + ", crcPerBlock=" + crcPerBlock
-          + ", bytesPerCRC=" + bytesPerCRC);
+          + ", crcPerBlock=" + crcPerBlock + ", bytesPerCRC=" + bytesPerCRC);
     }
     //check length
     if (length != checksum.getLength()) {

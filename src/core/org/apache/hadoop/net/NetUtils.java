@@ -65,8 +65,7 @@ public class NetUtils {
    */
   public static SocketFactory getSocketFactory(Configuration conf, Class<?> clazz) {
     SocketFactory factory = null;
-    String propValue =
-        conf.get("hadoop.rpc.socket.factory.class." + clazz.getSimpleName());
+    String propValue = conf.get("hadoop.rpc.socket.factory.class." + clazz.getSimpleName());
     if ((propValue != null) && (propValue.length() > 0))
       factory = getSocketFactoryFromProperty(conf, propValue);
     if (factory == null)
@@ -375,8 +374,7 @@ public class NetUtils {
    * @throws IOException
    */
   public static InputStream getInputStream(Socket socket, long timeout) throws IOException {
-    return (socket.getChannel() == null) ? 
-          socket.getInputStream() : new SocketInputStream(socket, timeout);
+    return (socket.getChannel() == null) ? socket.getInputStream() : new SocketInputStream(socket, timeout);
   }
   
   /**
@@ -400,8 +398,7 @@ public class NetUtils {
    * @return OutputStream for writing to the socket.
    * @throws IOException
    */  
-  public static OutputStream getOutputStream(Socket socket) 
-                                             throws IOException {
+  public static OutputStream getOutputStream(Socket socket) throws IOException {
     return getOutputStream(socket, 0);
   }
   
@@ -424,10 +421,8 @@ public class NetUtils {
    * @return OutputStream for writing to the socket.
    * @throws IOException   
    */
-  public static OutputStream getOutputStream(Socket socket, long timeout) 
-                                             throws IOException {
-    return (socket.getChannel() == null) ? 
-            socket.getOutputStream() : new SocketOutputStream(socket, timeout);            
+  public static OutputStream getOutputStream(Socket socket, long timeout) throws IOException {
+    return (socket.getChannel() == null) ? socket.getOutputStream() : new SocketOutputStream(socket, timeout);
   }
   
   /**
@@ -447,9 +442,7 @@ public class NetUtils {
    * @param endpoint 
    * @param timeout - timeout in milliseconds
    */
-  public static void connect(Socket socket, 
-                             SocketAddress endpoint, 
-                             int timeout) throws IOException {
+  public static void connect(Socket socket, SocketAddress endpoint, int timeout) throws IOException {
     if (socket == null || endpoint == null || timeout < 0) {
       throw new IllegalArgumentException("Illegal argument for connect()");
     }
@@ -553,8 +546,7 @@ public class NetUtils {
    * @return a valid local {@link InetAddress} or null
    * @throws SocketException if an I/O error occurs
    */
-  public static InetAddress getLocalInetAddress(String host)
-      throws SocketException {
+  public static InetAddress getLocalInetAddress(String host) throws SocketException {
     if (host == null) {
       return null;
     }

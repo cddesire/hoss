@@ -39,7 +39,6 @@ import org.apache.hadoop.hdfs.hoss.util.PrimeFinder;
  * 
  * @see java.util.WeakHashMap
  * 
- * @author Guillermo Grandes / guillermo.grandes[at]gmail.com
  */
 public class WeakSet<T> {
 
