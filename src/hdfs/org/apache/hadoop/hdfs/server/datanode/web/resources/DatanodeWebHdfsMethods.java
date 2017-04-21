@@ -85,6 +85,7 @@ public class DatanodeWebHdfsMethods {
   private static final UriFsPathParam ROOT = new UriFsPathParam("");
 
   private @Context ServletContext context;
+  
   private @Context HttpServletResponse response;
 
   private void init(final UserGroupInformation ugi, final DelegationParam delegation,
