@@ -87,8 +87,7 @@ public class BlockMetadataHeader {
   static BlockMetadataHeader readHeader(File file) throws IOException {
     DataInputStream in = null;
     try {
-      in = new DataInputStream(new BufferedInputStream(
-                               new FileInputStream(file)));
+      in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
       return readHeader(in);
     } finally {
       IOUtils.closeStream(in);
@@ -96,8 +95,7 @@ public class BlockMetadataHeader {
   }
   
   // Version is already read.
-  private static BlockMetadataHeader readHeader(short version, DataInputStream in) 
-                                   throws IOException {
+  private static BlockMetadataHeader readHeader(short version, DataInputStream in) throws IOException {
     DataChecksum checksum = DataChecksum.newDataChecksum(in);
     return new BlockMetadataHeader(version, checksum);
   }
@@ -109,9 +107,7 @@ public class BlockMetadataHeader {
    * @return 
    * @throws IOException
    */
-  private static void writeHeader(DataOutputStream out, 
-                                  BlockMetadataHeader header) 
-                                  throws IOException {
+  private static void writeHeader(DataOutputStream out, BlockMetadataHeader header) throws IOException {
     out.writeShort(header.getVersion());
     header.getChecksum().writeHeader(out);
   }
@@ -122,8 +118,7 @@ public class BlockMetadataHeader {
    * @param checksum
    * @throws IOException
    */
-  static void writeHeader(DataOutputStream out, DataChecksum checksum)
-                         throws IOException {
+  static void writeHeader(DataOutputStream out, DataChecksum checksum) throws IOException {
     writeHeader(out, new BlockMetadataHeader(METADATA_VERSION, checksum));
   }
 
@@ -131,7 +126,7 @@ public class BlockMetadataHeader {
    * Returns the size of the header
    */
   static int getHeaderSize() {
-    return Short.SIZE/Byte.SIZE + DataChecksum.getChecksumHeaderSize();
+    return Short.SIZE / Byte.SIZE + DataChecksum.getChecksumHeaderSize();
   }
 }
 
