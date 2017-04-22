@@ -76,8 +76,7 @@ public interface FSDatasetInterface extends FSDatasetMBean {
    * @return the metadata input stream; 
    * @throws IOException
    */
-  public MetaDataInputStream getMetaDataInputStream(Block b)
-        throws IOException;
+  public MetaDataInputStream getMetaDataInputStream(Block b) throws IOException;
   
   /**
    * Does the meta file exist for this block?
@@ -136,8 +135,7 @@ public interface FSDatasetInterface extends FSDatasetMBean {
    *  starting at the offset
    * @throws IOException
    */
-  public InputStream getBlockInputStream(Block b, long seekOffset)
-            throws IOException;
+  public InputStream getBlockInputStream(Block b, long seekOffset) throws IOException;
 
   /**
    * Returns an input stream at specified offset of the specified block
@@ -149,8 +147,7 @@ public interface FSDatasetInterface extends FSDatasetMBean {
    *  starting at the offset
    * @throws IOException
    */
-  public BlockInputStreams getTmpInputStreams(Block b, long blkoff, long ckoff)
-            throws IOException;
+  public BlockInputStreams getTmpInputStreams(Block b, long blkoff, long ckoff) throws IOException;
 
      /**
       * 
@@ -197,8 +194,7 @@ public interface FSDatasetInterface extends FSDatasetMBean {
    *  and CRC
    * @throws IOException
    */
-  public BlockWriteStreams writeToBlock(Block b, boolean isRecovery, 
-                                        boolean isReplicationRequest) throws IOException;
+  public BlockWriteStreams writeToBlock(Block b, boolean isRecovery, boolean isReplicationRequest) throws IOException;
 
   /**
    * Update the block to the new generation stamp and length.  
@@ -316,8 +312,7 @@ public interface FSDatasetInterface extends FSDatasetMBean {
    *        should be set
    * @throws IOException
    */
-  public void setChannelPosition(Block b, BlockWriteStreams stream, long dataOffset,
-                                 long ckOffset) throws IOException;
+  public void setChannelPosition(Block b, BlockWriteStreams stream, long dataOffset, long ckOffset) throws IOException;
 
   /**
    * Validate that the contents in the Block matches
