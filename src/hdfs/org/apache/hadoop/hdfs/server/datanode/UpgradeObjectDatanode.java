@@ -81,15 +81,12 @@ public abstract class UpgradeObjectDatanode extends UpgradeObject implements Run
     // Missed the upgrade. Report problem to the name-node and throw exception
     String errorMsg = 
               "\n   Data-node missed a distributed upgrade and will shutdown."
-            + "\n   " + getDescription() + "."
-            + " Name-node version = " + nsInfo.getLayoutVersion() + ".";
+            + "\n   " + getDescription() + "."+ " Name-node version = " + nsInfo.getLayoutVersion() + ".";
     DataNode.LOG.fatal( errorMsg );
     try {
-      dataNode.namenode.errorReport(dataNode.dnRegistration,
-                                    DatanodeProtocol.NOTIFY, errorMsg);
+      dataNode.namenode.errorReport(dataNode.dnRegistration, DatanodeProtocol.NOTIFY, errorMsg);
     } catch(SocketTimeoutException e) {  // namenode is busy
-      DataNode.LOG.info("Problem connecting to server: " 
-                        + dataNode.getNameNodeAddr());
+      DataNode.LOG.info("Problem connecting to server: "+ dataNode.getNameNodeAddr());
     }
     throw new IOException(errorMsg);
   }
@@ -108,8 +105,7 @@ public abstract class UpgradeObjectDatanode extends UpgradeObject implements Run
     // report results
     if(getUpgradeStatus() < 100) {
       DataNode.LOG.info("\n   Distributed upgrade for DataNode version " 
-          + getVersion() + " to current LV " 
-          + FSConstants.LAYOUT_VERSION + " cannot be completed.");
+          + getVersion() + " to current LV " + FSConstants.LAYOUT_VERSION + " cannot be completed.");
     }
 
     // Complete the upgrade by calling the manager method
@@ -128,7 +124,6 @@ public abstract class UpgradeObjectDatanode extends UpgradeObject implements Run
    * is complete while other nodes are still upgrading.
    */
   public UpgradeCommand completeUpgrade() throws IOException {
-    return new UpgradeCommand(UpgradeCommand.UC_ACTION_REPORT_STATUS,
-                              getVersion(), (short)100);
+    return new UpgradeCommand(UpgradeCommand.UC_ACTION_REPORT_STATUS, getVersion(), (short)100);
   }
 }
