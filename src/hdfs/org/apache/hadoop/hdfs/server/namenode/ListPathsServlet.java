@@ -48,8 +48,7 @@ public class ListPathsServlet extends DfsServlet {
   /** For java.io.Serializable */
   private static final long serialVersionUID = 1L;
 
-  public static final ThreadLocal<SimpleDateFormat> df =
-    new ThreadLocal<SimpleDateFormat>() {
+  public static final ThreadLocal<SimpleDateFormat> df = new ThreadLocal<SimpleDateFormat>() {
       protected SimpleDateFormat initialValue() {
         return HftpFileSystem.getDateFormat();
       }
@@ -83,14 +82,10 @@ public class ListPathsServlet extends DfsServlet {
    */
   protected Map<String,String> buildRoot(HttpServletRequest request,
       XMLOutputter doc) {
-    final String path = request.getPathInfo() != null
-      ? request.getPathInfo() : "/";
-    final String exclude = request.getParameter("exclude") != null
-      ? request.getParameter("exclude") : "";
-    final String filter = request.getParameter("filter") != null
-      ? request.getParameter("filter") : ".*";
-    final boolean recur = request.getParameter("recursive") != null
-      && "yes".equals(request.getParameter("recursive"));
+    final String path = request.getPathInfo() != null ? request.getPathInfo() : "/";
+    final String exclude = request.getParameter("exclude") != null ? request.getParameter("exclude") : "";
+    final String filter = request.getParameter("filter") != null ? request.getParameter("filter") : ".*";
+    final boolean recur = request.getParameter("recursive") != null && "yes".equals(request.getParameter("recursive"));
 
     Map<String, String> root = new HashMap<String, String>();
     root.put("path", path);
@@ -137,8 +132,7 @@ public class ListPathsServlet extends DfsServlet {
       final boolean recur = "yes".equals(root.get("recursive"));
       final Pattern filter = Pattern.compile(root.get("filter"));
       final Pattern exclude = Pattern.compile(root.get("exclude"));
-      final Configuration conf = 
-        (Configuration) getServletContext().getAttribute(JspHelper.CURRENT_CONF);
+      final Configuration conf = (Configuration) getServletContext().getAttribute(JspHelper.CURRENT_CONF);
       
       getUGI(request, conf).doAs
         (new PrivilegedExceptionAction<Void>() {
@@ -176,8 +170,7 @@ public class ListPathsServlet extends DfsServlet {
                 for (HdfsFileStatus i : listing) {
                   final Path fullpath = i.getFullPath(new Path(p));
                   final String localName = fullpath.getName();
-                  if (exclude.matcher(localName).matches()
-                      || !filter.matcher(localName).matches()) {
+                  if (exclude.matcher(localName).matches() || !filter.matcher(localName).matches()) {
                     continue;
                   }
                   if (recur && i.isDir()) {
