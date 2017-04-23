@@ -68,8 +68,7 @@ public class JspHelper {
   public static final String CURRENT_CONF = "current.conf";
   final static public String WEB_UGI_PROPERTY_NAME = "dfs.web.ugi";
   public static final String DELEGATION_PARAMETER_NAME = DelegationParam.NAME;
-  static final String SET_DELEGATION = "&" + DELEGATION_PARAMETER_NAME +
-                                              "=";
+  static final String SET_DELEGATION = "&" + DELEGATION_PARAMETER_NAME + "=";
   private static final Log LOG = LogFactory.getLog(JspHelper.class);
 
   static FSNamesystem fsn = null;
@@ -132,11 +131,8 @@ public class JspHelper {
   }
   public void streamBlockInAscii(InetSocketAddress addr, long blockId, 
                Token<BlockTokenIdentifier> accessToken, long genStamp, 
-                                 long blockSize, 
-                                 long offsetIntoBlock, long chunkSizeToView, 
-                                 JspWriter out,
-                                 Configuration conf) 
-    throws IOException {
+                                 long blockSize, long offsetIntoBlock, long chunkSizeToView,
+                                 JspWriter out, Configuration conf) throws IOException {
     if (chunkSizeToView == 0) return;
     Socket s = new Socket();
     s.connect(addr, HdfsConstants.READ_TIMEOUT);
@@ -148,9 +144,7 @@ public class JspHelper {
       DFSClient.BlockReader blockReader = 
         DFSClient.BlockReader.newBlockReader(s, addr.toString() + ":" + blockId,
                                              blockId, accessToken, genStamp ,offsetIntoBlock, 
-                                             amtToRead, 
-                                             conf.getInt("io.file.buffer.size",
-                                                         4096));
+                                             amtToRead, conf.getInt("io.file.buffer.size", 4096));
         
     byte[] buf = new byte[(int)amtToRead];
     int readOffset = 0;
@@ -173,8 +167,7 @@ public class JspHelper {
     s.close();
     out.print(HtmlQuoting.quoteHtmlChars(new String(buf)));
   }
-  public void DFSNodesStatus(ArrayList<DatanodeDescriptor> live,
-                             ArrayList<DatanodeDescriptor> dead) {
+  public void DFSNodesStatus(ArrayList<DatanodeDescriptor> live, ArrayList<DatanodeDescriptor> dead) {
     if (fsn != null) {
       fsn.DFSNodesStatus(live, dead);
       fsn.removeDecomNodeFromDeadList(dead);  
@@ -182,8 +175,7 @@ public class JspHelper {
   }
 
   public void addTableHeader(JspWriter out) throws IOException {
-    out.print("<table border=\"1\""+
-              " cellpadding=\"2\" cellspacing=\"2\">");
+    out.print("<table border=\"1\""+ " cellpadding=\"2\" cellspacing=\"2\">");
     out.print("<tbody>");
   }
   public void addTableRow(JspWriter out, String[] columns) throws IOException {
@@ -197,7 +189,7 @@ public class JspHelper {
     out.print("<tr>");
       
     for (int i = 0; i < columns.length; i++) {
-      if (row/2*2 == row) {//even
+      if (row / 2*2 == row) {//even
         out.print("<td style=\"vertical-align: top;background-color:LightGrey;\"><B>"+columns[i]+"</B><br></td>");
       } else {
         out.print("<td style=\"vertical-align: top;background-color:LightBlue;\"><B>"+columns[i]+"</B><br></td>");
@@ -220,9 +212,7 @@ public class JspHelper {
     // Ideally this should be displayed in RED
     long missingBlocks = fsn.getMissingBlocksCount();
     if (missingBlocks > 0) {
-      return "<br> WARNING :" + 
-             " There are about " + missingBlocks +
-             " missing blocks. Please check the log or run fsck. <br><br>";
+      return "<br> WARNING :" + " There are about " + missingBlocks + " missing blocks. Please check the log or run fsck. <br><br>";
     }
     return "";
   }
@@ -243,28 +233,22 @@ public class JspHelper {
       long pct = ((inodes + blocks) * 100)/maxobjects;
       str += " / " + maxobjects + " (" + pct + "%)";
     }
-    str += ".  Heap Size is " + StringUtils.byteDesc(totalMemory) + " / " + 
-           StringUtils.byteDesc(maxMemory) + 
-           " (" + used + "%) <br>";
+    str += ".  Heap Size is " + StringUtils.byteDesc(totalMemory) + " / " + StringUtils.byteDesc(maxMemory) + " (" + used + "%) <br>";
     return str;
   }
 
   public String getUpgradeStatusText() {
     String statusText = "";
     try {
-      UpgradeStatusReport status = 
-        fsn.distributedUpgradeProgress(UpgradeAction.GET_STATUS);
-      statusText = (status == null ? 
-          "There are no upgrades in progress." :
-            status.getStatusText(false));
+      UpgradeStatusReport status = fsn.distributedUpgradeProgress(UpgradeAction.GET_STATUS);
+      statusText = (status == null ? "There are no upgrades in progress." : status.getStatusText(false));
     } catch(IOException e) {
       statusText = "Upgrade status unknown.";
     }
     return statusText;
   }
 
-  public void sortNodeList(ArrayList<DatanodeDescriptor> nodes,
-                           String field, String order) {
+  public void sortNodeList(ArrayList<DatanodeDescriptor> nodes, String field, String order) {
         
     class NodeComapare implements Comparator<DatanodeDescriptor> {
       static final int 
@@ -358,10 +342,7 @@ public class JspHelper {
     Collections.sort(nodes, new NodeComapare(field, order));
   }
 
-  public static void printPathWithLinks(String dir, JspWriter out, 
-                                        int namenodeInfoPort,
-                                        String tokenString
-                                       ) throws IOException {
+  public static void printPathWithLinks(String dir, JspWriter out, int namenodeInfoPort, String tokenString ) throws IOException {
     try {
       String[] parts = dir.split(Path.SEPARATOR);
       StringBuilder tempPath = new StringBuilder(dir.length());
@@ -389,10 +370,7 @@ public class JspHelper {
     }
   }
 
-  public static void printGotoForm(JspWriter out,
-                                   int namenodeInfoPort,
-                                   String tokenString,
-                                   String file) throws IOException {
+  public static void printGotoForm(JspWriter out, int namenodeInfoPort, String tokenString, String file) throws IOException {
     out.print("<form action=\"browseDirectory.jsp\" method=\"get\" name=\"goto\">");
     out.print("Goto : ");
     out.print("<input name=\"dir\" type=\"text\" width=\"50\" id\"dir\" value=\""+ file+"\">");
@@ -400,15 +378,12 @@ public class JspHelper {
     out.print("<input name=\"namenodeInfoPort\" type=\"hidden\" "
         + "value=\"" + namenodeInfoPort  + "\">");
     if (UserGroupInformation.isSecurityEnabled()) {
-      out.print("<input name=\"" + DELEGATION_PARAMETER_NAME
-          + "\" type=\"hidden\" value=\"" + tokenString + "\">");
+      out.print("<input name=\"" + DELEGATION_PARAMETER_NAME + "\" type=\"hidden\" value=\"" + tokenString + "\">");
     }
     out.print("</form>");
   }
   
-  public static void createTitle(JspWriter out, 
-                                 HttpServletRequest req, 
-                                 String  file) throws IOException{
+  public static void createTitle(JspWriter out, HttpServletRequest req, String  file) throws IOException{
     if(file == null) file = "";
     int start = Math.max(0,file.length() - 100);
     if(start != 0)
@@ -422,8 +397,7 @@ public class JspHelper {
    * @param conf the configuration to look in
    * @return the remote user that was configuration
    */
-  public static UserGroupInformation getDefaultWebUser(Configuration conf
-                                                       ) throws IOException {
+  public static UserGroupInformation getDefaultWebUser(Configuration conf) throws IOException {
     String[] strings = conf.getStrings(JspHelper.WEB_UGI_PROPERTY_NAME);
     if (strings == null || strings.length == 0) {
       throw new IOException("Cannot determine UGI from request or conf");
@@ -432,8 +406,7 @@ public class JspHelper {
   }
 
   /** Same as getUGI(null, request, conf). */
-  public static UserGroupInformation getUGI(final HttpServletRequest request,
-      final Configuration conf) throws IOException {
+  public static UserGroupInformation getUGI(final HttpServletRequest request, final Configuration conf) throws IOException {
     return getUGI(null, request, conf);
   }
   
@@ -445,10 +418,8 @@ public class JspHelper {
    * @param conf configuration
    * @throws AccessControlException if the request has no token
    */
-  public static UserGroupInformation getUGI(ServletContext context,
-      HttpServletRequest request, Configuration conf) throws IOException {
-    return getUGI(context, request, conf, AuthenticationMethod.KERBEROS_SSL,
-        true);
+  public static UserGroupInformation getUGI(ServletContext context, HttpServletRequest request, Configuration conf) throws IOException {
+    return getUGI(context, request, conf, AuthenticationMethod.KERBEROS_SSL, true);
   }
 
   /**
@@ -462,10 +433,8 @@ public class JspHelper {
    * @return a new user from the request
    * @throws AccessControlException if the request has no token
    */
-  public static UserGroupInformation getUGI(ServletContext context,
-      HttpServletRequest request, Configuration conf,
-      final AuthenticationMethod secureAuthMethod,
-      final boolean tryUgiParameter) throws IOException {
+  public static UserGroupInformation getUGI(ServletContext context, HttpServletRequest request, Configuration conf,
+      final AuthenticationMethod secureAuthMethod, final boolean tryUgiParameter) throws IOException {
     final UserGroupInformation ugi;
     final String usernameFromQuery = getUsernameFromQuery(request, tryUgiParameter);
     final String doAsUserFromQuery = request.getParameter(DoAsParam.NAME);
@@ -480,8 +449,7 @@ public class JspHelper {
         SecurityUtil.setTokenService(token, NameNode.getAddress(conf));
         token.setKind(DelegationTokenIdentifier.HDFS_DELEGATION_KIND);
 
-        ByteArrayInputStream buf = 
-          new ByteArrayInputStream(token.getIdentifier());
+        ByteArrayInputStream buf = new ByteArrayInputStream(token.getIdentifier());
         DataInputStream in = new DataInputStream(buf);
         DelegationTokenIdentifier id = new DelegationTokenIdentifier();
         id.readFields(in);
@@ -508,8 +476,7 @@ public class JspHelper {
         ugi.setAuthenticationMethod(AuthenticationMethod.TOKEN);
       } else {
         if(remoteUser == null) {
-          throw new IOException("Security enabled but user not " +
-                                "authenticated by filter");
+          throw new IOException("Security enabled but user not " + "authenticated by filter");
         }
         final UserGroupInformation realUgi = UserGroupInformation.createRemoteUser(remoteUser);
         checkUsername(realUgi.getShortUserName(), usernameFromQuery);
@@ -555,8 +522,7 @@ public class JspHelper {
   private static void checkUsername(final String expected, final String name
       ) throws IOException {
     if (expected == null && name != null) {
-      throw new IOException("Usernames not matched: expecting null but name="
-          + name);
+      throw new IOException("Usernames not matched: expecting null but name=" + name);
     }
     if (name == null) { //name is optional, null is okay
       return;
@@ -564,13 +530,11 @@ public class JspHelper {
     KerberosName u = new KerberosName(name);
     String shortName = u.getShortName();
     if (!shortName.equals(expected)) {
-      throw new IOException("Usernames not matched: name=" + shortName
-          + " != expected=" + expected);
+      throw new IOException("Usernames not matched: name=" + shortName + " != expected=" + expected);
     }
   }
 
-  private static String getUsernameFromQuery(final HttpServletRequest request,
-      final boolean tryUgiParameter) {
+  private static String getUsernameFromQuery(final HttpServletRequest request, final boolean tryUgiParameter) {
     String username = request.getParameter(UserParam.NAME);
     if (username == null && tryUgiParameter) {
       //try ugi parameter
@@ -582,11 +546,8 @@ public class JspHelper {
     return username;
   }
 
-  public static DFSClient getDFSClient(final UserGroupInformation user,
-                                       final InetSocketAddress addr,
-                                       final Configuration conf
-                                       ) throws IOException,
-                                                InterruptedException {
+  public static DFSClient getDFSClient(final UserGroupInformation user, final InetSocketAddress addr,
+                                       final Configuration conf ) throws IOException, InterruptedException {
     return
       user.doAs(new PrivilegedExceptionAction<DFSClient>() {
         public DFSClient run() throws IOException {
@@ -614,7 +575,7 @@ public class JspHelper {
    /** Convert a String to chunk-size-to-view. */
    public static int string2ChunkSizeToView(String s, int defaultValue) {
      int n = s == null? 0: Integer.parseInt(s);
-     return n > 0? n: defaultValue;
+     return n > 0 ? n: defaultValue;
    }
 
   /**
