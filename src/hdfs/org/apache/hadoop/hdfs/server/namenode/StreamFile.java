@@ -46,11 +46,9 @@ public class StreamFile extends DfsServlet {
   }
   
   /** getting a client for connecting to dfs */
-  protected DFSClient getDFSClient(HttpServletRequest request)
-      throws IOException, InterruptedException {
+  protected DFSClient getDFSClient(HttpServletRequest request) throws IOException, InterruptedException {
 
-    Configuration conf =
-      (Configuration) getServletContext().getAttribute(JspHelper.CURRENT_CONF);
+    Configuration conf = (Configuration) getServletContext().getAttribute(JspHelper.CURRENT_CONF);
     UserGroupInformation ugi = getUGI(request, conf);
 
     return JspHelper.getDFSClient(ugi, nameNodeAddr, conf);
@@ -58,8 +56,7 @@ public class StreamFile extends DfsServlet {
   
   public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-    final String filename = request.getPathInfo() != null ?
-        request.getPathInfo() : "/";
+    final String filename = request.getPathInfo() != null ? request.getPathInfo() : "/";
     if (filename == null || filename.length() == 0) {
       response.setContentType("text/plain");
       PrintWriter out = response.getWriter();
@@ -77,8 +74,7 @@ public class StreamFile extends DfsServlet {
     
     final DFSClient.DFSInputStream in = dfs.open(filename);
     OutputStream os = response.getOutputStream();
-    response.setHeader("Content-Disposition", "attachment; filename=\"" + 
-                       filename + "\"");
+    response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
     response.setContentType("application/octet-stream");
     response.setHeader(CONTENT_LENGTH, "" + in.getFileLength());
     byte buf[] = new byte[4096];
