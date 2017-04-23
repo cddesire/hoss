@@ -51,10 +51,7 @@ class TransferFsImage implements FSConstants {
    * @param response the object into which this servelet writes the url contents
    * @throws IOException
    */
-  public TransferFsImage(Map<String,String[]> pmap,
-                         HttpServletRequest request,
-                         HttpServletResponse response
-                         ) throws IOException {
+  public TransferFsImage(Map<String,String[]> pmap, HttpServletRequest request, HttpServletResponse response ) throws IOException {
     isGetImage = isGetEdit = isPutImage = false;
     remoteport = 0;
     machineName = null;
@@ -77,7 +74,7 @@ class TransferFsImage implements FSConstants {
       }
     }
 
-    int numGets = (isGetImage?1:0) + (isGetEdit?1:0);
+    int numGets = (isGetImage ? 1 : 0) + (isGetEdit ? 1 : 0);
     if ((numGets > 1) || (numGets == 0) && !isPutImage) {
       throw new IOException("Illegal parameters to TransferFsImage");
     }
@@ -116,11 +113,9 @@ class TransferFsImage implements FSConstants {
     FileInputStream infile = null;
     try {
       infile = new FileInputStream(localfile);
-      if (ErrorSimulator.getErrorSimulation(2)
-          && localfile.getAbsolutePath().contains("secondary")) {
+      if (ErrorSimulator.getErrorSimulation(2) && localfile.getAbsolutePath().contains("secondary")) {
         // throw exception only when the secondary sends its image
-        throw new IOException("If this exception is not caught by the " +
-            "name-node fs image will be truncated.");
+        throw new IOException("If this exception is not caught by the " + "name-node fs image will be truncated.");
       }
       int num = 1;
       while (num > 0) {
@@ -141,12 +136,11 @@ class TransferFsImage implements FSConstants {
    * Client-side Method to fetch file from a server
    * Copies the response from the URL to a list of local files.
    */
-  static void getFileClient(String fsName, String id, File[] localPath)
-    throws IOException {
+  static void getFileClient(String fsName, String id, File[] localPath) throws IOException {
     byte[] buf = new byte[BUFFER_SIZE];
     String proto = UserGroupInformation.isSecurityEnabled() ? "https://" : "http://";
     
-    StringBuffer str = new StringBuffer(proto+fsName+"/getimage?");
+    StringBuffer str = new StringBuffer(proto + fsName + "/getimage?");
     str.append(id);
 
     //
