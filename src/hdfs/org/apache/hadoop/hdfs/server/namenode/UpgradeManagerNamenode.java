@@ -41,6 +41,7 @@ import org.apache.hadoop.hdfs.server.protocol.UpgradeCommand;
  * and updates its status.
  */
 class UpgradeManagerNamenode extends UpgradeManager {
+
   public HdfsConstants.NodeType getType() {
     return HdfsConstants.NodeType.NAME_NODE;
   }
@@ -62,27 +63,23 @@ class UpgradeManagerNamenode extends UpgradeManager {
     assert currentUpgrades != null : "currentUpgrades is null";
     this.broadcastCommand = currentUpgrades.first().startUpgrade();
     NameNode.LOG.info("\n   Distributed upgrade for NameNode version " 
-        + getUpgradeVersion() + " to current LV " 
-        + FSConstants.LAYOUT_VERSION + " is started.");
+        + getUpgradeVersion() + " to current LV "+ FSConstants.LAYOUT_VERSION + " is started.");
     return true;
   }
 
   synchronized UpgradeCommand processUpgradeCommand(UpgradeCommand command
                                                     ) throws IOException {
     NameNode.LOG.debug("\n   Distributed upgrade for NameNode version " 
-        + getUpgradeVersion() + " to current LV " 
-        + FSConstants.LAYOUT_VERSION + " is processing upgrade command: "
+        + getUpgradeVersion() + " to current LV "+ FSConstants.LAYOUT_VERSION + " is processing upgrade command: "
         + command.getAction() + " status = " + getUpgradeStatus() + "%");
     if(currentUpgrades == null) {
-      NameNode.LOG.info("Ignoring upgrade command: " 
-          + command.getAction() + " version " + command.getVersion()
+      NameNode.LOG.info("Ignoring upgrade command: "+ command.getAction() + " version " + command.getVersion()
           + ". No distributed upgrades are currently running on the NameNode");
       return null;
     }
     UpgradeObjectNamenode curUO = (UpgradeObjectNamenode)currentUpgrades.first();
     if(command.getVersion() != curUO.getVersion())
-      throw new IncorrectVersionException(command.getVersion(), 
-          "UpgradeCommand", curUO.getVersion());
+      throw new IncorrectVersionException(command.getVersion(), "UpgradeCommand", curUO.getVersion());
     UpgradeCommand reply = curUO.processUpgradeCommand(command);
     if(curUO.getUpgradeStatus() < 100) {
       return reply;
@@ -90,8 +87,7 @@ class UpgradeManagerNamenode extends UpgradeManager {
     // current upgrade is done
     curUO.completeUpgrade();
     NameNode.LOG.info("\n   Distributed upgrade for NameNode version " 
-        + curUO.getVersion() + " to current LV " 
-        + FSConstants.LAYOUT_VERSION + " is complete.");
+        + curUO.getVersion() + " to current LV " + FSConstants.LAYOUT_VERSION + " is complete.");
     // proceede with the next one
     currentUpgrades.remove(curUO);
     if(currentUpgrades.isEmpty()) { // all upgrades are done
@@ -112,16 +108,14 @@ class UpgradeManagerNamenode extends UpgradeManager {
     FSNamesystem.getFSNamesystem().leaveSafeMode(false);
   }
 
-  UpgradeStatusReport distributedUpgradeProgress(UpgradeAction action 
-                                                ) throws IOException {
+  UpgradeStatusReport distributedUpgradeProgress(UpgradeAction action) throws IOException {
     boolean isFinalized = false;
     if(currentUpgrades == null) { // no upgrades are in progress
       FSImage fsimage = FSNamesystem.getFSNamesystem().getFSImage();
       isFinalized = fsimage.isUpgradeFinalized();
       if(isFinalized) // upgrade is finalized
         return null;  // nothing to report
-      return new UpgradeStatusReport(fsimage.getLayoutVersion(), 
-                                     (short)101, isFinalized);
+      return new UpgradeStatusReport(fsimage.getLayoutVersion(), (short)101, isFinalized);
     }
     UpgradeObjectNamenode curUO = (UpgradeObjectNamenode)currentUpgrades.first();
     boolean details = false;
@@ -139,10 +133,7 @@ class UpgradeManagerNamenode extends UpgradeManager {
 
   public static void main(String[] args) throws IOException {
     UpgradeManagerNamenode um = new UpgradeManagerNamenode();
-    SortedSet<Upgradeable> uos;
-    uos = UpgradeObjectCollection.getDistributedUpgrades(-4, 
-        HdfsConstants.NodeType.NAME_NODE);
-    System.out.println(uos.size());
+    SortedSet<Upgradeable> uos = UpgradeObjectCollection.getDistributedUpgrades(-4, HdfsConstants.NodeType.NAME_NODE);
     um.startUpgrade();
   }
 }
