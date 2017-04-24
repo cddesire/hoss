@@ -41,8 +41,7 @@ public class FileDataServlet extends DfsServlet {
 
   /** Create a redirection URI */
   protected URI createUri(String parent, HdfsFileStatus i, UserGroupInformation ugi,
-      ClientProtocol nnproxy, HttpServletRequest request, String dt)
-      throws IOException, URISyntaxException {
+      ClientProtocol nnproxy, HttpServletRequest request, String dt) throws IOException, URISyntaxException {
     String scheme = request.getScheme();
     final DatanodeID host = pickSrcDatanode(parent, i, nnproxy);
     final String hostname;
@@ -57,12 +56,9 @@ public class FileDataServlet extends DfsServlet {
       dtParam = JspHelper.getDelegationTokenUrlParam(dt);
     }
     
-    return new URI(scheme, null, hostname,
-        "https".equals(scheme)
+    return new URI(scheme, null, hostname, "https".equals(scheme)
           ? (Integer)getServletContext().getAttribute("datanode.https.port")
-          : host.getInfoPort(),
-        "/streamFile" + i.getFullName(parent), 
-        "ugi=" + ugi.getShortUserName() + dtParam, null);
+          : host.getInfoPort(), "/streamFile" + i.getFullName(parent), "ugi=" + ugi.getShortUserName() + dtParam, null);
   }
 
   private static JspHelper jspHelper = null;
@@ -71,15 +67,13 @@ public class FileDataServlet extends DfsServlet {
    * Currently, this looks at no more than the first five blocks of a file,
    * selecting a datanode randomly from the most represented.
    */
-  private static DatanodeID pickSrcDatanode(String parent, HdfsFileStatus i,
-      ClientProtocol nnproxy) throws IOException {
+  private static DatanodeID pickSrcDatanode(String parent, HdfsFileStatus i, ClientProtocol nnproxy) throws IOException {
     // a race condition can happen by initializing a static member this way.
     // A proper fix should make JspHelper a singleton. Since it doesn't affect 
     // correctness, we leave it as is for now.
     if (jspHelper == null)
       jspHelper = new JspHelper();
-    final LocatedBlocks blks = nnproxy.getBlockLocations(
-        i.getFullPath(new Path(parent)).toUri().getPath(), 0, 1);
+    final LocatedBlocks blks = nnproxy.getBlockLocations(i.getFullPath(new Path(parent)).toUri().getPath(), 0, 1);
     if (i.getLen() == 0 || blks.getLocatedBlocks().size() <= 0) {
       // pick a random datanode
       return jspHelper.randomNode();
@@ -94,23 +88,17 @@ public class FileDataServlet extends DfsServlet {
    * GET http://<nn>:<port>/data[/<path>] HTTP/1.1
    * }
    */
-  public void doGet(final HttpServletRequest request,
-                    final HttpServletResponse response)
-    throws IOException {
-    Configuration conf =
-	(Configuration) getServletContext().getAttribute(JspHelper.CURRENT_CONF);
+  public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    Configuration conf = (Configuration) getServletContext().getAttribute(JspHelper.CURRENT_CONF);
     final UserGroupInformation ugi = getUGI(request, conf);
-
     try {
       ugi.doAs(new PrivilegedExceptionAction<Void>() {
             @Override
             public Void run() throws IOException {
               ClientProtocol nn = createNameNodeProxy();
-              final String path = 
-                request.getPathInfo() != null ? request.getPathInfo() : "/";
+              final String path = request.getPathInfo() != null ? request.getPathInfo() : "/";
               
-              String delegationToken = 
-                request.getParameter(JspHelper.DELEGATION_PARAMETER_NAME);
+              String delegationToken = request.getParameter(JspHelper.DELEGATION_PARAMETER_NAME);
               
               HdfsFileStatus info = nn.getFileInfo(path);
               if ((info != null) && !info.isDir()) {
