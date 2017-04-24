@@ -46,12 +46,10 @@ import org.znerd.xmlenc.XMLOutputter;
 public class FileChecksumServlets {
   /** Redirect file checksum queries to an appropriate datanode. */
   public static class RedirectServlet extends DfsServlet {
-    /** For java.io.Serializable */
+
     private static final long serialVersionUID = 1L;
   
-    /** {@inheritDoc} */
-    public void doGet(HttpServletRequest request, HttpServletResponse response
-        ) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
       final ServletContext context = getServletContext();
       Configuration conf = (Configuration) context.getAttribute(JspHelper.CURRENT_CONF);
       final UserGroupInformation ugi = getUGI(request, conf);
@@ -59,8 +57,7 @@ public class FileChecksumServlets {
       final NameNode namenode = (NameNode)context.getAttribute("name.node");
       final DatanodeID datanode = namenode.namesystem.getRandomDatanode();
       try {
-        final URI uri = 
-          createRedirectUri("/getFileChecksum", ugi, datanode, request, tokenString);
+        final URI uri = createRedirectUri("/getFileChecksum", ugi, datanode, request, tokenString);
         response.sendRedirect(uri.toURL().toString());
       } catch(URISyntaxException e) {
         throw new ServletException(e); 
@@ -73,12 +70,9 @@ public class FileChecksumServlets {
   
   /** Get FileChecksum */
   public static class GetServlet extends DfsServlet {
-    /** For java.io.Serializable */
     private static final long serialVersionUID = 1L;
     
-    /** {@inheritDoc} */
-    public void doGet(HttpServletRequest request, HttpServletResponse response
-        ) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
       final PrintWriter out = response.getWriter();
       final String filename = getFilename(request, response);
       final XMLOutputter xml = new XMLOutputter(out, "UTF-8");
@@ -89,16 +83,14 @@ public class FileChecksumServlets {
       final SocketFactory socketFactory = NetUtils.getSocketFactory(conf, ClientProtocol.class);
 
       try {
-        ClientProtocol nnproxy = getUGI(request, conf).doAs
-        (new PrivilegedExceptionAction<ClientProtocol>() {
+        ClientProtocol nnproxy = getUGI(request, conf).doAs (new PrivilegedExceptionAction<ClientProtocol>() {
           @Override
           public ClientProtocol run() throws IOException {
             return DFSClient.createNamenode(conf);
           }
         });
         
-        final MD5MD5CRC32FileChecksum checksum = DFSClient.getFileChecksum(
-            filename, nnproxy, socketFactory, socketTimeout);
+        final MD5MD5CRC32FileChecksum checksum = DFSClient.getFileChecksum(filename, nnproxy, socketFactory, socketTimeout);
         MD5MD5CRC32FileChecksum.write(xml, checksum);
       } catch(IOException ioe) {
         writeXml(ioe, filename, xml);
