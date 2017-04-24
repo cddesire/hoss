@@ -42,31 +42,27 @@ import org.apache.hadoop.security.token.Token;
 @SuppressWarnings("serial")
 public class GetDelegationTokenServlet extends DfsServlet {
   private static final Log LOG = LogFactory.getLog(GetDelegationTokenServlet.class);
+
   public static final String PATH_SPEC = "/getDelegationToken";
+
   public static final String RENEWER = "renewer";
   
   @Override
-  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
+  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
     final UserGroupInformation ugi;
     final ServletContext context = getServletContext();
-    final Configuration conf = 
-      (Configuration) context.getAttribute(JspHelper.CURRENT_CONF);
+    final Configuration conf = (Configuration) context.getAttribute(JspHelper.CURRENT_CONF);
     try {
       ugi = getUGI(req, conf);
     } catch(IOException ioe) {
-      LOG.info("Request for token received with no authentication from "
-          + req.getRemoteAddr(), ioe);
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN, 
-          "Unable to identify or authenticate user");
+      LOG.info("Request for token received with no authentication from " + req.getRemoteAddr(), ioe);
+      resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Unable to identify or authenticate user");
       return;
     }
     LOG.info("Sending token: {" + ugi.getUserName() + "," + req.getRemoteAddr() +"}");
     final NameNode nn = (NameNode) context.getAttribute("name.node");
     String renewer = req.getParameter(RENEWER);
-    final String renewerFinal = (renewer == null) ? 
-        req.getUserPrincipal().getName() : renewer;
-    
+    final String renewerFinal = (renewer == null) ? req.getUserPrincipal().getName() : renewer;
     DataOutputStream dos = null;
     try {
       dos = new DataOutputStream(resp.getOutputStream());
@@ -74,8 +70,7 @@ public class GetDelegationTokenServlet extends DfsServlet {
       ugi.doAs(new PrivilegedExceptionAction<Void>() {
         @Override
         public Void run() throws IOException {
-          final Credentials ts = DelegationTokenSecretManager.createCredentials(
-              nn, ugi, renewerFinal);
+          final Credentials ts = DelegationTokenSecretManager.createCredentials(nn, ugi, renewerFinal);
           ts.write(dosFinal);
           dosFinal.close();
           return null;
