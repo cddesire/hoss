@@ -49,11 +49,10 @@ abstract class INode implements Comparable<byte[]> {
     long nsCount = 0;
     long dsCount = 0;
     
-    /** returns namespace count */
     long getNsCount() {
       return nsCount;
     }
-    /** returns diskspace count */
+
     long getDsCount() {
       return dsCount;
     }
@@ -350,9 +349,7 @@ abstract class INode implements Comparable<byte[]> {
     }
   }
 
-  //
   // Comparable interface
-  //
   public int compareTo(byte[] o) {
     return compareBytes(name, o);
   }
@@ -368,9 +365,6 @@ abstract class INode implements Comparable<byte[]> {
     return Arrays.hashCode(this.name);
   }
 
-  //
-  // static methods
-  //
   /**
    * Compare two byte arrays.
    * 
@@ -395,7 +389,6 @@ abstract class INode implements Comparable<byte[]> {
   
   
   LocatedBlocks createLocatedBlocks(List<LocatedBlock> blocks) {
-    return new LocatedBlocks(computeContentSummary().getLength(), blocks,
-        isUnderConstruction());
+    return new LocatedBlocks(computeContentSummary().getLength(), blocks, isUnderConstruction());
   }
 }
