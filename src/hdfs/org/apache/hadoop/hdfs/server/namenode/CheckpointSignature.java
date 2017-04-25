@@ -27,8 +27,7 @@ import org.apache.hadoop.io.WritableComparable;
 /**
  * A unique signature intended to identify checkpoint transactions.
  */
-public class CheckpointSignature extends StorageInfo 
-                      implements WritableComparable<CheckpointSignature> {
+public class CheckpointSignature extends StorageInfo implements WritableComparable<CheckpointSignature> {
   private static final String FIELD_SEPARATOR = ":";
   long editsTime = -1L;
   long checkpointTime = -1L;
@@ -70,9 +69,6 @@ public class CheckpointSignature extends StorageInfo
     }
   }
 
-  //
-  // Comparable interface
-  //
   public int compareTo(CheckpointSignature o) {
     return 
       (layoutVersion < o.layoutVersion) ? -1 : 
@@ -92,13 +88,9 @@ public class CheckpointSignature extends StorageInfo
   }
 
   public int hashCode() {
-    return layoutVersion ^ namespaceID ^
-            (int)(cTime ^ editsTime ^ checkpointTime);
+    return layoutVersion ^ namespaceID ^ (int)(cTime ^ editsTime ^ checkpointTime);
   }
 
-  /////////////////////////////////////////////////
-  // Writable
-  /////////////////////////////////////////////////
   public void write(DataOutput out) throws IOException {
     out.writeInt(getLayoutVersion());
     out.writeInt(getNamespaceID());
