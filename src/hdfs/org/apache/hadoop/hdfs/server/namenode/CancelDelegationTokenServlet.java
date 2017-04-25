@@ -37,34 +37,31 @@ import org.apache.hadoop.security.token.Token;
  */
 @SuppressWarnings("serial")
 public class CancelDelegationTokenServlet extends DfsServlet {
+
   private static final Log LOG = LogFactory.getLog(CancelDelegationTokenServlet.class);
+
   public static final String PATH_SPEC = "/cancelDelegationToken";
+
   public static final String TOKEN = "token";
   
   @Override
-  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
+  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
     final UserGroupInformation ugi;
     final ServletContext context = getServletContext();
-    final Configuration conf = 
-      (Configuration) context.getAttribute(JspHelper.CURRENT_CONF);
+    final Configuration conf = (Configuration) context.getAttribute(JspHelper.CURRENT_CONF);
     try {
       ugi = getUGI(req, conf);
     } catch(IOException ioe) {
-      LOG.info("Request for token received with no authentication from "
-          + req.getRemoteAddr(), ioe);
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN, 
-          "Unable to identify or authenticate user");
+      LOG.info("Request for token received with no authentication from " + req.getRemoteAddr(), ioe);
+      resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Unable to identify or authenticate user");
       return;
     }
     final NameNode nn = (NameNode) context.getAttribute("name.node");
     String tokenString = req.getParameter(TOKEN);
     if (tokenString == null) {
-      resp.sendError(HttpServletResponse.SC_MULTIPLE_CHOICES,
-                     "Token to renew not specified");
+      resp.sendError(HttpServletResponse.SC_MULTIPLE_CHOICES, "Token to renew not specified");
     }
-    final Token<DelegationTokenIdentifier> token = 
-      new Token<DelegationTokenIdentifier>();
+    final Token<DelegationTokenIdentifier> token = new Token<DelegationTokenIdentifier>();
     token.decodeFromUrlString(tokenString);
     
     try {
@@ -76,8 +73,7 @@ public class CancelDelegationTokenServlet extends DfsServlet {
       });
     } catch(Exception e) {
       LOG.info("Exception while cancelling token. Re-throwing. ", e);
-      resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                     e.getMessage());
+      resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
     }
   }
 }
