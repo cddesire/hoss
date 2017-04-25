@@ -61,11 +61,10 @@ class BlocksMap {
 
     DatanodeDescriptor getDatanode(int index) {
       assert this.triplets != null : "BlockInfo is not initialized";
-      assert index >= 0 && index*3 < triplets.length : "Index is out of bound";
-      DatanodeDescriptor node = (DatanodeDescriptor)triplets[index*3];
-      assert node == null || 
-          DatanodeDescriptor.class.getName().equals(node.getClass().getName()) : 
-                "DatanodeDescriptor is expected at " + index*3;
+      assert index >= 0 && index * 3 < triplets.length : "Index is out of bound";
+      DatanodeDescriptor node = (DatanodeDescriptor)triplets[index * 3];
+      assert node == null || DatanodeDescriptor.class.getName().equals(node.getClass().getName()) :
+                "DatanodeDescriptor is expected at " + index * 3;
       return node;
     }
 
@@ -73,38 +72,36 @@ class BlocksMap {
       assert this.triplets != null : "BlockInfo is not initialized";
       assert index >= 0 && index*3+1 < triplets.length : "Index is out of bound";
       BlockInfo info = (BlockInfo)triplets[index*3+1];
-      assert info == null || 
-          BlockInfo.class.getName().equals(info.getClass().getName()) : 
+      assert info == null || BlockInfo.class.getName().equals(info.getClass().getName()) :
                 "BlockInfo is expected at " + index*3;
       return info;
     }
 
     BlockInfo getNext(int index) {
       assert this.triplets != null : "BlockInfo is not initialized";
-      assert index >= 0 && index*3+2 < triplets.length : "Index is out of bound";
-      BlockInfo info = (BlockInfo)triplets[index*3+2];
-      assert info == null || 
-          BlockInfo.class.getName().equals(info.getClass().getName()) : 
-                "BlockInfo is expected at " + index*3;
+      assert index >= 0 && index * 3 + 2 < triplets.length : "Index is out of bound";
+      BlockInfo info = (BlockInfo)triplets[index * 3 + 2];
+      assert info == null || BlockInfo.class.getName().equals(info.getClass().getName()) :
+                "BlockInfo is expected at " + index * 3;
       return info;
     }
 
     void setDatanode(int index, DatanodeDescriptor node) {
       assert this.triplets != null : "BlockInfo is not initialized";
-      assert index >= 0 && index*3 < triplets.length : "Index is out of bound";
+      assert index >= 0 && index * 3 < triplets.length : "Index is out of bound";
       triplets[index*3] = node;
     }
 
     void setPrevious(int index, BlockInfo to) {
       assert this.triplets != null : "BlockInfo is not initialized";
-      assert index >= 0 && index*3+1 < triplets.length : "Index is out of bound";
-      triplets[index*3+1] = to;
+      assert index >= 0 && index * 3 + 1 < triplets.length : "Index is out of bound";
+      triplets[index * 3 + 1] = to;
     }
 
     void setNext(int index, BlockInfo to) {
       assert this.triplets != null : "BlockInfo is not initialized";
-      assert index >= 0 && index*3+2 < triplets.length : "Index is out of bound";
-      triplets[index*3+2] = to;
+      assert index >= 0 && index * 3 + 2 < triplets.length : "Index is out of bound";
+      triplets[index * 3 + 2] = to;
     }
 
     private int getCapacity() {
@@ -125,8 +122,8 @@ class BlocksMap {
       /* Not enough space left. Create a new array. Should normally 
        * happen only when replication is manually increased by the user. */
       Object[] old = triplets;
-      triplets = new Object[(last+num)*3];
-      for(int i=0; i < last*3; i++) {
+      triplets = new Object[(last + num) * 3];
+      for(int i=0; i < last * 3; i++) {
         triplets[i] = old[i];
       }
       return last;
@@ -138,9 +135,9 @@ class BlocksMap {
     int numNodes() {
       assert this.triplets != null : "BlockInfo is not initialized";
       assert triplets.length % 3 == 0 : "Malformed BlockInfo";
-      for(int idx = getCapacity()-1; idx >= 0; idx--) {
+      for(int idx = getCapacity() - 1; idx >= 0; idx--) {
         if(getDatanode(idx) != null)
-          return idx+1;
+          return idx + 1;
       }
       return 0;
     }
@@ -262,7 +259,6 @@ class BlocksMap {
         if(next != null) {
           nextPrev = next.getPrevious(next.findDatanode(dn));
           if(cur != nextPrev) {
-            System.out.println("Inconsistent list: cur->next->prev != cur");
             return false;
           }
         }
@@ -332,7 +328,7 @@ class BlocksMap {
     //compute capacity
     final int e1 = (int)(Math.log(twoPC)/Math.log(2.0) + 0.5);
     final int e2 = e1 - ("32".equals(vmBit)? 2: 3);
-    final int exponent = e2 < 0? 0: e2 > 30? 30: e2;
+    final int exponent = e2 < 0 ? 0: e2 > 30? 30: e2;
     final int c = 1 << exponent;
 
     LightWeightGSet.LOG.info("VM type       = " + vmBit + "-bit");
