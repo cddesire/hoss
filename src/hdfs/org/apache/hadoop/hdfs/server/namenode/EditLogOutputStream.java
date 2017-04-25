@@ -29,6 +29,7 @@ import org.apache.hadoop.io.Writable;
 abstract class EditLogOutputStream extends OutputStream {
   // these are statistics counters
   private long numSync;        // number of sync(s) to disk
+  
   private long totalTimeSync;  // total time to sync
 
   EditLogOutputStream() throws IOException {
