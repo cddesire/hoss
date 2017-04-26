@@ -82,14 +82,10 @@ public class DatanodeRegistration extends DatanodeID implements Writable {
     this.name = name;
   }
 
-  /**
-   */
   public int getVersion() {
     return storageInfo.getLayoutVersion();
   }
-  
-  /**
-   */
+
   public String getRegistrationID() {
     return Storage.getRegistrationID(storageInfo);
   }
@@ -102,13 +98,10 @@ public class DatanodeRegistration extends DatanodeID implements Writable {
       + ", ipcPort=" + ipcPort
       + ")";
   }
-  /////////////////////////////////////////////////
+
   // Writable
-  /////////////////////////////////////////////////
-  /** {@inheritDoc} */
   public void write(DataOutput out) throws IOException {
     super.write(out);
-
     //TODO: move it to DatanodeID once HADOOP-2797 has been committed
     out.writeShort(ipcPort);
 
@@ -118,10 +111,8 @@ public class DatanodeRegistration extends DatanodeID implements Writable {
     exportedKeys.write(out);
   }
 
-  /** {@inheritDoc} */
   public void readFields(DataInput in) throws IOException {
     super.readFields(in);
-
     //TODO: move it to DatanodeID once HADOOP-2797 has been committed
     this.ipcPort = in.readShort() & 0x0000ffff;
 
