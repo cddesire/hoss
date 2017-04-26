@@ -65,8 +65,10 @@ public class FSEditLog {
   private static final byte OP_SET_OWNER = 8;
   private static final byte OP_CLOSE = 9;    // close after write
   private static final byte OP_SET_GENSTAMP = 10;    // store genstamp
-  /* The following two are not used any more. Should be removed once
-   * LAST_UPGRADABLE_LAYOUT_VERSION is -17 or newer. */
+  /* 
+   * The following two are not used any more. Should be removed once
+   * LAST_UPGRADABLE_LAYOUT_VERSION is -17 or newer. 
+   */
   private static final byte OP_SET_NS_QUOTA = 11; // set namespace quota
   private static final byte OP_CLEAR_NS_QUOTA = 12; // clear namespace quota
   private static final byte OP_TIMES = 13; // sets mod & access time on a file
@@ -79,6 +81,7 @@ public class FSEditLog {
   private static int sizeFlushBuffer = 512*1024;
 
   private ArrayList<EditLogOutputStream> editStreams = null;
+
   private FSImage fsimage = null;
 
   // a monotonically increasing counter that represents transactionIds.
@@ -142,13 +145,11 @@ public class FSEditLog {
       return file.getPath();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void write(int b) throws IOException {
       bufCurrent.write(b);
     }
 
-    /** {@inheritDoc} */
     @Override
     void write(byte op, Writable ... writables) throws IOException {
       write(op);
@@ -229,14 +230,11 @@ public class FSEditLog {
     private void preallocate() throws IOException {
       long position = fc.position();
       if (position + 4096 >= fc.size()) {
-        FSNamesystem.LOG.debug("Preallocating Edit log, current size " +
-                                fc.size());
+        FSNamesystem.LOG.debug("Preallocating Edit log, current size " + fc.size());
         long newsize = position + 1024*1024; // 1MB
         fill.position(0);
         int written = fc.write(fill, newsize);
-        FSNamesystem.LOG.debug("Edit log size is now " + fc.size() +
-                              " written " + written + " bytes " +
-                              " at offset " +  newsize);
+        FSNamesystem.LOG.debug("Edit log size is now " + fc.size() + " written " + written + " bytes " + " at offset " +  newsize);
       }
     }
     
@@ -370,7 +368,6 @@ public class FSEditLog {
     }
     printStatistics(true);
     numTransactions = totalTimeTransactions = numTransactionsBatchedInSync = 0;
-
     for (int idx = 0; idx < editStreams.size(); idx++) {
       EditLogOutputStream eStream = editStreams.get(idx);
       try {
@@ -413,8 +410,7 @@ public class FSEditLog {
    * @return the storage directory for the given edit stream. 
    */
   private File getStorageDirForStream(int idx) {
-    File editsFile =
-      ((EditLogFileOutputStream)editStreams.get(idx)).getFile();
+    File editsFile = ((EditLogFileOutputStream)editStreams.get(idx)).getFile();
     // Namedir is the parent of current which is the parent of edits
     return editsFile.getParentFile().getParentFile();
   }
@@ -439,7 +435,6 @@ public class FSEditLog {
    */
   synchronized void removeEditsForStorageDir(StorageDirectory sd) {
     exitIfStreamsNotSet();
-
     if (!sd.getStorageDirType().isOfType(NameNodeDirType.EDITS)) {
       return;
     }
@@ -458,8 +453,7 @@ public class FSEditLog {
    * Remove each of the given edits streams and their corresponding
    * storage directories.
    */
-  private void removeEditsStreamsAndStorageDirs(
-      ArrayList<EditLogOutputStream> errorStreams) {
+  private void removeEditsStreamsAndStorageDirs(ArrayList<EditLogOutputStream> errorStreams) {
     if (errorStreams == null) {
       return;
     }
@@ -507,7 +501,6 @@ public class FSEditLog {
         numOpUpdateMasterKey = 0, numOpOther = 0;
 
     long startTime = FSNamesystem.now();
-
     DataInputStream in = new DataInputStream(new BufferedInputStream(edits));
     try {
       // Read log file version. Could be missing. 
@@ -524,13 +517,11 @@ public class FSEditLog {
         in.reset();
         logVersion = in.readInt();
         if (logVersion < FSConstants.LAYOUT_VERSION) // future version
-          throw new IOException(
-                          "Unexpected version of the file system log file: "
+          throw new IOException("Unexpected version of the file system log file: "
                           + logVersion + ". Current version = " 
                           + FSConstants.LAYOUT_VERSION + ".");
       }
-      assert logVersion <= Storage.LAST_UPGRADABLE_LAYOUT_VERSION :
-                            "Unsupported version " + logVersion;
+      assert logVersion <= Storage.LAST_UPGRADABLE_LAYOUT_VERSION : "Unsupported version " + logVersion;
 
       while (true) {
         long timestamp = 0;
@@ -541,8 +532,7 @@ public class FSEditLog {
         try {
           opcode = in.readByte();
           if (opcode == OP_INVALID) {
-            FSNamesystem.LOG.info("Invalid opcode, reached end of edit log " +
-                                   "Number of transactions found " + numEdits);
+            FSNamesystem.LOG.info("Invalid opcode, reached end of edit log " + "Number of transactions found " + numEdits);
             break; // no more transactions
           }
         } catch (EOFException e) {
@@ -558,10 +548,8 @@ public class FSEditLog {
           if (-7 == logVersion && length != 3||
               -17 < logVersion && logVersion < -7 && length != 4 ||
               logVersion <= -17 && length != 5) {
-              throw new IOException("Incorrect data format."  +
-                                    " logVersion is " + logVersion +
-                                    " but writables.length is " +
-                                    length + ". ");
+              throw new IOException("Incorrect data format."  + " logVersion is " + logVersion +
+                                    " but writables.length is " + length + ". ");
           }
           path = FSImage.readString(in);
           short replication = adjustReplication(readShort(in));
@@ -582,8 +570,7 @@ public class FSEditLog {
             blocks = new Block[num];
             for (int i = 0; i < num; i++) {
               oldblk.readFields(in);
-              blocks[i] = new Block(oldblk.blkid, oldblk.len, 
-                                    Block.GRANDFATHER_GENERATION_STAMP);
+              blocks[i] = new Block(oldblk.blkid, oldblk.len, Block.GRANDFATHER_GENERATION_STAMP);
             }
           }
 
@@ -620,35 +607,23 @@ public class FSEditLog {
           // The open lease transaction re-creates a file if necessary.
           // Delete the file if it already exists.
           if (FSNamesystem.LOG.isDebugEnabled()) {
-            FSNamesystem.LOG.debug(opcode + ": " + path + 
-                                   " numblocks : " + blocks.length +
-                                   " clientHolder " +  clientName +
-                                   " clientMachine " + clientMachine);
+            FSNamesystem.LOG.debug(opcode + ": " + path + " numblocks : " + blocks.length +
+                                   " clientHolder " +  clientName + " clientMachine " + clientMachine);
           }
 
           fsDir.unprotectedDelete(path, mtime);
 
           // add to the file tree
-          INodeFile node = (INodeFile)fsDir.unprotectedAddFile(
-                                                    path, permissions,
-                                                    blocks, replication, 
-                                                    mtime, atime, blockSize);
+          INodeFile node = (INodeFile)fsDir.unprotectedAddFile(path, permissions, blocks, replication, mtime, atime, blockSize);
           if (opcode == OP_ADD) {
             numOpAdd++;
-            //
             // Replace current node with a INodeUnderConstruction.
             // Recreate in-memory lease record.
-            //
             INodeFileUnderConstruction cons = new INodeFileUnderConstruction(
-                                      node.getLocalNameBytes(),
-                                      node.getReplication(), 
-                                      node.getModificationTime(),
-                                      node.getPreferredBlockSize(),
-                                      node.getBlocks(),
-                                      node.getPermissionStatus(),
-                                      clientName, 
-                                      clientMachine, 
-                                      null);
+                                      node.getLocalNameBytes(), node.getReplication(),
+                                      node.getModificationTime(), node.getPreferredBlockSize(),
+                                      node.getBlocks(), node.getPermissionStatus(),
+                                      clientName, clientMachine, null);
             fsDir.replaceNode(path, node, cons);
             fsNamesys.leaseManager.addLease(cons.clientName, path);
           }
@@ -665,8 +640,7 @@ public class FSEditLog {
           numOpRename++;
           int length = in.readInt();
           if (length != 3) {
-            throw new IOException("Incorrect data format. " 
-                                  + "Mkdir operation.");
+            throw new IOException("Incorrect data format. " + "Mkdir operation.");
           }
           String s = FSImage.readString(in);
           String d = FSImage.readString(in);
@@ -680,8 +654,7 @@ public class FSEditLog {
           numOpDelete++;
           int length = in.readInt();
           if (length != 2) {
-            throw new IOException("Incorrect data format. " 
-                                  + "delete operation.");
+            throw new IOException("Incorrect data format. " + "delete operation.");
           }
           path = FSImage.readString(in);
           timestamp = readLong(in);
@@ -694,8 +667,7 @@ public class FSEditLog {
           int length = in.readInt();
           if (-17 < logVersion && length != 2 ||
               logVersion <= -17 && length != 3) {
-            throw new IOException("Incorrect data format. " 
-                                  + "Mkdir operation.");
+            throw new IOException("Incorrect data format. " + "Mkdir operation.");
           }
           path = FSImage.readString(in);
           timestamp = readLong(in);
@@ -736,17 +708,14 @@ public class FSEditLog {
         case OP_SET_PERMISSIONS: {
           numOpSetPerm++;
           if (logVersion > -11)
-            throw new IOException("Unexpected opcode " + opcode
-                                  + " for version " + logVersion);
-          fsDir.unprotectedSetPermission(
-              FSImage.readString(in), FsPermission.read(in));
+            throw new IOException("Unexpected opcode " + opcode + " for version " + logVersion);
+          fsDir.unprotectedSetPermission(FSImage.readString(in), FsPermission.read(in));
           break;
         }
         case OP_SET_OWNER: {
           numOpSetOwner++;
           if (logVersion > -11)
-            throw new IOException("Unexpected opcode " + opcode
-                                  + " for version " + logVersion);
+            throw new IOException("Unexpected opcode " + opcode + " for version " + logVersion);
           fsDir.unprotectedSetOwner(FSImage.readString(in),
               FSImage.readString_EmptyAsNull(in),
               FSImage.readString_EmptyAsNull(in));
@@ -754,38 +723,28 @@ public class FSEditLog {
         }
         case OP_SET_NS_QUOTA: {
           if (logVersion > -16) {
-            throw new IOException("Unexpected opcode " + opcode
-                + " for version " + logVersion);
+            throw new IOException("Unexpected opcode " + opcode + " for version " + logVersion);
           }
-          fsDir.unprotectedSetQuota(FSImage.readString(in), 
-                                    readLongWritable(in), 
-                                    FSConstants.QUOTA_DONT_SET);
+          fsDir.unprotectedSetQuota(FSImage.readString(in), readLongWritable(in), FSConstants.QUOTA_DONT_SET);
           break;
         }
         case OP_CLEAR_NS_QUOTA: {
           if (logVersion > -16) {
-            throw new IOException("Unexpected opcode " + opcode
-                + " for version " + logVersion);
+            throw new IOException("Unexpected opcode " + opcode + " for version " + logVersion);
           }
-          fsDir.unprotectedSetQuota(FSImage.readString(in),
-                                    FSConstants.QUOTA_RESET,
-                                    FSConstants.QUOTA_DONT_SET);
+          fsDir.unprotectedSetQuota(FSImage.readString(in), FSConstants.QUOTA_RESET, FSConstants.QUOTA_DONT_SET);
           break;
         }
 
         case OP_SET_QUOTA:
-          fsDir.unprotectedSetQuota(FSImage.readString(in),
-                                    readLongWritable(in),
-                                    readLongWritable(in));
-                                      
+          fsDir.unprotectedSetQuota(FSImage.readString(in), readLongWritable(in), readLongWritable(in));
           break;
 
         case OP_TIMES: {
           numOpTimes++;
           int length = in.readInt();
           if (length != 3) {
-            throw new IOException("Incorrect data format. " 
-                                  + "times operation.");
+            throw new IOException("Incorrect data format. " + "times operation.");
           }
           path = FSImage.readString(in);
           mtime = readLong(in);
@@ -795,55 +754,44 @@ public class FSEditLog {
         }
         case OP_GET_DELEGATION_TOKEN: {
           if (logVersion > -19) {
-            throw new IOException("Unexpected opcode " + opcode
-                + " for version " + logVersion);
+            throw new IOException("Unexpected opcode " + opcode + " for version " + logVersion);
           }
           numOpGetDelegationToken++;
-          DelegationTokenIdentifier delegationTokenId = 
-              new DelegationTokenIdentifier();
+          DelegationTokenIdentifier delegationTokenId = new DelegationTokenIdentifier();
           delegationTokenId.readFields(in);
           long expiryTime = readLong(in);
-          fsNamesys.getDelegationTokenSecretManager()
-              .addPersistedDelegationToken(delegationTokenId, expiryTime);
+          fsNamesys.getDelegationTokenSecretManager() .addPersistedDelegationToken(delegationTokenId, expiryTime);
           break;
         }
         case OP_RENEW_DELEGATION_TOKEN: {
           if (logVersion > -19) {
-            throw new IOException("Unexpected opcode " + opcode
-                + " for version " + logVersion);
+            throw new IOException("Unexpected opcode " + opcode + " for version " + logVersion);
           }
           numOpRenewDelegationToken++;
-          DelegationTokenIdentifier delegationTokenId = 
-              new DelegationTokenIdentifier();
+          DelegationTokenIdentifier delegationTokenId = new DelegationTokenIdentifier();
           delegationTokenId.readFields(in);
           long expiryTime = readLong(in);
-          fsNamesys.getDelegationTokenSecretManager()
-              .updatePersistedTokenRenewal(delegationTokenId, expiryTime);
+          fsNamesys.getDelegationTokenSecretManager().updatePersistedTokenRenewal(delegationTokenId, expiryTime);
           break;
         }
         case OP_CANCEL_DELEGATION_TOKEN: {
           if (logVersion > -19) {
-            throw new IOException("Unexpected opcode " + opcode
-                + " for version " + logVersion);
+            throw new IOException("Unexpected opcode " + opcode + " for version " + logVersion);
           }
           numOpCancelDelegationToken++;
-          DelegationTokenIdentifier delegationTokenId = 
-              new DelegationTokenIdentifier();
+          DelegationTokenIdentifier delegationTokenId = new DelegationTokenIdentifier();
           delegationTokenId.readFields(in);
-          fsNamesys.getDelegationTokenSecretManager()
-              .updatePersistedTokenCancellation(delegationTokenId);
+          fsNamesys.getDelegationTokenSecretManager().updatePersistedTokenCancellation(delegationTokenId);
           break;
         }
         case OP_UPDATE_MASTER_KEY: {
           if (logVersion > -19) {
-            throw new IOException("Unexpected opcode " + opcode
-                + " for version " + logVersion);
+            throw new IOException("Unexpected opcode " + opcode + " for version " + logVersion);
           }
           numOpUpdateMasterKey++;
           DelegationKey delegationKey = new DelegationKey();
           delegationKey.readFields(in);
-          fsNamesys.getDelegationTokenSecretManager().updatePersistedMasterKey(
-              delegationKey);
+          fsNamesys.getDelegationTokenSecretManager().updatePersistedMasterKey(delegationKey);
           break;
         }
         default: {
@@ -939,9 +887,7 @@ public class FSEditLog {
     // get a new transactionId
     txid++;
 
-    //
     // record the transactionId when new data was written to the edits log
-    //
     TransactionId id = myTransactionId.get();
     id.txid = txid;
 
@@ -977,9 +923,7 @@ public class FSEditLog {
           }
         }
 
-        //
         // If this transaction was already flushed, then nothing to do
-        //
         if (mytxid <= synctxid) {
           numTransactionsBatchedInSync++;
           if (metrics != null) // Metrics is non-null only when used inside name node
@@ -1000,9 +944,7 @@ public class FSEditLog {
             streams.add(eStream);
           } catch (IOException ie) {
             FSNamesystem.LOG.error("Unable to get ready to flush.", ie);
-            //
             // remember the streams that encountered an error.
-            //
             if (errorStreams == null) {
               errorStreams = new ArrayList<EditLogOutputStream>(1);
             }
@@ -1018,9 +960,7 @@ public class FSEditLog {
           eStream.flush();
         } catch (IOException ie) {
           FSNamesystem.LOG.error("Unable to sync edit log.", ie);
-          //
           // remember the streams that encountered an error.
-          //
           if (errorStreams == null) {
             errorStreams = new ArrayList<EditLogOutputStream>(1);
           }
@@ -1045,9 +985,7 @@ public class FSEditLog {
     }
   }
 
-  //
   // print statistics every 1 minute.
-  //
   private void printStatistics(boolean force) {
     long now = FSNamesystem.now();
     if (lastPrintTime + 60000 > now && !force) {
@@ -1081,8 +1019,7 @@ public class FSEditLog {
    * Add open lease record to edit log. 
    * Records the block locations of the last block.
    */
-  public void logOpenFile(String path, INodeFileUnderConstruction newNode) 
-                   throws IOException {
+  public void logOpenFile(String path, INodeFileUnderConstruction newNode) throws IOException {
 
     UTF8 nameReplicationPair[] = new UTF8[] { 
       new UTF8(path), 
@@ -1143,9 +1080,7 @@ public class FSEditLog {
    * Add set replication record to edit log
    */
   void logSetReplication(String src, short replication) {
-    logEdit(OP_SET_REPLICATION, 
-            new UTF8(src), 
-            FSEditLog.toLogReplication(replication));
+    logEdit(OP_SET_REPLICATION, new UTF8(src), FSEditLog.toLogReplication(replication));
   }
   
   /** Add set namespace quota record to edit log
@@ -1154,8 +1089,7 @@ public class FSEditLog {
    * @param quota the directory size limit
    */
   void logSetQuota(String src, long nsQuota, long dsQuota) {
-    logEdit(OP_SET_QUOTA, new UTF8(src), 
-            new LongWritable(nsQuota), new LongWritable(dsQuota));
+    logEdit(OP_SET_QUOTA, new UTF8(src), new LongWritable(nsQuota), new LongWritable(dsQuota));
   }
 
   /**  Add set permissions record to edit log */
@@ -1204,13 +1138,11 @@ public class FSEditLog {
    * @param expiryTime of the token
    * @return
    */
-  void logGetDelegationToken(DelegationTokenIdentifier id,
-      long expiryTime) {
+  void logGetDelegationToken(DelegationTokenIdentifier id, long expiryTime) {
     logEdit(OP_GET_DELEGATION_TOKEN, id, FSEditLog.toLogLong(expiryTime));
   }
 
-  void logRenewDelegationToken(DelegationTokenIdentifier id,
-      long expiryTime) {
+  void logRenewDelegationToken(DelegationTokenIdentifier id, long expiryTime) {
     logEdit(OP_RENEW_DELEGATION_TOKEN, id, FSEditLog.toLogLong(expiryTime));
   }
 
@@ -1283,13 +1215,11 @@ public class FSEditLog {
     while (it.hasNext()) {
       StorageDirectory sd = it.next();
       try {
-        EditLogFileOutputStream eStream = 
-             new EditLogFileOutputStream(getEditNewFile(sd));
+        EditLogFileOutputStream eStream = new EditLogFileOutputStream(getEditNewFile(sd));
         eStream.create();
         editStreams.add(eStream);
       } catch (IOException ioe) {
-        FSImage.LOG.error("error retrying to reopen storage directory '" +
-            sd.getRoot().getAbsolutePath() + "'", ioe);
+        FSImage.LOG.error("error retrying to reopen storage directory '" + sd.getRoot().getAbsolutePath() + "'", ioe);
         toRemove.add(sd);
         it.remove();
       }
@@ -1309,26 +1239,19 @@ public class FSEditLog {
    * Reopens the edits file.
    */
   synchronized void purgeEditLog() throws IOException {
-    //
     // If edits.new does not exists, then return error.
-    //
     if (!existsNew()) {
-      throw new IOException("Attempt to purge edit log " +
-                            "but edits.new does not exist.");
+      throw new IOException("Attempt to purge edit log " + "but edits.new does not exist.");
     }
     close();
 
-    //
     // Delete edits and rename edits.new to edits.
-    //
     Iterator<StorageDirectory> it = fsimage.dirIterator(NameNodeDirType.EDITS);
     while (it.hasNext()) {
       StorageDirectory sd = it.next();
       if (!getEditNewFile(sd).renameTo(getEditFile(sd))) {
-        //
         // renameTo() fails on Windows if the destination
         // file exists.
-        //
         getEditFile(sd).delete();
         if (!getEditNewFile(sd).renameTo(getEditFile(sd))) {
           sd.unlock();
@@ -1338,9 +1261,7 @@ public class FSEditLog {
         }
       }
     }
-    //
     // Reopen all the edits logs.
-    //
     open();
   }
 
@@ -1349,8 +1270,7 @@ public class FSEditLog {
    */
   synchronized File getFsEditName() throws IOException {
     StorageDirectory sd = null;
-    for (Iterator<StorageDirectory> it = 
-           fsimage.dirIterator(NameNodeDirType.EDITS); it.hasNext();)
+    for (Iterator<StorageDirectory> it = fsimage.dirIterator(NameNodeDirType.EDITS); it.hasNext();)
       sd = it.next();
     return getEditFile(sd);
   }
@@ -1391,9 +1311,7 @@ public class FSEditLog {
       blkid = 0;
       len = 0;
     }
-    /////////////////////////////////////
     // Writable
-    /////////////////////////////////////
     public void write(DataOutput out) throws IOException {
       out.writeLong(blkid);
       out.writeLong(len);
