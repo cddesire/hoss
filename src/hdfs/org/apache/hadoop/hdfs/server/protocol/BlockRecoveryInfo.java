@@ -33,9 +33,7 @@ public class BlockRecoveryInfo implements Writable {
     wasRecoveredOnStartup = false;
   }
   
-  public BlockRecoveryInfo(Block block,
-      boolean wasRecoveredOnStartup)
-  {
+  public BlockRecoveryInfo(Block block, boolean wasRecoveredOnStartup) {
     this.block = new Block(block);
     this.wasRecoveredOnStartup = wasRecoveredOnStartup;
   }
@@ -60,7 +58,6 @@ public class BlockRecoveryInfo implements Writable {
   }
   
   public String toString() {
-    return "BlockRecoveryInfo(block=" + block +
-      " wasRecoveredOnStartup=" + wasRecoveredOnStartup + ")";
+    return "BlockRecoveryInfo(block=" + block + " wasRecoveredOnStartup=" + wasRecoveredOnStartup + ")";
   }
 }
