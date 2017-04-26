@@ -42,9 +42,7 @@ public class KeyUpdateCommand extends DatanodeCommand {
     return this.keys;
   }
 
-  // ///////////////////////////////////////////////
   // Writable
-  // ///////////////////////////////////////////////
   static { // register a ctor
     WritableFactories.setFactory(KeyUpdateCommand.class, new WritableFactory() {
       public Writable newInstance() {
@@ -53,15 +51,11 @@ public class KeyUpdateCommand extends DatanodeCommand {
     });
   }
 
-  /**
-   */
   public void write(DataOutput out) throws IOException {
     super.write(out);
     keys.write(out);
   }
 
-  /**
-   */
   public void readFields(DataInput in) throws IOException {
     super.readFields(in);
     keys.readFields(in);
