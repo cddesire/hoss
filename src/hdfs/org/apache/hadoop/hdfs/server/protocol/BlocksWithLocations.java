@@ -84,8 +84,7 @@ public class BlocksWithLocations implements Writable {
   private BlockWithLocations[] blocks;
 
   /** default constructor */
-  BlocksWithLocations() {
-  }
+  BlocksWithLocations() {}
 
   /** Constructor with one parameter */
   public BlocksWithLocations( BlockWithLocations[] blocks ) {
