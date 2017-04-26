@@ -83,9 +83,7 @@ public class BalancerBandwidthCommand extends DatanodeCommand {
     return this.bandwidth;
   }
 
-  // ///////////////////////////////////////////////
   // Writable
-  // ///////////////////////////////////////////////
   static { // register a ctor
     WritableFactories.setFactory(BalancerBandwidthCommand.class, new WritableFactory() {
       public Writable newInstance() {
