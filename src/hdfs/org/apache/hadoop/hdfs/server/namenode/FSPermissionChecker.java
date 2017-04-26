@@ -45,11 +45,9 @@ private final UserGroupInformation ugi;
       ugi = UserGroupInformation.getCurrentUser();
     } catch (IOException e) {
       throw new AccessControlException(e); 
-    } 
-
+    }
     groups.addAll(Arrays.asList(ugi.getGroupNames()));
     user = ugi.getShortUserName();
-
     isSuper = user.equals(fsOwner) || groups.contains(supergroup);
   }
 
@@ -57,7 +55,9 @@ private final UserGroupInformation ugi;
    * Check if the callers group contains the required values.
    * @param group group to check
    */
-  public boolean containsGroup(String group) {return groups.contains(group);}
+  public boolean containsGroup(String group) {
+  	return groups.contains(group);
+  }
 
   /**
    * Verify if the caller has the required permission. This will result into 
@@ -66,10 +66,8 @@ private final UserGroupInformation ugi;
    * @param supergroup supergroup of the system
    */
   public static void checkSuperuserPrivilege(UserGroupInformation owner, 
-                                             String supergroup) 
-                     throws AccessControlException {
-    FSPermissionChecker checker = 
-      new FSPermissionChecker(owner.getShortUserName(), supergroup);
+                                             String supergroup) throws AccessControlException {
+    FSPermissionChecker checker = new FSPermissionChecker(owner.getShortUserName(), supergroup);
     if (!checker.isSuper) {
       throw new AccessControlException("Access denied for user " 
           + checker.user + ". Superuser privilege is required");
@@ -120,9 +118,8 @@ private final UserGroupInformation ugi;
     synchronized(root) {
       INode[] inodes = root.getExistingPathINodes(path);
       int ancestorIndex = inodes.length - 2;
-      for(; ancestorIndex >= 0 && inodes[ancestorIndex] == null;
-          ancestorIndex--);
-      checkTraverse(inodes, ancestorIndex);
+      for(; ancestorIndex >= 0 && inodes[ancestorIndex] == null; ancestorIndex--);
+      	checkTraverse(inodes, ancestorIndex);
 
       if (ancestorAccess != null && inodes.length > 1) {
         check(inodes, ancestorIndex, ancestorAccess);
@@ -149,15 +146,13 @@ private final UserGroupInformation ugi;
     throw new AccessControlException("Permission denied");
   }
 
-  private void checkTraverse(INode[] inodes, int last
-      ) throws AccessControlException {
+  private void checkTraverse(INode[] inodes, int last) throws AccessControlException {
     for(int j = 0; j <= last; j++) {
       check(inodes[j], FsAction.EXECUTE);
     }
   }
 
-  private void checkSubAccess(INode inode, FsAction access
-      ) throws AccessControlException {
+  private void checkSubAccess(INode inode, FsAction access) throws AccessControlException {
     if (inode == null || !inode.isDirectory()) {
       return;
     }
@@ -175,13 +170,11 @@ private final UserGroupInformation ugi;
     }
   }
 
-  private void check(INode[] inodes, int i, FsAction access
-      ) throws AccessControlException {
+  private void check(INode[] inodes, int i, FsAction access) throws AccessControlException {
     check(i >= 0? inodes[i]: null, access);
   }
 
-  private void check(INode inode, FsAction access
-      ) throws AccessControlException {
+  private void check(INode inode, FsAction access) throws AccessControlException {
     if (inode == null) {
       return;
     }
