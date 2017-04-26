@@ -44,13 +44,11 @@ public class BlockMetaDataInfo extends Block {
 
   public long getLastScanTime() {return lastScanTime;}
 
-  /** {@inheritDoc} */
   public void write(DataOutput out) throws IOException {
     super.write(out);
     out.writeLong(lastScanTime);
   }
 
-  /** {@inheritDoc} */
   public void readFields(DataInput in) throws IOException {
     super.readFields(in);
     lastScanTime = in.readLong();
