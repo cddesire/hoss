@@ -385,19 +385,15 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     this.registerMBean(conf); // register the MBean for the FSNamesystemStutus
     this.dir = new FSDirectory(this, conf);
     StartupOption startOpt = NameNode.getStartupOption(conf);
-    this.dir.loadFSImage(getNamespaceDirs(conf),
-                         getNamespaceEditsDirs(conf), startOpt);
+    this.dir.loadFSImage(getNamespaceDirs(conf), getNamespaceEditsDirs(conf), startOpt);
     long timeTakenToLoadFSImage = now() - systemStart;
     LOG.info("Finished loading FSImage in " + timeTakenToLoadFSImage + " msecs");
     NameNode.getNameNodeMetrics().setFsImageLoadTime(timeTakenToLoadFSImage);
     this.safeMode = new SafeModeInfo(conf);
     setBlockTotal();
-    pendingReplications = new PendingReplicationBlocks(
-                            conf.getInt("dfs.replication.pending.timeout.sec", 
-                                        -1) * 1000L);
+    pendingReplications = new PendingReplicationBlocks(conf.getInt("dfs.replication.pending.timeout.sec", -1) * 1000L);
     if (isAccessTokenEnabled) {
-      accessTokenHandler = new BlockTokenSecretManager(true,
-          accessKeyUpdateInterval, accessTokenLifetime);
+      accessTokenHandler = new BlockTokenSecretManager(true, accessKeyUpdateInterval, accessTokenLifetime);
     }
     this.hbthread = new Daemon(new HeartbeatMonitor());
     this.lmthread = new Daemon(leaseManager.new Monitor());
@@ -485,24 +481,19 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
 
 
     this.replicator = new ReplicationTargetChooser(
-                         conf.getBoolean("dfs.replication.considerLoad", true),
-                         this,
-                         clusterMap);
+                         conf.getBoolean("dfs.replication.considerLoad", true), this, clusterMap);
     this.defaultReplication = conf.getInt("dfs.replication", 3);
     this.maxReplication = conf.getInt("dfs.replication.max", 512);
     this.minReplication = conf.getInt("dfs.replication.min", 1);
     if (minReplication <= 0)
-      throw new IOException(
-                            "Unexpected configuration parameters: dfs.replication.min = " 
+      throw new IOException("Unexpected configuration parameters: dfs.replication.min = "
                             + minReplication
                             + " must be greater than 0");
     if (maxReplication >= (int)Short.MAX_VALUE)
-      throw new IOException(
-                            "Unexpected configuration parameters: dfs.replication.max = " 
+      throw new IOException("Unexpected configuration parameters: dfs.replication.max = "
                             + maxReplication + " must be less than " + (Short.MAX_VALUE));
     if (maxReplication < minReplication)
-      throw new IOException(
-                            "Unexpected configuration parameters: dfs.replication.min = " 
+      throw new IOException("Unexpected configuration parameters: dfs.replication.min = "
                             + minReplication
                             + " must be less than dfs.replication.max = " 
                             + maxReplication);
@@ -527,8 +518,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
 
     this.accessTimePrecision = conf.getLong("dfs.access.time.precision", 0);
     this.supportAppends = conf.getBoolean("dfs.support.append", false);
-    this.isAccessTokenEnabled = conf.getBoolean(
-        DFSConfigKeys.DFS_BLOCK_ACCESS_TOKEN_ENABLE_KEY, false);
+    this.isAccessTokenEnabled = conf.getBoolean(DFSConfigKeys.DFS_BLOCK_ACCESS_TOKEN_ENABLE_KEY, false);
     if (isAccessTokenEnabled) {
       this.accessKeyUpdateInterval = conf.getLong(
           DFSConfigKeys.DFS_BLOCK_ACCESS_KEY_UPDATE_INTERVAL_KEY, 600) * 60 * 1000L; // 10 hrs
@@ -557,9 +547,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
   } 
 
   synchronized NamespaceInfo getNamespaceInfo() {
-    return new NamespaceInfo(dir.fsImage.getNamespaceID(),
-                             dir.fsImage.getCTime(),
-                             getDistributedUpgradeVersion());
+    return new NamespaceInfo(dir.fsImage.getNamespaceID(), dir.fsImage.getCTime(), getDistributedUpgradeVersion());
   }
 
   /**
@@ -607,8 +595,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     checkSuperuserPrivilege();
     File file = new File(System.getProperty("hadoop.log.dir"), 
                          filename);
-    PrintWriter out = new PrintWriter(new BufferedWriter(
-                                                         new FileWriter(file, true)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file, true)));
  
     long totalInodes = this.dir.totalInodes();
     long totalBlocks = this.getBlocksTotal();
@@ -630,33 +617,27 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       out.println("Metasave: Blocks waiting for replication: " + 
                   neededReplications.size());
       for (Block block : neededReplications) {
-        List<DatanodeDescriptor> containingNodes =
-                                          new ArrayList<DatanodeDescriptor>();
+        List<DatanodeDescriptor> containingNodes = new ArrayList<DatanodeDescriptor>();
         NumberReplicas numReplicas = new NumberReplicas();
         // source node returned is not used
         chooseSourceDatanode(block, containingNodes, numReplicas);
-        int usableReplicas = numReplicas.liveReplicas() + 
-                             numReplicas.decommissionedReplicas(); 
+        int usableReplicas = numReplicas.liveReplicas() + numReplicas.decommissionedReplicas();
 
         if (block instanceof BlockInfo) {
-          String fileName = FSDirectory.getFullPathName(((BlockInfo) block)
-              .getINode());
+          String fileName = FSDirectory.getFullPathName(((BlockInfo) block).getINode());
           out.print(fileName + ": ");
         }
 
         // l: == live:, d: == decommissioned c: == corrupt e: == excess
         out.print(block + ((usableReplicas > 0)? "" : " MISSING") +
-                  " (replicas:" +
-                  " l: " + numReplicas.liveReplicas() + 
+                  " (replicas:" + " l: " + numReplicas.liveReplicas() +
                   " d: " + numReplicas.decommissionedReplicas() + 
                   " c: " + numReplicas.corruptReplicas() + 
                   " e: " + numReplicas.excessReplicas() + ") ");
 
-        Collection<DatanodeDescriptor> corruptNodes =
-                                       corruptReplicas.getNodes(block);
+        Collection<DatanodeDescriptor> corruptNodes = corruptReplicas.getNodes(block);
 
-        for (Iterator<DatanodeDescriptor> jt = blocksMap.nodeIterator(block);
-             jt.hasNext();) {
+        for (Iterator<DatanodeDescriptor> jt = blocksMap.nodeIterator(block); jt.hasNext();) {
           DatanodeDescriptor node = jt.next();
           String state = "";
           if (corruptNodes != null && corruptNodes.contains(node)) {
@@ -739,18 +720,11 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
                         int curReplicasDelta, int expectedReplicasDelta) {
     NumberReplicas repl = countNodes(block);
     int curExpectedReplicas = getReplication(block);
-    neededReplications.update(block, 
-                              repl.liveReplicas(), 
-                              repl.decommissionedReplicas(),
-                              curExpectedReplicas,
-                              curReplicasDelta, expectedReplicasDelta);
+    neededReplications.update(block, repl.liveReplicas(), repl.decommissionedReplicas(),
+                              curExpectedReplicas, curReplicasDelta, expectedReplicasDelta);
   }
 
-  /////////////////////////////////////////////////////////
-  //
   // These methods are called by secondary namenodes
-  //
-  /////////////////////////////////////////////////////////
   /**
    * return a list of blocks & their locations on <code>datanode</code> whose
    * total size is <code>size</code>
@@ -758,8 +732,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * @param datanode on which blocks are located
    * @param size total size of blocks
    */
-  synchronized BlocksWithLocations getBlocks(DatanodeID datanode, long size)
-      throws IOException {
+  synchronized BlocksWithLocations getBlocks(DatanodeID datanode, long size) throws IOException {
     checkSuperuserPrivilege();
 
     DatanodeDescriptor node = getDatanode(datanode);
@@ -788,7 +761,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     }
     if(totalSize<size) {
       iter = node.getBlockIterator(); // start from the beginning
-      for(int i=0; i<startBlock&&totalSize<size; i++) {
+      for(int i = 0; i < startBlock&&totalSize < size; i++) {
         totalSize += addBlock(iter.next(), results);
       }
     }
@@ -803,8 +776,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * @return current access keys
    */
   ExportedBlockKeys getBlockKeys() {
-    return isAccessTokenEnabled ? accessTokenHandler.exportKeys()
-        : ExportedBlockKeys.DUMMY_KEYS;
+    return isAccessTokenEnabled ? accessTokenHandler.exportKeys() : ExportedBlockKeys.DUMMY_KEYS;
   }
 
   /**
@@ -832,11 +804,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     }
   }
 
-  /////////////////////////////////////////////////////////
-  //
   // These methods are called by HadoopFS clients
-  //
-  /////////////////////////////////////////////////////////
   /**
    * Set permissions for an existing file.
    * @throws IOException
@@ -852,9 +820,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     getEditLog().logSync();
     if (auditLog.isInfoEnabled() && isExternalInvocation()) {
       final HdfsFileStatus stat = dir.getFileInfo(src);
-      logAuditEvent(UserGroupInformation.getCurrentUser(),
-                    Server.getRemoteIp(),
-                    "setPermission", src, null, stat);
+      logAuditEvent(UserGroupInformation.getCurrentUser(), Server.getRemoteIp(), "setPermission", src, null, stat);
     }
   }
 
@@ -862,8 +828,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * Set owner for an existing file.
    * @throws IOException
    */
-  public void setOwner(String src, String username, String group
-      ) throws IOException {
+  public void setOwner(String src, String username, String group) throws IOException {
     synchronized (this) {
       if (isInSafeMode())
          throw new SafeModeException("Cannot set owner for " + src, safeMode);
@@ -873,8 +838,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
           throw new AccessControlException("Non-super user cannot change owner.");
         }
         if (group != null && !pc.containsGroup(group)) {
-          throw new AccessControlException("User does not belong to " + group
-              + " .");
+          throw new AccessControlException("User does not belong to " + group + " .");
         }
       }
       dir.setOwner(src, username, group);
@@ -882,9 +846,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     getEditLog().logSync();
     if (auditLog.isInfoEnabled() && isExternalInvocation()) {
       final HdfsFileStatus stat = dir.getFileInfo(src);
-      logAuditEvent(UserGroupInformation.getCurrentUser(),
-                    Server.getRemoteIp(),
-                    "setOwner", src, null, stat);
+      logAuditEvent(UserGroupInformation.getCurrentUser(), Server.getRemoteIp(), "setOwner", src, null, stat);
     }
   }
 
@@ -893,8 +855,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * 
    * @see #getBlockLocations(String, long, long)
    */
-  LocatedBlocks getBlockLocations(String clientMachine, String src,
-      long offset, long length) throws IOException {
+  LocatedBlocks getBlockLocations(String clientMachine, String src, long offset, long length) throws IOException {
     LocatedBlocks blocks = getBlockLocations(src, offset, length, true, true);
     if (blocks != null) {
       //sort the blocks
@@ -911,8 +872,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * Get block locations within the specified range.
    * @see ClientProtocol#getBlockLocations(String, long, long)
    */
-  public LocatedBlocks getBlockLocations(String src, long offset, long length
-      ) throws IOException {
+  public LocatedBlocks getBlockLocations(String src, long offset, long length) throws IOException {
     return getBlockLocations(src, offset, length, false, true);
   }
 
@@ -935,20 +895,13 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     final LocatedBlocks ret = getBlockLocationsInternal(src, 
         offset, length, Integer.MAX_VALUE, doAccessTime, needBlockToken);  
     if (auditLog.isInfoEnabled() && isExternalInvocation()) {
-      logAuditEvent(UserGroupInformation.getCurrentUser(),
-                    Server.getRemoteIp(),
-                    "open", src, null, null);
+      logAuditEvent(UserGroupInformation.getCurrentUser(), Server.getRemoteIp(), "open", src, null, null);
     }
     return ret;
   }
 
-  private synchronized LocatedBlocks getBlockLocationsInternal(String src,
-                                                       long offset, 
-                                                       long length,
-                                                       int nrBlocksToReturn,
-                                                       boolean doAccessTime, 
-                                                       boolean needBlockToken)
-                                                       throws IOException {
+  private synchronized LocatedBlocks getBlockLocationsInternal(String src, long offset, long length,
+                                                       int nrBlocksToReturn, boolean doAccessTime, boolean needBlockToken) throws IOException {
     INodeFile inode = dir.getFileINode(src);
     if(inode == null) {
       return null;
@@ -1017,8 +970,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
           }
         }
       }
-      LocatedBlock b = new LocatedBlock(blocks[curBlk], machineSet, curPos,
-          blockCorrupt);
+      LocatedBlock b = new LocatedBlock(blocks[curBlk], machineSet, curPos, blockCorrupt);
       if(isAccessTokenEnabled && needBlockToken) {
         b.setBlockToken(accessTokenHandler.generateToken(b.getBlock(), 
             EnumSet.of(BlockTokenSecretManager.AccessMode.READ)));
@@ -1057,9 +1009,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       dir.setTimes(src, inode, mtime, atime, true);
       if (auditLog.isInfoEnabled() && isExternalInvocation()) {
         final HdfsFileStatus stat = dir.getFileInfo(src);
-        logAuditEvent(UserGroupInformation.getCurrentUser(),
-                      Server.getRemoteIp(),
-                      "setTimes", src, null, stat);
+        logAuditEvent(UserGroupInformation.getCurrentUser(), Server.getRemoteIp(), "setTimes", src, null, stat);
       }
     } else {
       throw new FileNotFoundException("File " + src + " does not exist.");
@@ -1079,21 +1029,16 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * @return true if successful; 
    *         false if file does not exist or is a directory
    */
-  public boolean setReplication(String src, short replication) 
-                                throws IOException {
+  public boolean setReplication(String src, short replication) throws IOException {
     boolean status = setReplicationInternal(src, replication);
     getEditLog().logSync();
     if (status && auditLog.isInfoEnabled() && isExternalInvocation()) {
-      logAuditEvent(UserGroupInformation.getCurrentUser(),
-                    Server.getRemoteIp(),
-                    "setReplication", src, null, null);
+      logAuditEvent(UserGroupInformation.getCurrentUser(), Server.getRemoteIp(), "setReplication", src, null, null);
     }
     return status;
   }
 
-  private synchronized boolean setReplicationInternal(String src, 
-                                             short replication
-                                             ) throws IOException {
+  private synchronized boolean setReplicationInternal(String src, short replication ) throws IOException {
     if (isInSafeMode())
       throw new SafeModeException("Cannot set replication for " + src, safeMode);
     verifyReplication(src, replication, null);
@@ -1138,10 +1083,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * Check whether the replication parameter is within the range
    * determined by system configuration.
    */
-  private void verifyReplication(String src, 
-                                 short replication, 
-                                 String clientName 
-                                 ) throws IOException {
+  private void verifyReplication(String src, short replication, String clientName ) throws IOException {
     String text = "file " + src 
       + ((clientName != null) ? " on client " + clientName : "")
       + ".\n"
@@ -1158,8 +1100,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
   /*
    * Verify that parent dir exists
    */
-  private void verifyParentDir(String src) throws FileAlreadyExistsException,
-      FileNotFoundException {
+  private void verifyParentDir(String src) throws FileAlreadyExistsException, FileNotFoundException {
     Path parent = new Path(src).getParent();
     if (parent != null) {
       INode[] pathINodes = dir.getExistingPathINodes(parent.toString());
@@ -1181,10 +1122,8 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * @throws IOException if file name is invalid
    *         {@link FSDirectory#isValidToCreate(String)}.
    */
-  void startFile(String src, PermissionStatus permissions,
-                 String holder, String clientMachine,
-                 boolean overwrite, boolean createParent, short replication, long blockSize
-                ) throws IOException {
+  void startFile(String src, PermissionStatus permissions, String holder, String clientMachine,
+                 boolean overwrite, boolean createParent, short replication, long blockSize ) throws IOException {
     startFileInternal(src, permissions, holder, clientMachine, overwrite, false,
                       createParent, replication, blockSize);
     getEditLog().logSync();
@@ -1359,15 +1298,11 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
   throws IOException {
     if (fileInode != null && fileInode.isUnderConstruction()) {
       INodeFileUnderConstruction pendingFile = (INodeFileUnderConstruction) fileInode;
-      //
       // If the file is under construction , then it must be in our
       // leases. Find the appropriate lease record.
-      //
       Lease lease = leaseManager.getLease(holder);
-      //
       // We found the lease for this file. And surprisingly the original
       // holder is trying to recreate this file. This should never occur.
-      //
       if (!force && lease != null) {
         Lease leaseFile = leaseManager.getLeaseByPath(src);
         if (leaseFile != null && leaseFile.equals(lease)) { 
@@ -1417,8 +1352,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
   /**
    * Append to an existing file in the namespace.
    */
-  LocatedBlock appendFile(String src, String holder, String clientMachine
-      ) throws IOException {
+  LocatedBlock appendFile(String src, String holder, String clientMachine) throws IOException {
     if (supportAppends == false) {
       throw new IOException("Append to hdfs not supported." +
                             " Please refer to dfs.support.append configuration parameter.");
@@ -1427,11 +1361,9 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
                       false, (short)maxReplication, (long)0);
     getEditLog().logSync();
 
-    //
     // Create a LocatedBlock object for the last block of the file
     // to be returned to the client. Return null if the file does not
     // have a partial block at the end.
-    //
     LocatedBlock lb = null;
     synchronized (this) {
       // Need to re-check existence here, since the file may have been deleted
@@ -1493,8 +1425,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
 
     if (auditLog.isInfoEnabled() && isExternalInvocation()) {
       logAuditEvent(UserGroupInformation.getCurrentUser(),
-                    Server.getRemoteIp(),
-                    "append", src, null, null);
+                    Server.getRemoteIp(), "append", src, null, null);
     }
     return lb;
   }
@@ -1502,9 +1433,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
   /**
    * Stub for old callers pre-HDFS-630
    */
-  public LocatedBlock getAdditionalBlock(String src, 
-                                         String clientName
-                                         ) throws IOException {
+  public LocatedBlock getAdditionalBlock(String src, String clientName ) throws IOException {
     return getAdditionalBlock(src, clientName, null);
   }
 
@@ -1519,17 +1448,13 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * are replicated.  Will return an empty 2-elt array if we want the
    * client to "try again later".
    */
-  public LocatedBlock getAdditionalBlock(String src, 
-                                         String clientName,
-                                         List<Node> excludedNodes
-                                         ) throws IOException {
+  public LocatedBlock getAdditionalBlock(String src, String clientName, List<Node> excludedNodes ) throws IOException {
     long fileLength, blockSize;
     int replication;
     DatanodeDescriptor clientNode = null;
     Block newBlock = null;
 
-    NameNode.stateChangeLog.debug("BLOCK* NameSystem.getAdditionalBlock: file "
-                                  +src+" for "+clientName);
+    NameNode.stateChangeLog.debug("BLOCK* NameSystem.getAdditionalBlock: file " + src + " for " +clientName);
 
     synchronized (this) {
       // have we exceeded the configured limit of fs objects.
@@ -1537,9 +1462,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
 
       INodeFileUnderConstruction pendingFile  = checkLease(src, clientName);
 
-      //
       // If we fail this, bad things happen!
-      //
       if (!checkFileProgress(pendingFile, false)) {
         throw new NotReplicatedYetException("Not replicated yet:" + src);
       }
@@ -1550,14 +1473,10 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     }
 
     // choose targets for the new block to be allocated.
-    DatanodeDescriptor targets[] = replicator.chooseTarget(replication,
-                                                           clientNode,
-                                                           excludedNodes,
-                                                           blockSize);
+    DatanodeDescriptor targets[] = replicator.chooseTarget(replication, clientNode, excludedNodes, blockSize);
     if (targets.length < this.minReplication) {
       throw new IOException("File " + src + " could only be replicated to " +
-                            targets.length + " nodes, instead of " +
-                            minReplication);
+                            targets.length + " nodes, instead of " + minReplication);
     }
 
     // Allocate a new block and record it in the INode. 
@@ -1568,8 +1487,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       INode[] pathINodes = dir.getExistingPathINodes(src);
       int inodesLen = pathINodes.length;
       checkLease(src, clientName, pathINodes[inodesLen-1]);
-      INodeFileUnderConstruction pendingFile  = (INodeFileUnderConstruction) 
-                                                pathINodes[inodesLen - 1];
+      INodeFileUnderConstruction pendingFile  = (INodeFileUnderConstruction) pathINodes[inodesLen - 1];
                                                            
       if (!checkFileProgress(pendingFile, false)) {
         throw new NotReplicatedYetException("Not replicated yet:" + src);
@@ -1601,31 +1519,24 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     //
     // Remove the block from the pending creates list
     //
-    NameNode.stateChangeLog.debug("BLOCK* NameSystem.abandonBlock: "
-                                  +b+"of file "+src);
+    NameNode.stateChangeLog.debug("BLOCK* NameSystem.abandonBlock: " + b + "of file " + src);
     if (isInSafeMode()) {
-      throw new SafeModeException("Cannot abandon block " + b +
-                                  " for fle" + src, safeMode);
+      throw new SafeModeException("Cannot abandon block " + b + " for fle" + src, safeMode);
     }
     INodeFileUnderConstruction file = checkLease(src, holder);
     dir.removeBlock(src, file, b);
-    NameNode.stateChangeLog.debug("BLOCK* NameSystem.abandonBlock: "
-                                    + b
-                                    + " is removed from pendingCreates");
+    NameNode.stateChangeLog.debug("BLOCK* NameSystem.abandonBlock: "+ b + " is removed from pendingCreates");
     return true;
   }
   
   // make sure that we still have the lease on this file.
-  private INodeFileUnderConstruction checkLease(String src, String holder) 
-                                                      throws IOException {
+  private INodeFileUnderConstruction checkLease(String src, String holder) throws IOException {
     INodeFile file = dir.getFileINode(src);
     checkLease(src, holder, file);
     return (INodeFileUnderConstruction)file;
   }
 
-  private void checkLease(String src, String holder, INode file) 
-                                                     throws IOException {
-
+  private void checkLease(String src, String holder, INode file) throws IOException {
     if (file == null || file.isDirectory()) {
       Lease lease = leaseManager.getLease(holder);
       throw new LeaseExpiredException("No lease on " + src +
@@ -1668,8 +1579,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
   }
 
 
-  private synchronized CompleteFileStatus completeFileInternal(String src, 
-                                                String holder) throws IOException {
+  private synchronized CompleteFileStatus completeFileInternal(String src, String holder) throws IOException {
     NameNode.stateChangeLog.debug("DIR* NameSystem.completeFile: " + src + " for " + holder);
     if (isInSafeMode())
       throw new SafeModeException("Cannot complete file " + src, safeMode);
@@ -1732,8 +1642,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     }
     b.setGenerationStamp(getGenerationStamp());
     b = dir.addBlock(src, inodes, b);
-    NameNode.stateChangeLog.info("BLOCK* NameSystem.allocateBlock: "
-                                 +src+ ". "+b);
+    NameNode.stateChangeLog.info("BLOCK* NameSystem.allocateBlock: " + src + ". " + b);
     return b;
   }
 
@@ -1744,18 +1653,14 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    */
   synchronized boolean checkFileProgress(INodeFile v, boolean checkall) {
     if (checkall) {
-      //
       // check all blocks of the file.
-      //
       for (Block block: v.getBlocks()) {
         if (blocksMap.numNodes(block) < this.minReplication) {
           return false;
         }
       }
     } else {
-      //
       // check the penultimate block of this file
-      //
       Block b = v.getPenultimateBlock();
       if (b != null) {
         if (blocksMap.numNodes(b) < this.minReplication) {
@@ -1811,8 +1716,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * all its datanodes.
    */
   private void addToInvalidates(Block b) {
-    for (Iterator<DatanodeDescriptor> it = 
-                                blocksMap.nodeIterator(b); it.hasNext();) {
+    for (Iterator<DatanodeDescriptor> it = blocksMap.nodeIterator(b); it.hasNext();) {
       DatanodeDescriptor node = it.next();
       addToInvalidates(b, node);
     }
@@ -1887,14 +1791,10 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    */
   private synchronized void invalidateBlock(Block blk, DatanodeInfo dn)
     throws IOException {
-    NameNode.stateChangeLog.info("DIR* NameSystem.invalidateBlock: " 
-                                 + blk + " on " 
-                                 + dn.getName());
+    NameNode.stateChangeLog.info("DIR* NameSystem.invalidateBlock: "+ blk + " on "+ dn.getName());
     DatanodeDescriptor node = getDatanode(dn);
     if (node == null) {
-      throw new IOException("Cannot invalidate block " + blk +
-                            " because datanode " + dn.getName() +
-                            " does not exist.");
+      throw new IOException("Cannot invalidate block " + blk + " because datanode " + dn.getName() + " does not exist.");
     }
 
     // Check how many copies we have of the block.  If we have at least one
@@ -1903,13 +1803,9 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     if (count > 1) {
       addToInvalidates(blk, dn);
       removeStoredBlock(blk, node);
-      NameNode.stateChangeLog.debug("BLOCK* NameSystem.invalidateBlocks: "
-                                   + blk + " on " 
-                                   + dn.getName() + " listed for deletion.");
+      NameNode.stateChangeLog.debug("BLOCK* NameSystem.invalidateBlocks: "+ blk + " on "+ dn.getName() + " listed for deletion.");
     } else {
-      NameNode.stateChangeLog.info("BLOCK* NameSystem.invalidateBlocks: "
-                                   + blk + " on " 
-                                   + dn.getName() + " is the only copy and was not deleted.");
+      NameNode.stateChangeLog.info("BLOCK* NameSystem.invalidateBlocks: "+ blk + " on "+ dn.getName() + " is the only copy and was not deleted.");
     }
   }
 
@@ -1930,27 +1826,22 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     getEditLog().logSync();
     if (status && auditLog.isInfoEnabled() && isExternalInvocation()) {
       final HdfsFileStatus stat = dir.getFileInfo(dst);
-      logAuditEvent(UserGroupInformation.getCurrentUser(),
-                    Server.getRemoteIp(),
-                    "rename", src, dst, stat);
+      logAuditEvent(UserGroupInformation.getCurrentUser(), Server.getRemoteIp(), "rename", src, dst, stat);
     }
     return status;
   }
 
-  private synchronized boolean renameToInternal(String src, String dst
-      ) throws IOException {
+  private synchronized boolean renameToInternal(String src, String dst) throws IOException {
     NameNode.stateChangeLog.debug("DIR* NameSystem.renameTo: " + src + " to " + dst);
     if (isInSafeMode())
       throw new SafeModeException("Cannot rename " + src, safeMode);
     if (!DFSUtil.isValidName(dst)) {
       throw new IOException("Invalid name: " + dst);
     }
-
     if (isPermissionEnabled) {
       //We should not be doing this.  This is move() not renameTo().
       //but for now,
-      String actualdst = dir.isDir(dst)?
-          dst + Path.SEPARATOR + new Path(src).getName(): dst;
+      String actualdst = dir.isDir(dst) ? dst + Path.SEPARATOR + new Path(src).getName(): dst;
       checkParentAccess(src, FsAction.WRITE);
       checkAncestorAccess(actualdst, FsAction.WRITE);
     }
@@ -1975,8 +1866,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       getEditLog().logSync();
       if (status && auditLog.isInfoEnabled() && isExternalInvocation()) {
         logAuditEvent(UserGroupInformation.getCurrentUser(),
-                      Server.getRemoteIp(),
-                      "delete", src, null, null);
+                      Server.getRemoteIp(), "delete", src, null, null);
       }
       return status;
     }
@@ -1985,8 +1875,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * Remove the indicated filename from the namespace.  This may
    * invalidate some blocks that make up the file.
    */
-  synchronized boolean deleteInternal(String src, 
-      boolean enforcePermission) throws IOException {
+  synchronized boolean deleteInternal(String src, boolean enforcePermission) throws IOException {
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("DIR* NameSystem.delete: " + src);
     }
@@ -2030,9 +1919,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     getEditLog().logSync();
     if (status && auditLog.isInfoEnabled() && isExternalInvocation()) {
       final HdfsFileStatus stat = dir.getFileInfo(src);
-      logAuditEvent(UserGroupInformation.getCurrentUser(),
-                    Server.getRemoteIp(),
-                    "mkdirs", src, null, stat);
+      logAuditEvent(UserGroupInformation.getCurrentUser(), Server.getRemoteIp(), "mkdirs", src, null, stat);
     }
     return status;
   }
@@ -2141,9 +2028,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    */
   void internalReleaseLeaseOne(Lease lease, String src) throws IOException {
     assert Thread.holdsLock(this);
-
     LOG.info("Recovering lease=" + lease + ", src=" + src);
-
     INodeFile iFile = dir.getFileINode(src);
     if (iFile == null) {
       final String message = "DIR* NameSystem.internalReleaseCreate: "
@@ -2169,12 +2054,10 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
         pendingFile.getTargets().length == 0) {
       if (pendingFile.getBlocks().length == 0) {
         finalizeINodeFileUnderConstruction(src, pendingFile);
-        NameNode.stateChangeLog.warn("BLOCK*"
-          + " internalReleaseLease: No blocks found, lease removed for " +  src);
+        NameNode.stateChangeLog.warn("BLOCK*" + " internalReleaseLease: No blocks found, lease removed for " +  src);
         return;
       }
       // setup the Inode.targets for the last block from the blocksMap
-      //
       Block[] blocks = pendingFile.getBlocks();
       Block last = blocks[blocks.length-1];
       DatanodeDescriptor[] targets = 
@@ -2201,10 +2084,8 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
   }
 
 
-  private void finalizeINodeFileUnderConstruction(String src,
-      INodeFileUnderConstruction pendingFile) throws IOException {
-    NameNode.stateChangeLog.info("Removing lease on  file " + src + 
-                                 " from client " + pendingFile.clientName);
+  private void finalizeINodeFileUnderConstruction(String src, INodeFileUnderConstruction pendingFile) throws IOException {
+    NameNode.stateChangeLog.info("Removing lease on  file " + src + " from client " + pendingFile.clientName);
     leaseManager.removeLease(pendingFile.clientName, src);
 
     // The file is no longer pending.
@@ -2232,8 +2113,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     String src = null;
     synchronized (this) {
     if (isInSafeMode()) {
-      throw new SafeModeException("Cannot commitBlockSynchronization " 
-                                  + lastblock, safeMode);
+      throw new SafeModeException("Cannot commitBlockSynchronization " + lastblock, safeMode);
     }
     final BlockInfo oldblockinfo = blocksMap.getStoredBlock(lastblock);
     if (oldblockinfo == null) {
@@ -2349,11 +2229,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     return dir.getListing(src, startAfter);
   }
 
-  /////////////////////////////////////////////////////////
-  //
   // These methods are called by datanodes
-  //
-  /////////////////////////////////////////////////////////
   /**
    * Register Datanode.
    * <p>
@@ -2469,8 +2345,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       // this data storage has never been registered
       // it is either empty or was created by pre-storageID version of DFS
       nodeReg.storageID = newStorageID();
-      NameNode.stateChangeLog.debug(
-                                    "BLOCK* NameSystem.registerDatanode: "
+      NameNode.stateChangeLog.debug("BLOCK* NameSystem.registerDatanode: "
                                     + "new storageID " + nodeReg.getStorageID() + " assigned.");
     }
     // register new datanode
@@ -2547,8 +2422,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
   }
     
   private boolean isDatanodeDead(DatanodeDescriptor node) {
-    return (node.getLastUpdate() <
-            (now() - heartbeatExpireInterval));
+    return (node.getLastUpdate() < (now() - heartbeatExpireInterval));
   }
     
   private void setDatanodeDead(DatanodeDescriptor node) throws IOException {
@@ -2703,10 +2577,8 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
   class ReplicationMonitor implements Runnable {
     static final int INVALIDATE_WORK_PCT_PER_ITERATION = 32;
     static final float REPLICATION_WORK_MULTIPLIER_PER_ITERATION = 2;
-    ReplicateQueueProcessingStats replicateQueueStats = 
-        new ReplicateQueueProcessingStats();
-    InvalidateQueueProcessingStats invalidateQueueStats = 
-        new InvalidateQueueProcessingStats();
+    ReplicateQueueProcessingStats replicateQueueStats = new ReplicateQueueProcessingStats();
+    InvalidateQueueProcessingStats invalidateQueueStats = new InvalidateQueueProcessingStats();
     
     public void run() {
       while (fsRunning) {
@@ -2741,8 +2613,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
      * Here we use two concrete subclasses of {@link QueueProcessingStatistics}
      * to collect stats about these processes.
      */
-    private class ReplicateQueueProcessingStats 
-    extends QueueProcessingStatistics {
+    private class ReplicateQueueProcessingStats extends QueueProcessingStatistics {
       
       ReplicateQueueProcessingStats() {
         super("ReplicateQueue", "blocks", FSNamesystem.LOG);
@@ -2782,12 +2653,8 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     }
   }
   
-  /////////////////////////////////////////////////////////
-  //
   // These methods are called by the Namenode system, to see
   // if there is any work for registered datanodes.
-  //
-  /////////////////////////////////////////////////////////
   /**
    * Compute block replication and block invalidation work 
    * that can be scheduled on data-nodes.
@@ -2808,10 +2675,8 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       return 0;
     }
     synchronized(heartbeats) {
-      blocksToProcess = (int)(heartbeats.size() 
-          * ReplicationMonitor.REPLICATION_WORK_MULTIPLIER_PER_ITERATION);
-      nodesToProcess = (int)Math.ceil((double)heartbeats.size() 
-          * ReplicationMonitor.INVALIDATE_WORK_PCT_PER_ITERATION / 100);
+      blocksToProcess = (int)(heartbeats.size() * ReplicationMonitor.REPLICATION_WORK_MULTIPLIER_PER_ITERATION);
+      nodesToProcess = (int)Math.ceil((double)heartbeats.size() * ReplicationMonitor.INVALIDATE_WORK_PCT_PER_ITERATION / 100);
     }
 
     replmon.replicateQueueStats.startCycle(blocksToProcess);
@@ -2879,8 +2744,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * 
    * @return number of blocks scheduled for replication during this iteration.
    */
-  private int computeReplicationWork(
-                                  int blocksToProcess) throws IOException {
+  private int computeReplicationWork(int blocksToProcess) throws IOException {
     // stall only useful for unit tests (see TestFileAppend4.java)
     if (stallReplicationWork)  {
       return 0;
@@ -2944,8 +2808,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
           if(blkCnt >= blocksToProcess)
             break;
           neededReplicationsIterator = neededReplications.iterator();
-          assert neededReplicationsIterator.hasNext() : 
-                                  "neededReplications should not be empty.";
+          assert neededReplicationsIterator.hasNext() : "neededReplications should not be empty.";
         }
 
         Block block = neededReplicationsIterator.next();
@@ -3000,9 +2863,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
         if(numEffectiveReplicas >= requiredReplication) {
           neededReplications.remove(block, priority); // remove from neededReplications
           replIndex--;
-          NameNode.stateChangeLog.info("BLOCK* "
-              + "Removing block " + block
-              + " from neededReplications as it has enough replicas.");
+          NameNode.stateChangeLog.info("BLOCK* "+ "Removing block " + block + " from neededReplications as it has enough replicas.");
           return false;
         }
       }
@@ -3035,9 +2896,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
         if(numEffectiveReplicas >= requiredReplication) {
           neededReplications.remove(block, priority); // remove from neededReplications
           replIndex--;
-          NameNode.stateChangeLog.info("BLOCK* "
-              + "Removing block " + block
-              + " from neededReplications as it has enough replicas.");
+          NameNode.stateChangeLog.info("BLOCK* "+ "Removing block " + block + " from neededReplications as it has enough replicas.");
           return false;
         } 
 
@@ -3053,8 +2912,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
         // replications that fail after an appropriate amount of time.
         pendingReplications.add(block, targets.length);
         NameNode.stateChangeLog.debug(
-            "BLOCK* block " + block
-            + " is moved from neededReplications to pendingReplications");
+            "BLOCK* block " + block + " is moved from neededReplications to pendingReplications");
 
         // remove from neededReplications
         if(numEffectiveReplicas + targets.length >= requiredReplication) {
@@ -3067,12 +2925,8 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
             targetList.append(' ');
             targetList.append(targets[k].getName());
           }
-          NameNode.stateChangeLog.info(
-                    "BLOCK* ask "
-                    + srcNode.getName() + " to replicate "
-                    + block + " to " + targetList);
-          NameNode.stateChangeLog.debug(
-                    "BLOCK* neededReplications = " + neededReplications.size()
+          NameNode.stateChangeLog.info("BLOCK* ask "+ srcNode.getName() + " to replicate "+ block + " to " + targetList);
+          NameNode.stateChangeLog.debug("BLOCK* neededReplications = " + neededReplications.size()
                     + " pendingReplications = " + pendingReplications.size());
         }
       }
@@ -3094,10 +2948,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * In addition form a list of all nodes containing the block
    * and calculate its replication numbers.
    */
-  private DatanodeDescriptor chooseSourceDatanode(
-                                    Block block,
-                                    List<DatanodeDescriptor> containingNodes,
-                                    NumberReplicas numReplicas) {
+  private DatanodeDescriptor chooseSourceDatanode(Block block, List<DatanodeDescriptor> containingNodes, NumberReplicas numReplicas) {
     containingNodes.clear();
     DatanodeDescriptor srcNode = null;
     int live = 0;
@@ -3277,12 +3128,10 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
        remove  from host2DataNodeMap the datanodeDescriptor removed
        from datanodeMap before adding nodeDescr to host2DataNodeMap.
     */
-    host2DataNodeMap.remove(
-                            datanodeMap.put(nodeDescr.getStorageID(), nodeDescr));
+    host2DataNodeMap.remove(datanodeMap.put(nodeDescr.getStorageID(), nodeDescr));
     host2DataNodeMap.add(nodeDescr);
       
-    NameNode.stateChangeLog.debug(
-                                  "BLOCK* NameSystem.unprotectedAddDatanode: "
+    NameNode.stateChangeLog.debug("BLOCK* NameSystem.unprotectedAddDatanode: "
                                   + "node " + nodeDescr.getName() + " is added to datanodeMap.");
   }
 
@@ -3350,8 +3199,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
                 nodeInfo = null;
               }
               if (nodeInfo != null && isDatanodeDead(nodeInfo)) {
-                NameNode.stateChangeLog.info("BLOCK* NameSystem.heartbeatCheck: "
-                                             + "lost heartbeat from " + nodeInfo.getName());
+                NameNode.stateChangeLog.info("BLOCK* NameSystem.heartbeatCheck: " + "lost heartbeat from " + nodeInfo.getName());
                 removeDatanode(nodeInfo);
               }
             }
@@ -3389,8 +3237,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       BlockListAsLongs blocksBeingWritten) throws IOException {
     DatanodeDescriptor dataNode = getDatanode(nodeID);
     if (dataNode == null) {
-      throw new IOException("ProcessReport from unregistered node: "
-          + nodeID.getName());
+      throw new IOException("ProcessReport from unregistered node: "+ nodeID.getName());
     }
 
     // Check if this datanode should actually be shutdown instead.
@@ -3448,9 +3295,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * The given node is reporting all its blocks.  Use this info to 
    * update the (machine-->blocklist) and (block-->machinelist) tables.
    */
-  public synchronized void processReport(DatanodeID nodeID, 
-                                         BlockListAsLongs newReport
-                                        ) throws IOException {
+  public synchronized void processReport(DatanodeID nodeID, BlockListAsLongs newReport ) throws IOException {
     long startTime = now();
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("BLOCK* NameSystem.processReport: "
@@ -3459,8 +3304,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     }
     DatanodeDescriptor node = getDatanode(nodeID);
     if (node == null || !node.isAlive) {
-      throw new IOException("ProcessReport from dead or unregisterted node: "
-                            + nodeID.getName());
+      throw new IOException("ProcessReport from dead or unregisterted node: " + nodeID.getName());
     }
 
     // Check if this datanode should actually be shutdown instead.
@@ -3478,10 +3322,8 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       return;
     }
 
-    //
     // Modify the (block-->datanode) map, according to the difference
     // between the old and new block report.
-    //
     Collection<Block> toAdd = new LinkedList<Block>();
     Collection<Block> toRemove = new LinkedList<Block>();
     Collection<Block> toInvalidate = new LinkedList<Block>();
@@ -3512,9 +3354,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
    * needed replications if this takes care of the problem.
    * @return the block that is stored in blockMap.
    */
-  synchronized Block addStoredBlock(Block block, 
-                                    DatanodeDescriptor node,
-                                    DatanodeDescriptor delNodeHint) {
+  synchronized Block addStoredBlock(Block block, DatanodeDescriptor node, DatanodeDescriptor delNodeHint) {
     BlockInfo storedBlock = blocksMap.getStoredBlock(block);
     if (storedBlock == null) {
       // If we have a block in the block map with the same ID, but a different
@@ -3544,8 +3384,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       // We can report a stale generation stamp for the last block under construction,
       // we just need to make sure it ends up in targets.
       if (reportedOldGS && !(underConstruction && isLastBlock)) {
-        return rejectAddStoredBlock(
-          block, node,
+        return rejectAddStoredBlock(block, node,
           "Reported block has old generation stamp but is not the last block of " +
           "an under-construction file. (current generation is " +
           storedBlock.getGenerationStamp() + ")");
@@ -3556,8 +3395,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
       // for recovery purposes. They will get added to the node when
       // commitBlockSynchronization runs
       if (underConstruction && isLastBlock && (reportedOldGS || reportedNewGS)) {
-        NameNode.stateChangeLog.info(
-          "BLOCK* NameSystem.addStoredBlock: "
+        NameNode.stateChangeLog.info("BLOCK* NameSystem.addStoredBlock: "
           + "Targets updated: block " + block + " on " + node.getName() +
           " is added as a target for block " + storedBlock + " with size " +
           block.getNumBytes());
@@ -3568,9 +3406,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
 
     INodeFile fileINode = storedBlock.getINode();
     if (fileINode == null) {
-      return rejectAddStoredBlock(
-        block, node,
-        "Block does not correspond to any file");
+      return rejectAddStoredBlock(block, node, "Block does not correspond to any file");
     }
     assert storedBlock != null : "Block must be stored by now";
 
@@ -3627,17 +3463,12 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
                   }
                 }
                 for (int j = 0; j < count; j++) {
-                  LOG.warn("Mark existing replica "
-                      + block
-                      + " from "
-                      + node.getName()
+                  LOG.warn("Mark existing replica "+ block + " from " + node.getName()
                       + " as corrupt because its length is shorter than the new one");
                   markBlockAsCorrupt(block, nodes[j]);
                 }
               }
-              //
               // change the size of block in blocksMap
-              //
               storedBlock.setNumBytes(block.getNumBytes());
             }
           } catch (IOException e) {
@@ -3646,8 +3477,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
         }
         
         //Updated space consumed if required.
-        long diff = (file == null) ? 0 :
-                    (file.getPreferredBlockSize() - storedBlock.getNumBytes());
+        long diff = (file == null) ? 0 : (file.getPreferredBlockSize() - storedBlock.getNumBytes());
         
         if (diff > 0 && file.isUnderConstruction() &&
             cursize < storedBlock.getNumBytes()) {
@@ -3656,8 +3486,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
               leaseManager.findPath((INodeFileUnderConstruction)file);
             dir.updateSpaceConsumed(path, 0, -diff*file.getReplication());
           } catch (IOException e) {
-            LOG.warn("Unexpected exception while updating disk space : " +
-                     e.getMessage());
+            LOG.warn("Unexpected exception while updating disk space : " + e.getMessage());
           }
         }
       }
@@ -3688,8 +3517,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     // filter out containingNodes that are marked for decommission.
     NumberReplicas num = countNodes(storedBlock);
     int numLiveReplicas = num.liveReplicas();
-    int numCurrentReplica = numLiveReplicas
-      + pendingReplications.getNumReplicas(block);
+    int numCurrentReplica = numLiveReplicas + pendingReplications.getNumReplicas(block);
 
     // check whether safe replication is reached for the block
     incrementSafeBlockCount(numCurrentReplica);
@@ -3711,8 +3539,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
     // handle underReplication/overReplication
     short fileReplication = fileINode.getReplication();
     if (numCurrentReplica >= fileReplication) {
-      neededReplications.remove(block, numCurrentReplica, 
-                                num.decommissionedReplicas, fileReplication);
+      neededReplications.remove(block, numCurrentReplica, num.decommissionedReplicas, fileReplication);
     } else {
       updateNeededReplications(block, curReplicaDelta, 0);
     }
@@ -3946,7 +3773,6 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean,
                                       +") is added to excessReplicateMap");
       }
 
-      //
       // The 'excessblocks' tracks blocks until we get confirmation
       // that the datanode has deleted them; the only way we remove them
       // is when we get a "removeBlock" message.  
