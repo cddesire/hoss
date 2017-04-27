@@ -45,8 +45,7 @@ import org.apache.hadoop.mapred.Reporter;
  * @see JoinRecordReader
  * @see MultiFilterRecordReader
  */
-public class CompositeInputFormat<K extends WritableComparable>
-      implements ComposableInputFormat<K,TupleWritable> {
+public class CompositeInputFormat<K extends WritableComparable> implements ComposableInputFormat<K,TupleWritable> {
 
   // expression parse tree to which IF requests are proxied
   private Parser.Node root;
