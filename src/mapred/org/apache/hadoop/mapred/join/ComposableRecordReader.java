@@ -27,8 +27,7 @@ import org.apache.hadoop.mapred.RecordReader;
 /**
  * Additional operations required of a RecordReader to participate in a join.
  */
-public interface ComposableRecordReader<K extends WritableComparable,
-                                 V extends Writable>
+public interface ComposableRecordReader<K extends WritableComparable, V extends Writable>
     extends RecordReader<K,V>, Comparable<ComposableRecordReader<K,?>> {
 
   /**
