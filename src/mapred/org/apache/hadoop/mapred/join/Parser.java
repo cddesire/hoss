@@ -62,6 +62,7 @@ import org.apache.hadoop.util.ReflectionUtils;
  * value to an identifier in the parser.
  */
 public class Parser {
+
   public enum TType { CIF, IDENT, COMMA, LPAREN, RPAREN, QUOT, NUM, }
 
   /**
@@ -77,12 +78,15 @@ public class Parser {
     }
 
     public TType getType() { return type; }
+
     public Node getNode() throws IOException {
       throw new IOException("Expected nodetype");
     }
+
     public double getNum() throws IOException {
       throw new IOException("Expected numtype");
     }
+    
     public String getStr() throws IOException {
       throw new IOException("Expected strtype");
     }
@@ -209,12 +213,10 @@ public class Parser {
                               Class<? extends Node> nodetype,
                               Class<? extends ComposableRecordReader> cl)
         throws NoSuchMethodException {
-      Constructor<? extends Node> ncstr =
-        nodetype.getDeclaredConstructor(ncstrSig);
+      Constructor<? extends Node> ncstr = nodetype.getDeclaredConstructor(ncstrSig);
       ncstr.setAccessible(true);
       nodeCstrMap.put(ident, ncstr);
-      Constructor<? extends ComposableRecordReader> mcstr =
-        cl.getDeclaredConstructor(mcstrSig);
+      Constructor<? extends ComposableRecordReader> mcstr = cl.getDeclaredConstructor(mcstrSig);
       mcstr.setAccessible(true);
       rrCstrMap.put(ident, mcstr);
     }
@@ -269,9 +271,7 @@ public class Parser {
         Token t = i.next();
         if (TType.COMMA.equals(t.getType())) {
           try {
-          	inf = (InputFormat)ReflectionUtils.newInstance(
-          			job.getClassByName(sb.toString()),
-                job);
+            inf = (InputFormat)ReflectionUtils.newInstance(job.getClassByName(sb.toString()), job);
           } catch (ClassNotFoundException e) {
             throw (IOException)new IOException().initCause(e);
           } catch (IllegalArgumentException e) {
@@ -330,12 +330,9 @@ public class Parser {
    */
   static class CNode extends Node {
 
-    private static final Class<?>[] cstrSig =
-      { Integer.TYPE, JobConf.class, Integer.TYPE, Class.class };
+    private static final Class<?>[] cstrSig = { Integer.TYPE, JobConf.class, Integer.TYPE, Class.class };
 
-    static void addIdentifier(String ident,
-                              Class<? extends ComposableRecordReader> cl)
-        throws NoSuchMethodException {
+    static void addIdentifier(String ident, Class<? extends ComposableRecordReader> cl) throws NoSuchMethodException {
       Node.addIdentifier(ident, cstrSig, CNode.class, cl);
     }
 
@@ -357,8 +354,7 @@ public class Parser {
      * Combine InputSplits from child InputFormats into a
      * {@link CompositeInputSplit}.
      */
-    public InputSplit[] getSplits(JobConf job, int numSplits)
-        throws IOException {
+    public InputSplit[] getSplits(JobConf job, int numSplits) throws IOException {
       InputSplit[][] splits = new InputSplit[kids.size()][];
       for (int i = 0; i < kids.size(); ++i) {
         final InputSplit[] tmp = kids.get(i).getSplits(job, numSplits);
@@ -383,11 +379,9 @@ public class Parser {
     }
 
     @SuppressWarnings("unchecked") // child types unknowable
-    public ComposableRecordReader getRecordReader(
-        InputSplit split, JobConf job, Reporter reporter) throws IOException {
+    public ComposableRecordReader getRecordReader(InputSplit split, JobConf job, Reporter reporter) throws IOException {
       if (!(split instanceof CompositeInputSplit)) {
-        throw new IOException("Invalid split type:" +
-                              split.getClass().getName());
+        throw new IOException("Invalid split type:" + split.getClass().getName());
       }
       final CompositeInputSplit spl = (CompositeInputSplit)split;
       final int capacity = kids.size();
@@ -462,8 +456,7 @@ public class Parser {
     if (null == expr) {
       throw new IOException("Expression is null");
     }
-    Class<? extends WritableComparator> cmpcl =
-      job.getClass("mapred.join.keycomparator", null, WritableComparator.class);
+    Class<? extends WritableComparator> cmpcl = job.getClass("mapred.join.keycomparator", null, WritableComparator.class);
     Lexer lex = new Lexer(expr);
     Stack<Token> st = new Stack<Token>();
     Token tok;
