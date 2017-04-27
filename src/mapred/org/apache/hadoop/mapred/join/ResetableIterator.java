@@ -28,21 +28,28 @@ import org.apache.hadoop.io.Writable;
  */
 public interface ResetableIterator<T extends Writable> {
 
-  public static class EMPTY<U extends Writable>
-    implements ResetableIterator<U> {
+  public static class EMPTY<U extends Writable> implements ResetableIterator<U> {
+
     public boolean hasNext() { return false; }
+
     public void reset() { }
+
     public void close() throws IOException { }
+
     public void clear() { }
+
     public boolean next(U val) throws IOException {
       return false;
     }
+
     public boolean replay(U val) throws IOException {
       return false;
     }
+
     public void add(U item) throws IOException {
       throw new UnsupportedOperationException();
     }
+    
   }
 
   /**
