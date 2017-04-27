@@ -27,8 +27,7 @@ import org.apache.hadoop.mapred.JobConf;
 /**
  * Full outer join.
  */
-public class OuterJoinRecordReader<K extends WritableComparable>
-    extends JoinRecordReader<K> {
+public class OuterJoinRecordReader<K extends WritableComparable> extends JoinRecordReader<K> {
 
   OuterJoinRecordReader(int id, JobConf conf, int capacity,
       Class<? extends WritableComparator> cmpcl) throws IOException {
