@@ -30,12 +30,9 @@ import org.apache.hadoop.mapred.JobConf;
 /**
  * Base class for Composite joins returning Tuples of arbitrary Writables.
  */
-public abstract class JoinRecordReader<K extends WritableComparable>
-    extends CompositeRecordReader<K,Writable,TupleWritable>
-    implements ComposableRecordReader<K,TupleWritable> {
+public abstract class JoinRecordReader<K extends WritableComparable> extends CompositeRecordReader<K,Writable,TupleWritable> implements ComposableRecordReader<K,TupleWritable> {
 
-  public JoinRecordReader(int id, JobConf conf, int capacity,
-      Class<? extends WritableComparator> cmpcl) throws IOException {
+  public JoinRecordReader(int id, JobConf conf, int capacity, Class<? extends WritableComparator> cmpcl) throws IOException {
     super(id, capacity, cmpcl);
     setConf(conf);
   }
