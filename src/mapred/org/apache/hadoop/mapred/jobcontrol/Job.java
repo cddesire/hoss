@@ -51,19 +51,19 @@ public class Job {
   final public static int READY = 3;
   final public static int FAILED = 4;
   final public static int DEPENDENT_FAILED = 5;
-	
-	
+  
+  
   private JobConf theJobConf;
   private int state;
-  private String jobID; 		// assigned and used by JobControl class
+  private String jobID;     // assigned and used by JobControl class
   private JobID mapredJobID; // the job ID assigned by map/reduce
-  private String jobName;		// external name, assigned/used by client app
-  private String message;		// some info for human consumption, 
+  private String jobName;   // external name, assigned/used by client app
+  private String message;   // some info for human consumption, 
   // e.g. the reason why the job failed
-  private ArrayList<Job> dependingJobs;	// the jobs the current job depends on
-	
-  private JobClient jc = null;		// the map reduce job client
-	
+  private ArrayList<Job> dependingJobs; // the jobs the current job depends on
+  
+  private JobClient jc = null;    // the map reduce job client
+  
   /** 
    * Construct a job.
    * @param jobConf a mapred job configuration representing a job to be executed.
@@ -89,7 +89,7 @@ public class Job {
   public Job(JobConf jobConf) throws IOException {
     this(jobConf, null);
   }
-	
+  
   @Override
   public String toString() {
     StringBuffer sb = new StringBuffer();
@@ -99,7 +99,7 @@ public class Job {
     sb.append("job mapred id:\t").append(this.mapredJobID==null ? "unassigned" 
         : this.mapredJobID).append("\n");
     sb.append("job message:\t").append(this.message).append("\n");
-		
+    
     if (this.dependingJobs == null || this.dependingJobs.size() == 0) {
       sb.append("job has no depending job:\t").append("\n");
     } else {
@@ -111,14 +111,14 @@ public class Job {
     }
     return sb.toString();
   }
-	
+  
   /**
    * @return the job name of this job
    */
   public String getJobName() {
     return this.jobName;
   }
-	
+  
   /**
    * Set the job name for  this job.
    * @param jobName the job name
@@ -126,14 +126,14 @@ public class Job {
   public void setJobName(String jobName) {
     this.jobName = jobName;
   }
-	
+  
   /**
    * @return the job ID of this job assigned by JobControl
    */
   public String getJobID() {
     return this.jobID;
   }
-	
+  
   /**
    * Set the job ID for  this job.
    * @param id the job ID
@@ -141,7 +141,7 @@ public class Job {
   public void setJobID(String id) {
     this.jobID = id;
   }
-	
+  
   /**
    * @return the mapred ID of this job
    * @deprecated use {@link #getAssignedJobID()} instead
@@ -150,7 +150,7 @@ public class Job {
   public String getMapredJobID() {
     return this.mapredJobID.toString();
   }
-	
+  
   /**
    * Set the mapred ID for this job.
    * @param mapredJobID the mapred job ID for this job.
@@ -160,7 +160,7 @@ public class Job {
   public void setMapredJobID(String mapredJobID) {
     this.mapredJobID = JobID.forName(mapredJobID);
   }
-	
+  
   /**
    * @return the mapred ID of this job as assigned by the 
    * mapred framework.
@@ -184,7 +184,7 @@ public class Job {
   public JobConf getJobConf() {
     return this.theJobConf;
   }
-	
+  
 
   /**
    * Set the mapred job conf for this job.
@@ -193,14 +193,14 @@ public class Job {
   public void setJobConf(JobConf jobConf) {
     this.theJobConf = jobConf;
   }
-	
+  
   /**
    * @return the state of this job
    */
   public synchronized int getState() {
     return this.state;
   }
-	
+  
   /**
    * Set the state for this job.
    * @param state the new state for this job.
@@ -208,14 +208,14 @@ public class Job {
   protected synchronized void setState(int state) {
     this.state = state;
   }
-	
+  
   /**
    * @return the message of this job
    */
   public String getMessage() {
     return this.message;
   }
-	
+  
   /**
    * Set the message for this job.
    * @param message the message for this job.
@@ -223,7 +223,7 @@ public class Job {
   public void setMessage(String message) {
     this.message = message;
   }
-	
+  
 
   /**
    * @return the job client of this job
@@ -256,7 +256,7 @@ public class Job {
       return false;
     }
   }
-	
+  
   /**
    * @return true if this job is in a complete state
    */
@@ -265,14 +265,14 @@ public class Job {
       this.state == Job.DEPENDENT_FAILED ||
       this.state == Job.SUCCESS;
   }
-	
+  
   /**
    * @return true if this job is in READY state
    */
   public boolean isReady() {
     return this.state == Job.READY;
   }
-	
+  
   /**
    * Check the state of this running job. The state may 
    * remain the same, become SUCCESS or FAILED.
@@ -316,7 +316,7 @@ public class Job {
       }
     }
   }
-	
+  
   /**
    * Check and update the state of this job. The state changes  
    * depending on its current state and the states of the depending jobs.
@@ -352,10 +352,9 @@ public class Job {
         this.state = Job.READY;
       }
     }
-
     return this.state;
   }
-	
+  
   /**
    * Submit this job to mapred. The state becomes RUNNING if submission 
    * is successful, FAILED otherwise.  
@@ -383,5 +382,5 @@ public class Job {
       this.message = StringUtils.stringifyException(ioe);
     }
   }
-	
+  
 }
