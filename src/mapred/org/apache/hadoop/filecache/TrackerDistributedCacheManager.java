@@ -69,14 +69,11 @@ import org.apache.hadoop.mapreduce.security.TokenCache;
  */
 public class TrackerDistributedCacheManager {
   // cacheID to cacheStatus mapping
-  private LinkedHashMap<String, CacheStatus> cachedArchives = 
-    new LinkedHashMap<String, CacheStatus>();
-  private Map<JobID, TaskDistributedCacheManager> jobArchives =
-    Collections.synchronizedMap(
+  private LinkedHashMap<String, CacheStatus> cachedArchives = new LinkedHashMap<String, CacheStatus>();
+  private Map<JobID, TaskDistributedCacheManager> jobArchives = Collections.synchronizedMap(
         new HashMap<JobID, TaskDistributedCacheManager>());
   private final TaskController taskController;
-  private static final FsPermission PUBLIC_CACHE_OBJECT_PERM =
-    FsPermission.createImmutable((short) 0755);
+  private static final FsPermission PUBLIC_CACHE_OBJECT_PERM = FsPermission.createImmutable((short) 0755);
 
   // default total cache size (10GB)
   private static final long DEFAULT_CACHE_SIZE = 10737418240L;
@@ -87,8 +84,7 @@ public class TrackerDistributedCacheManager {
   private long allowedCacheSizeCleanupGoal;
   private long allowedCacheSubdirsCleanupGoal;
 
-  private static final Log LOG =
-    LogFactory.getLog(TrackerDistributedCacheManager.class);
+  private static final Log LOG = LogFactory.getLog(TrackerDistributedCacheManager.class);
 
   private final LocalFileSystem localFs;
   
@@ -99,28 +95,23 @@ public class TrackerDistributedCacheManager {
   private static final Random random = new Random();
   
   protected BaseDirManager baseDirManager = new BaseDirManager();
+
   protected CleanupThread cleanupThread;
 
-  public TrackerDistributedCacheManager(Configuration conf,
-                                        TaskController controller
-                                        ) throws IOException {
+  public TrackerDistributedCacheManager(Configuration conf, TaskController controller ) throws IOException {
     this.localFs = FileSystem.getLocal(conf);
     this.trackerConf = conf;
     this.lDirAllocator = new LocalDirAllocator("mapred.local.dir");
 
     // setting the cache size to a default of 10GB
-    this.allowedCacheSize = conf.getLong
-      ("local.cache.size", DEFAULT_CACHE_SIZE);
+    this.allowedCacheSize = conf.getLong("local.cache.size", DEFAULT_CACHE_SIZE);
     // setting the cache number of subdirectories limit to a default of 10000
-    this.allowedCacheSubdirs = conf.getLong
-      ("mapreduce.tasktracker.local.cache.numberdirectories",
+    this.allowedCacheSubdirs = conf.getLong "mapreduce.tasktracker.local.cache.numberdirectories",
        DEFAULT_CACHE_SUBDIR_LIMIT);
     double cleanupPct = conf.getFloat("mapreduce.tasktracker.cache.local.keep.pct",
         DEFAULT_CACHE_KEEP_AROUND_PCT);
-    this.allowedCacheSizeCleanupGoal = 
-      (long)(this.allowedCacheSize * cleanupPct);
-    this.allowedCacheSubdirsCleanupGoal = 
-      (long)(this.allowedCacheSubdirs * cleanupPct);
+    this.allowedCacheSizeCleanupGoal = (long)(this.allowedCacheSize * cleanupPct);
+    this.allowedCacheSubdirsCleanupGoal = (long)(this.allowedCacheSubdirs * cleanupPct);
 
     this.taskController = controller;
     this.cleanupThread = new CleanupThread(conf);
@@ -163,16 +154,14 @@ public class TrackerDistributedCacheManager {
       lcacheStatus = cachedArchives.get(key);
       if (lcacheStatus == null) {
         // was never localized
-        String uniqueString
-          = (String.valueOf(random.nextLong())
+        String uniqueString = (String.valueOf(random.nextLong())
              + "_" + cache.hashCode()
              + "_" + (confFileStamp % Integer.MAX_VALUE));
         String cachePath = new Path (subDir, 
           new Path(uniqueString, makeRelative(cache, conf))).toString();
         localPath = lDirAllocator.getLocalPathForWrite(cachePath,
           fileStatus.getLen(), trackerConf, isPublic);
-        lcacheStatus = 
-          new CacheStatus(new Path(localPath.toString().replace(cachePath, "")), 
+        lcacheStatus = new CacheStatus(new Path(localPath.toString().replace(cachePath, "")),
                           localPath, new Path(subDir), uniqueString, 
                           isPublic ? null : user, key);
         cachedArchives.put(key, lcacheStatus);
@@ -188,11 +177,7 @@ public class TrackerDistributedCacheManager {
       synchronized (lcacheStatus) {
         if (!lcacheStatus.isInited()) {
           if (isPublic) {
-            localizedPath = localizePublicCacheObject(conf, 
-                                                      cache, 
-                                                      confFileStamp,
-                                                      lcacheStatus, fileStatus, 
-                                                      isArchive);
+            localizedPath = localizePublicCacheObject(conf, cache, confFileStamp, lcacheStatus, fileStatus, isArchive);
           } else {
             localizedPath = localPath;
             if (!isArchive) {
@@ -200,7 +185,6 @@ public class TrackerDistributedCacheManager {
               //JobLocalizer since the JobLocalizer is the one who expands
               //archives and gets the total length
               lcacheStatus.size = fileStatus.getLen();
-
               // Increase the size and sub directory count of the cache
               // from baseDirSize and baseDirNumberSubDir.
               baseDirManager.addCacheInfoUpdate(lcacheStatus);
@@ -275,8 +259,7 @@ public class TrackerDistributedCacheManager {
    * relative path is hostname of DFS this mapred cluster is running
    * on/absolute_path
    */
-  String makeRelative(URI cache, Configuration conf)
-    throws IOException {
+  String makeRelative(URI cache, Configuration conf) throws IOException {
     String host = cache.getHost();
     if (host == null) {
       host = cache.getScheme();
@@ -293,12 +276,8 @@ public class TrackerDistributedCacheManager {
     return path;
   }
 
-  private Path checkCacheStatusValidity(Configuration conf,
-      URI cache, long confFileStamp,
-      CacheStatus cacheStatus,
-      FileStatus fileStatus,
-      boolean isArchive
-      ) throws IOException {
+  private Path checkCacheStatusValidity(Configuration conf, URI cache, long confFileStamp,
+      CacheStatus cacheStatus, FileStatus fileStatus, boolean isArchive ) throws IOException {
     FileSystem fs = FileSystem.get(cache, conf);
     // Has to be
     if (!ifExistsAndFresh(conf, fs, cache, confFileStamp,
@@ -345,8 +324,7 @@ public class TrackerDistributedCacheManager {
    * @return true if the path in the uri is visible to all, false otherwise
    * @throws IOException
    */
-  private static boolean checkPermissionOfOther(FileSystem fs, Path path,
-      FsAction action) throws IOException {
+  private static boolean checkPermissionOfOther(FileSystem fs, Path path, FsAction action) throws IOException {
     FileStatus status = fs.getFileStatus(path);
     FsPermission perms = status.getPermission();
     FsAction otherAction = perms.getOtherAction();
@@ -371,22 +349,15 @@ public class TrackerDistributedCacheManager {
    * @return for archives, the number of bytes in the unpacked directory
    * @throws IOException
    */
-  public static long downloadCacheObject(Configuration conf,
-                                         URI source,
-                                         Path destination,
-                                         long desiredTimestamp,
-                                         boolean isArchive,
-                                         FsPermission permission
-                                         ) throws IOException {
+  public static long downloadCacheObject(Configuration conf, URI source, Path destination,
+                                         long desiredTimestamp, boolean isArchive, FsPermission permission) throws IOException {
     FileSystem sourceFs = FileSystem.get(source, conf);
     FileSystem localFs = FileSystem.getLocal(conf);
-    
     Path sourcePath = new Path(source.getPath());
     long modifiedTime = 
       sourceFs.getFileStatus(sourcePath).getModificationTime();
     if (modifiedTime != desiredTimestamp) {
-      DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, 
-                                                     DateFormat.SHORT);
+      DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
       throw new IOException("The distributed cache object " + source + 
                             " changed during the job from " + 
                             df.format(new Date(desiredTimestamp)) + " to " +
@@ -428,8 +399,7 @@ public class TrackerDistributedCacheManager {
       } else if (isTarFile(tmpArchive)) {
         FileUtil.unTar(srcFile, destDir);
       } else {
-        LOG.warn(String.format(
-            "Cache file %s specified as archive, but not valid extension.",
+        LOG.warn(String.format("Cache file %s specified as archive, but not valid extension.",
             srcFile.toString()));
         // else will not do anyhting
         // and copy the file into the dir as it is
@@ -456,22 +426,17 @@ public class TrackerDistributedCacheManager {
 
   //the method which actually copies the caches locally and unjars/unzips them
   // and does chmod for the files
-  Path localizePublicCacheObject(Configuration conf,
-                                 URI cache, long confFileStamp,
-                                 CacheStatus cacheStatus,
-                                 FileStatus fileStatus,
+  Path localizePublicCacheObject(Configuration conf, URI cache, long confFileStamp,
+                                 CacheStatus cacheStatus, FileStatus fileStatus,
                                  boolean isArchive) throws IOException {
     long size = downloadCacheObject(conf, cache, cacheStatus.localizedLoadPath,
-                                    confFileStamp, isArchive, 
-                                    PUBLIC_CACHE_OBJECT_PERM);
+                                    confFileStamp, isArchive, PUBLIC_CACHE_OBJECT_PERM);
     cacheStatus.size = size;
-    
     // Increase the size and sub directory count of the cache
     // from baseDirSize and baseDirNumberSubDir.
     baseDirManager.addCacheInfoUpdate(cacheStatus);
 
-    LOG.info(String.format("Cached %s as %s",
-             cache.toString(), cacheStatus.localizedLoadPath));
+    LOG.info(String.format("Cached %s as %s", cache.toString(), cacheStatus.localizedLoadPath));
     return cacheStatus.localizedLoadPath;
   }
 
@@ -481,11 +446,8 @@ public class TrackerDistributedCacheManager {
   }
 
   // Checks if the cache has already been localized and is fresh
-  private boolean ifExistsAndFresh(Configuration conf, FileSystem fs,
-                                          URI cache, long confFileStamp,
-                                          CacheStatus lcacheStatus,
-                                          FileStatus fileStatus)
-  throws IOException {
+  private boolean ifExistsAndFresh(Configuration conf, FileSystem fs, URI cache, long confFileStamp,
+                                          CacheStatus lcacheStatus, FileStatus fileStatus) throws IOException {
     long dfsFileStamp;
     if (fileStatus != null) {
       dfsFileStamp = fileStatus.getModificationTime();
@@ -520,8 +482,7 @@ public class TrackerDistributedCacheManager {
    * @param workDir the directory in which the symlinks are created
    * @throws IOException
    */
-  public static void createAllSymlink(Configuration conf, File jobCacheDir, 
-      File workDir)
+  public static void createAllSymlink(Configuration conf, File jobCacheDir, File workDir)
     throws IOException{
     if ((jobCacheDir == null || !jobCacheDir.isDirectory()) ||
            workDir == null || (!workDir.isDirectory())) {
@@ -653,8 +614,7 @@ public class TrackerDistributedCacheManager {
     }
   }
 
-  public TaskDistributedCacheManager 
-  newTaskDistributedCacheManager(JobID jobId,
+  public TaskDistributedCacheManager newTaskDistributedCacheManager(JobID jobId,
                                  Configuration taskConf) throws IOException {
     TaskDistributedCacheManager result = 
       new TaskDistributedCacheManager(this, taskConf);
@@ -929,8 +889,7 @@ public class TrackerDistributedCacheManager {
     // How often do we check if we need to clean up cache files?
     private long cleanUpCheckPeriod = 60000L; // 1 minute
     public CleanupThread(Configuration conf) {
-      cleanUpCheckPeriod =
-        conf.getLong("mapreduce.tasktracker.distributedcache.checkperiod",
+      cleanUpCheckPeriod = conf.getLong("mapreduce.tasktracker.distributedcache.checkperiod",
             cleanUpCheckPeriod);
     }
 
@@ -963,7 +922,7 @@ public class TrackerDistributedCacheManager {
      */
     protected void exitTaskTracker(Throwable t) {
       LOG.fatal("Distributed Cache cleanup thread received runtime exception." +
-      		" Exiting the TaskTracker", t);
+          " Exiting the TaskTracker", t);
       Runtime.getRuntime().exit(-1);
     }
   }
