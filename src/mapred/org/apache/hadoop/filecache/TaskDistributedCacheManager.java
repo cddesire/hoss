@@ -45,8 +45,11 @@ import org.apache.hadoop.mapred.JobLocalizer;
  * interface.</b>
  */
 public class TaskDistributedCacheManager {
+
   private final TrackerDistributedCacheManager distributedCacheManager;
+
   private final List<CacheFile> cacheFiles = new ArrayList<CacheFile>();
+
   private final List<String> classPaths = new ArrayList<String>();
   
   private boolean setupCalled = false;
@@ -59,10 +62,12 @@ public class TaskDistributedCacheManager {
   static class CacheFile {
     /** URI as in the configuration */
     final URI uri;
+
     enum FileType {
       REGULAR,
       ARCHIVE
     }
+    
     boolean isPublic = true;
     /** Whether to decompress */
     final FileType type;
@@ -81,8 +86,7 @@ public class TaskDistributedCacheManager {
       this.isPublic = isPublic;
       this.timestamp = timestamp;
       this.shouldBeAddedToClassPath = classPath;
-      this.owner = 
-          TrackerDistributedCacheManager.getLocalizedCacheOwner(isPublic);
+      this.owner = TrackerDistributedCacheManager.getLocalizedCacheOwner(isPublic);
     }
 
     /**
@@ -138,19 +142,16 @@ public class TaskDistributedCacheManager {
     }
   }
 
-  TaskDistributedCacheManager(
-      TrackerDistributedCacheManager distributedCacheManager,
+  TaskDistributedCacheManager(TrackerDistributedCacheManager distributedCacheManager,
       Configuration taskConf) throws IOException {
     this.distributedCacheManager = distributedCacheManager;
     
-    this.cacheFiles.addAll(
-        CacheFile.makeCacheFiles(DistributedCache.getCacheFiles(taskConf),
+    this.cacheFiles.addAll(CacheFile.makeCacheFiles(DistributedCache.getCacheFiles(taskConf),
             DistributedCache.getFileTimestamps(taskConf),
             TrackerDistributedCacheManager.getFileVisibilities(taskConf),
             DistributedCache.getFileClassPaths(taskConf),
             CacheFile.FileType.REGULAR));
-    this.cacheFiles.addAll(
-        CacheFile.makeCacheFiles(DistributedCache.getCacheArchives(taskConf),
+    this.cacheFiles.addAll(CacheFile.makeCacheFiles(DistributedCache.getCacheArchives(taskConf),
           DistributedCache.getArchiveTimestamps(taskConf),
           TrackerDistributedCacheManager.getArchiveVisibilities(taskConf),
           DistributedCache.getArchiveClassPaths(taskConf), 
@@ -238,8 +239,7 @@ public class TaskDistributedCacheManager {
    */
   public List<String> getClassPaths() throws IOException {
     if (!setupCalled) {
-      throw new IllegalStateException(
-          "getClassPaths() should be called after setup()");
+      throw new IllegalStateException("getClassPaths() should be called after setup()");
     }
     return classPaths;
   }
