@@ -179,8 +179,7 @@ public class DistributedCache {
    * @return <code>FileStatus</code> of a given cache file on hdfs
    * @throws IOException
    */
-  public static FileStatus getFileStatus(Configuration conf, URI cache)
-    throws IOException {
+  public static FileStatus getFileStatus(Configuration conf, URI cache) throws IOException {
     FileSystem fileSystem = FileSystem.get(cache, conf);
     return fileSystem.getFileStatus(new Path(cache.getPath()));
   }
@@ -192,8 +191,7 @@ public class DistributedCache {
    * @return mtime of a given cache file on hdfs
    * @throws IOException
    */
-  public static long getTimestamp(Configuration conf, URI cache)
-    throws IOException {
+  public static long getTimestamp(Configuration conf, URI cache) throws IOException {
     return getFileStatus(conf, cache).getModificationTime();
   }
   
@@ -273,10 +271,8 @@ public class DistributedCache {
    * @return A path array of localized caches
    * @throws IOException
    */
-  public static Path[] getLocalCacheArchives(Configuration conf)
-    throws IOException {
-    return StringUtils.stringToPath(conf
-                                    .getStrings(CACHE_LOCALARCHIVES));
+  public static Path[] getLocalCacheArchives(Configuration conf) throws IOException {
+    return StringUtils.stringToPath(conf.getStrings(CACHE_LOCALARCHIVES));
   }
 
   /**
@@ -286,8 +282,7 @@ public class DistributedCache {
    * @return A path array of localized files
    * @throws IOException
    */
-  public static Path[] getLocalCacheFiles(Configuration conf)
-    throws IOException {
+  public static Path[] getLocalCacheFiles(Configuration conf) throws IOException {
     return StringUtils.stringToPath(conf.getStrings(CACHE_LOCALFILES));
   }
 
@@ -379,8 +374,7 @@ public class DistributedCache {
    */
   public static void addLocalArchives(Configuration conf, String str) {
     String archives = conf.get(CACHE_LOCALARCHIVES);
-    conf.set(CACHE_LOCALARCHIVES, archives == null ? str
-        : archives + "," + str);
+    conf.set(CACHE_LOCALARCHIVES, archives == null ? str : archives + "," + str);
   }
 
   /**
@@ -391,8 +385,7 @@ public class DistributedCache {
    */
   public static void addLocalFiles(Configuration conf, String str) {
     String files = conf.get(CACHE_LOCALFILES);
-    conf.set(CACHE_LOCALFILES, files == null ? str
-        : files + "," + str);
+    conf.set(CACHE_LOCALFILES, files == null ? str : files + "," + str);
   }
 
   /**
@@ -403,8 +396,7 @@ public class DistributedCache {
    */
   public static void addCacheArchive(URI uri, Configuration conf) {
     String archives = conf.get(CACHE_ARCHIVES);
-    conf.set(CACHE_ARCHIVES, archives == null ? uri.toString()
-             : archives + "," + uri.toString());
+    conf.set(CACHE_ARCHIVES, archives == null ? uri.toString() : archives + "," + uri.toString());
   }
   
   /**
@@ -415,8 +407,7 @@ public class DistributedCache {
    */
   public static void addCacheFile(URI uri, Configuration conf) {
     String files = conf.get(CACHE_FILES);
-    conf.set(CACHE_FILES, files == null ? uri.toString() : files + ","
-             + uri.toString());
+    conf.set(CACHE_FILES, files == null ? uri.toString() : files + ","+ uri.toString());
   }
 
   /**
@@ -433,8 +424,7 @@ public class DistributedCache {
    * @param conf Configuration that contains the classpath setting
    */
   @Deprecated
-  public static void addFileToClassPath(Path file, Configuration conf)
-        throws IOException {
+  public static void addFileToClassPath(Path file, Configuration conf) throws IOException {
     addFileToClassPath(file, conf, file.getFileSystem(conf));
   }
 
@@ -447,14 +437,11 @@ public class DistributedCache {
    * @param fs FileSystem with respect to which {@code archivefile} should
    *              be interpreted. 
    */
-  public static void addFileToClassPath
-           (Path file, Configuration conf, FileSystem fs)
+  public static void addFileToClassPath(Path file, Configuration conf, FileSystem fs)
         throws IOException {
     String filepath = file.toUri().getPath();
     String classpath = conf.get("mapred.job.classpath.files");
-    conf.set("mapred.job.classpath.files", classpath == null
-        ? filepath
-        : classpath + System.getProperty("path.separator") + filepath);
+    conf.set("mapred.job.classpath.files", classpath == null ? filepath : classpath + System.getProperty("path.separator") + filepath);
     URI uri = fs.makeQualified(file).toUri();
     addCacheFile(uri, conf);
   }
@@ -469,8 +456,7 @@ public class DistributedCache {
     String classpath = conf.get("mapred.job.classpath.files");
     if (classpath == null)
       return null;
-    ArrayList<Object> list = Collections.list(new StringTokenizer(classpath, System
-                                                          .getProperty("path.separator")));
+    ArrayList<Object> list = Collections.list(new StringTokenizer(classpath, System.getProperty("path.separator")));
     Path[] paths = new Path[list.size()];
     for (int i = 0; i < list.size(); i++) {
       paths[i] = new Path((String) list.get(i));
@@ -492,9 +478,7 @@ public class DistributedCache {
    * @param conf Configuration that contains the classpath setting
    */
   @Deprecated
-  public static void addArchiveToClassPath
-         (Path archive, Configuration conf)
-      throws IOException {
+  public static void addArchiveToClassPath(Path archive, Configuration conf) throws IOException {
     addArchiveToClassPath(archive, conf, archive.getFileSystem(conf));
   }
 
@@ -506,9 +490,7 @@ public class DistributedCache {
    * @param conf Configuration that contains the classpath setting
    * @param fs FileSystem with respect to which {@code archive} should be interpreted. 
    */
-  public static void addArchiveToClassPath
-         (Path archive, Configuration conf, FileSystem fs)
-      throws IOException {
+  public static void addArchiveToClassPath (Path archive, Configuration conf, FileSystem fs) throws IOException {
     String archivepath = archive.toUri().getPath();
     String classpath = conf.get("mapred.job.classpath.archives");
     conf.set("mapred.job.classpath.archives", classpath == null

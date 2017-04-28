@@ -38,8 +38,7 @@ public class TaskStartedEvent implements HistoryEvent {
    * @param taskType Type of the task
    * @param splitLocations Split locations, applicable for map tasks
    */
-  public TaskStartedEvent(TaskID id, long startTime, 
-      TaskType taskType, String splitLocations) {
+  public TaskStartedEvent(TaskID id, long startTime, TaskType taskType, String splitLocations) {
     this.taskId = id;
     this.splitLocations = splitLocations;
     this.startTime = startTime;
@@ -47,11 +46,20 @@ public class TaskStartedEvent implements HistoryEvent {
   }
 
   /** Get the task id */
-  public TaskID getTaskId() { return taskId; }
+  public TaskID getTaskId() { 
+  	return taskId; 
+  }
+
   /** Get the split locations, applicable for map tasks */
-  public String getSplitLocations() { return splitLocations; }
+  public String getSplitLocations() { 
+  	return splitLocations; 
+  }
+
   /** Get the start time of the task */
-  public long getStartTime() { return startTime; }
+  public long getStartTime() { 
+  	return startTime; 
+  }
+
   /** Get the task type */
   public TaskType getTaskType() {
     return taskType;

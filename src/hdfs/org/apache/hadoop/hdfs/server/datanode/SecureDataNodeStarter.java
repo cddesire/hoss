@@ -40,16 +40,18 @@ public class SecureDataNodeStarter implements Daemon {
   public static class SecureResources {
     private final ServerSocket streamingSocket;
     private final SelectChannelConnector listener;
-    public SecureResources(ServerSocket streamingSocket,
-        SelectChannelConnector listener) {
-
+    public SecureResources(ServerSocket streamingSocket, SelectChannelConnector listener) {
       this.streamingSocket = streamingSocket;
       this.listener = listener;
     }
 
-    public ServerSocket getStreamingSocket() { return streamingSocket; }
+    public ServerSocket getStreamingSocket() { 
+      return streamingSocket; 
+    }
 
-    public SelectChannelConnector getListener() { return listener; }
+    public SelectChannelConnector getListener() {
+     return listener; 
+   }
   }
   
   private String [] args;
@@ -68,21 +70,18 @@ public class SecureDataNodeStarter implements Daemon {
     
     // Obtain secure port for data streaming to datanode
     InetSocketAddress socAddr = DataNode.getStreamingAddr(conf);
-    int socketWriteTimeout = conf.getInt("dfs.datanode.socket.write.timeout",
-        HdfsConstants.WRITE_TIMEOUT);
+    int socketWriteTimeout = conf.getInt("dfs.datanode.socket.write.timeout", HdfsConstants.WRITE_TIMEOUT);
     
-    ServerSocket ss = (socketWriteTimeout > 0) ? 
-        ServerSocketChannel.open().socket() : new ServerSocket();
+    ServerSocket ss = (socketWriteTimeout > 0) ? ServerSocketChannel.open().socket() : new ServerSocket();
     ss.bind(socAddr, 0);
     
     // Check that we got the port we need
     if(ss.getLocalPort() != socAddr.getPort())
       throw new RuntimeException("Unable to bind on specified streaming port in secure " +
-      		"context. Needed " + socAddr.getPort() + ", got " + ss.getLocalPort());
+          "context. Needed " + socAddr.getPort() + ", got " + ss.getLocalPort());
 
     // Obtain secure listener for web server
-    SelectChannelConnector listener = 
-                   (SelectChannelConnector)HttpServer.createDefaultChannelConnector();
+    SelectChannelConnector listener = (SelectChannelConnector)HttpServer.createDefaultChannelConnector();
     InetSocketAddress infoSocAddr = DataNode.getInfoAddr(conf);
     listener.setHost(infoSocAddr.getHostName());
     listener.setPort(infoSocAddr.getPort());
@@ -94,8 +93,7 @@ public class SecureDataNodeStarter implements Daemon {
    
     if(ss.getLocalPort() >= 1023 || listener.getPort() >= 1023)
       throw new RuntimeException("Cannot start secure datanode on non-privileged "
-         +" ports. (streaming port = " + ss + " ) (http listener port = " + 
-         listener.getConnection() + "). Exiting.");
+         +" ports. (streaming port = " + ss + " ) (http listener port = " + listener.getConnection() + "). Exiting.");
  
     System.err.println("Successfully obtained privileged resources (streaming port = "
         + ss + " ) (http listener port = " + listener.getConnection() +")");

@@ -129,9 +129,7 @@ public class NamenodeWebHdfsMethods {
   private static DatanodeInfo chooseDatanode(final NameNode namenode,
       final String path, final HttpOpParam.Op op, final long openOffset
       ) throws IOException {
-    if (op == GetOpParam.Op.OPEN
-        || op == GetOpParam.Op.GETFILECHECKSUM
-        || op == PostOpParam.Op.APPEND) {
+    if (op == GetOpParam.Op.OPEN || op == GetOpParam.Op.GETFILECHECKSUM || op == PostOpParam.Op.APPEND) {
       final HdfsFileStatus status = namenode.getFileInfo(path);
       if (status == null) {
         throw new FileNotFoundException("File " + path + " not found.");
@@ -175,7 +173,6 @@ public class NamenodeWebHdfsMethods {
       final String path, final HttpOpParam.Op op, final long openOffset,
       final Param<?, ?>... parameters) throws URISyntaxException, IOException {
     final DatanodeInfo dn = chooseDatanode(namenode, path, op, openOffset);
-
     final String delegationQuery;
     if (!UserGroupInformation.isSecurityEnabled()) {
       //security disabled
@@ -193,8 +190,7 @@ public class NamenodeWebHdfsMethods {
         + Param.toSortedString("&", parameters);
     final String uripath = WebHdfsFileSystem.PATH_PREFIX + path;
 
-    final URI uri = new URI("http", null, dn.getHostName(), dn.getInfoPort(),
-        uripath, query, null);
+    final URI uri = new URI("http", null, dn.getHostName(), dn.getInfoPort(), uripath, query, null);
     if (LOG.isTraceEnabled()) {
       LOG.trace("redirectURI=" + uri);
     }

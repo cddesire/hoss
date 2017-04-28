@@ -35,7 +35,9 @@ import org.apache.hadoop.io.*;
  * 
  ****************************************************/
 public class BlockCommand extends DatanodeCommand {
+
   Block blocks[];
+
   DatanodeInfo targets[][];
 
   public BlockCommand() {}
@@ -46,7 +48,6 @@ public class BlockCommand extends DatanodeCommand {
    */
   public BlockCommand(int action, List<BlockTargetPair> blocktargetlist) {
     super(action);
-
     blocks = new Block[blocktargetlist.size()]; 
     targets = new DatanodeInfo[blocks.length][];
     for(int i = 0; i < blocks.length; i++) {
@@ -76,9 +77,7 @@ public class BlockCommand extends DatanodeCommand {
     return targets;
   }
 
-  ///////////////////////////////////////////
   // Writable
-  ///////////////////////////////////////////
   static {                                      // register a ctor
     WritableFactories.setFactory
       (BlockCommand.class,

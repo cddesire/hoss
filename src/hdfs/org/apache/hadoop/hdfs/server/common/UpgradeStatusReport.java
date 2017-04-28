@@ -85,7 +85,7 @@ public class UpgradeStatusReport implements Writable {
    */
   public String getStatusText(boolean details) {
     return "Upgrade for version " + getVersion() 
-            + (upgradeStatus<100 ? 
+            + (upgradeStatus < 100 ? 
               " is in progress. Status = " + upgradeStatus + "%" : 
               " has been completed."
               + "\nUpgrade is " + (finalized ? "" : "not ")
@@ -99,9 +99,7 @@ public class UpgradeStatusReport implements Writable {
     return getStatusText(false);
   }
 
-  /////////////////////////////////////////////////
-  // Writable
-  /////////////////////////////////////////////////
+  
   static {                                      // register a ctor
     WritableFactories.setFactory
       (UpgradeStatusReport.class,
@@ -110,15 +108,11 @@ public class UpgradeStatusReport implements Writable {
        });
   }
 
-  /**
-   */
   public void write(DataOutput out) throws IOException {
     out.writeInt(this.version);
     out.writeShort(this.upgradeStatus);
   }
 
-  /**
-   */
   public void readFields(DataInput in) throws IOException {
     this.version = in.readInt();
     this.upgradeStatus = in.readShort();

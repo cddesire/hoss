@@ -46,12 +46,13 @@ import org.apache.hadoop.util.StringUtils;
  * edit file for periodic checkpointing.
  */
 public class GetImageServlet extends HttpServlet {
+
   private static final long serialVersionUID = -7669068179452648952L;
+
   private static final Log LOG = LogFactory.getLog(GetImageServlet.class);
+
   @SuppressWarnings("unchecked")
-  public void doGet(final HttpServletRequest request,
-                    final HttpServletResponse response
-                    ) throws ServletException, IOException {
+  public void doGet(final HttpServletRequest request, final HttpServletResponse response ) throws ServletException, IOException {
     Map<String,String[]> pmap = request.getParameterMap();
     try {
       ServletContext context = getServletContext();
@@ -73,12 +74,10 @@ public class GetImageServlet extends HttpServlet {
         public Void run() throws Exception {
           if (ff.getImage()) {
             // send fsImage
-            TransferFsImage.getFileServer(response.getOutputStream(),
-                                          nnImage.getFsImageName()); 
+            TransferFsImage.getFileServer(response.getOutputStream(), nnImage.getFsImageName());
           } else if (ff.getEdit()) {
             // send edits
-            TransferFsImage.getFileServer(response.getOutputStream(),
-                                          nnImage.getFsEditName());
+            TransferFsImage.getFileServer(response.getOutputStream(), nnImage.getFsEditName());
           } else if (ff.putImage()) {
             // issue a HTTP get request to download the new fsimage 
             nnImage.validateCheckpointUpload(ff.getToken());
@@ -103,9 +102,7 @@ public class GetImageServlet extends HttpServlet {
           // use these key values.
           return UserGroupInformation
           .loginUserFromKeytabAndReturnUGI(
-                  SecurityUtil.getServerPrincipal(conf
-                      .get(DFS_NAMENODE_KRB_HTTPS_USER_NAME_KEY), NameNode
-                      .getAddress(conf).getHostName()),
+                  SecurityUtil.getServerPrincipal(conf .get(DFS_NAMENODE_KRB_HTTPS_USER_NAME_KEY), NameNode.getAddress(conf).getHostName()),
               conf.get(DFSConfigKeys.DFS_NAMENODE_KEYTAB_FILE_KEY));
         }
       });
@@ -127,17 +124,14 @@ public class GetImageServlet extends HttpServlet {
     }
     
     String[] validRequestors = {
-        SecurityUtil.getServerPrincipal(conf
-            .get(DFS_NAMENODE_KRB_HTTPS_USER_NAME_KEY), NameNode.getAddress(
-            conf).getHostName()),
+        SecurityUtil.getServerPrincipal(conf .get(DFS_NAMENODE_KRB_HTTPS_USER_NAME_KEY), 
+          NameNode.getAddress(conf).getHostName()),
         SecurityUtil.getServerPrincipal(conf.get(DFS_NAMENODE_USER_NAME_KEY),
             NameNode.getAddress(conf).getHostName()),
-        SecurityUtil.getServerPrincipal(conf
-            .get(DFS_SECONDARY_NAMENODE_KRB_HTTPS_USER_NAME_KEY),
+        SecurityUtil.getServerPrincipal(conf .get(DFS_SECONDARY_NAMENODE_KRB_HTTPS_USER_NAME_KEY),
             SecondaryNameNode.getHttpAddress(conf).getHostName()),
-        SecurityUtil.getServerPrincipal(conf
-            .get(DFS_SECONDARY_NAMENODE_USER_NAME_KEY), SecondaryNameNode
-            .getHttpAddress(conf).getHostName()) };
+        SecurityUtil.getServerPrincipal(conf .get(DFS_SECONDARY_NAMENODE_USER_NAME_KEY), 
+          SecondaryNameNode.getHttpAddress(conf).getHostName()) };
     
     for(String v : validRequestors) {
       if(v != null && v.equals(remoteUser)) {

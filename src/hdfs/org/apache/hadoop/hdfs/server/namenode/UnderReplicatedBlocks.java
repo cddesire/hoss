@@ -31,7 +31,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
       
   /* constructor */
   UnderReplicatedBlocks() {
-    for(int i=0; i<LEVEL; i++) {
+    for(int i = 0; i < LEVEL; i++) {
       priorityQueues.add(new TreeSet<Block>());
     }
   }
@@ -40,7 +40,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
    * Empty the queues.
    */
   void clear() {
-    for(int i=0; i<LEVEL; i++) {
+    for(int i = 0; i < LEVEL; i++) {
       priorityQueues.get(i).clear();
     }
   }
@@ -48,7 +48,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
   /* Return the total number of under replication blocks */
   synchronized int size() {
     int size = 0;
-    for (int i=0; i<LEVEL; i++) {
+    for (int i = 0; i < LEVEL; i++) {
       size += priorityQueues.get(i).size();
     }
     return size;
@@ -56,8 +56,10 @@ class UnderReplicatedBlocks implements Iterable<Block> {
         
   /* Check if a block is in the neededReplication queue */
   synchronized boolean contains(Block block) {
-    for(TreeSet<Block> set:priorityQueues) {
-      if(set.contains(block)) { return true; }
+    for(TreeSet<Block> set: priorityQueues) {
+      if(set.contains(block)) { 
+        return true; 
+      }
     }
     return false;
   }
@@ -67,22 +69,19 @@ class UnderReplicatedBlocks implements Iterable<Block> {
    * @param curReplicas current number of replicas of the block
    * @param expectedReplicas expected number of replicas of the block
    */
-  private int getPriority(Block block, 
-                          int curReplicas, 
-                          int decommissionedReplicas,
-                          int expectedReplicas) {
-    if (curReplicas<0 || curReplicas>=expectedReplicas) {
+  private int getPriority(Block block, int curReplicas, int decommissionedReplicas, int expectedReplicas) {
+    if (curReplicas < 0 || curReplicas >= expectedReplicas) {
       return LEVEL; // no need to replicate
-    } else if(curReplicas==0) {
+    } else if(curReplicas == 0) {
       // If there are zero non-decommissioned replica but there are
       // some decommissioned replicas, then assign them highest priority
       if (decommissionedReplicas > 0) {
         return 0;
       }
       return 2; // keep these blocks in needed replication.
-    } else if(curReplicas==1) {
+    } else if(curReplicas == 1) {
       return 0; // highest priority
-    } else if(curReplicas*3<expectedReplicas) {
+    } else if(curReplicas*3 < expectedReplicas) {
       return 1;
     } else {
       return 2;
@@ -94,37 +93,23 @@ class UnderReplicatedBlocks implements Iterable<Block> {
    * @param curReplicas current number of replicas of the block
    * @param expectedReplicas expected number of replicas of the block
    */
-  synchronized boolean add(
-                           Block block,
-                           int curReplicas, 
-                           int decomissionedReplicas,
-                           int expectedReplicas) {
-    if(curReplicas<0 || expectedReplicas <= curReplicas) {
+  synchronized boolean add(Block block, int curReplicas, int decomissionedReplicas, int expectedReplicas) {
+    if(curReplicas < 0 || expectedReplicas <= curReplicas) {
       return false;
     }
-    int priLevel = getPriority(block, curReplicas, decomissionedReplicas,
-                               expectedReplicas);
+    int priLevel = getPriority(block, curReplicas, decomissionedReplicas, expectedReplicas);
     if(priLevel != LEVEL && priorityQueues.get(priLevel).add(block)) {
-      NameNode.stateChangeLog.debug(
-                                    "BLOCK* NameSystem.UnderReplicationBlock.add:"
-                                    + block
-                                    + " has only "+curReplicas
-                                    + " replicas and need " + expectedReplicas
-                                    + " replicas so is added to neededReplications"
-                                    + " at priority level " + priLevel);
+      NameNode.stateChangeLog.debug("BLOCK* NameSystem.UnderReplicationBlock.add:"
+                                    + block + " has only "+curReplicas + " replicas and need " + expectedReplicas
+                                    + " replicas so is added to neededReplications"+ " at priority level " + priLevel);
       return true;
     }
     return false;
   }
 
   /* remove a block from a under replication queue */
-  synchronized boolean remove(Block block, 
-                              int oldReplicas, 
-                              int decommissionedReplicas,
-                              int oldExpectedReplicas) {
-    int priLevel = getPriority(block, oldReplicas, 
-                               decommissionedReplicas,
-                               oldExpectedReplicas);
+  synchronized boolean remove(Block block, int oldReplicas, int decommissionedReplicas, int oldExpectedReplicas) {
+    int priLevel = getPriority(block, oldReplicas, decommissionedReplicas, oldExpectedReplicas);
     return remove(block, priLevel);
   }
       
@@ -132,18 +117,14 @@ class UnderReplicatedBlocks implements Iterable<Block> {
   boolean remove(Block block, int priLevel) {
     if(priLevel >= 0 && priLevel < LEVEL 
         && priorityQueues.get(priLevel).remove(block)) {
-      NameNode.stateChangeLog.debug(
-                                    "BLOCK* NameSystem.UnderReplicationBlock.remove: "
-                                    + "Removing block " + block
-                                    + " from priority queue "+ priLevel);
+      NameNode.stateChangeLog.debug("BLOCK* NameSystem.UnderReplicationBlock.remove: "
+                                    + "Removing block " + block + " from priority queue "+ priLevel);
       return true;
     } else {
-      for(int i=0; i<LEVEL; i++) {
-        if(i!=priLevel && priorityQueues.get(i).remove(block)) {
-          NameNode.stateChangeLog.debug(
-                                        "BLOCK* NameSystem.UnderReplicationBlock.remove: "
-                                        + "Removing block " + block
-                                        + " from priority queue "+ i);
+      for(int i = 0; i < LEVEL; i++) {
+        if(i != priLevel && priorityQueues.get(i).remove(block)) {
+          NameNode.stateChangeLog.debug("BLOCK* NameSystem.UnderReplicationBlock.remove: "
+                                        + "Removing block " + block + " from priority queue "+ i);
           return true;
         }
       }
@@ -152,33 +133,21 @@ class UnderReplicatedBlocks implements Iterable<Block> {
   }
       
   /* update the priority level of a block */
-  synchronized void update(Block block, int curReplicas, 
-                           int decommissionedReplicas,
-                           int curExpectedReplicas,
-                           int curReplicasDelta, int expectedReplicasDelta) {
+  synchronized void update(Block block, int curReplicas, int decommissionedReplicas,
+                           int curExpectedReplicas, int curReplicasDelta, int expectedReplicasDelta) {
     int oldReplicas = curReplicas-curReplicasDelta;
-    int oldExpectedReplicas = curExpectedReplicas-expectedReplicasDelta;
+    int oldExpectedReplicas = curExpectedReplicas - expectedReplicasDelta;
     int curPri = getPriority(block, curReplicas, decommissionedReplicas, curExpectedReplicas);
     int oldPri = getPriority(block, oldReplicas, decommissionedReplicas, oldExpectedReplicas);
-    NameNode.stateChangeLog.debug("UnderReplicationBlocks.update " + 
-                                  block +
-                                  " curReplicas " + curReplicas +
-                                  " curExpectedReplicas " + curExpectedReplicas +
-                                  " oldReplicas " + oldReplicas +
-                                  " oldExpectedReplicas  " + oldExpectedReplicas +
-                                  " curPri  " + curPri +
-                                  " oldPri  " + oldPri);
+    NameNode.stateChangeLog.debug("UnderReplicationBlocks.update " + block + " curReplicas " + curReplicas +
+                                  " curExpectedReplicas " + curExpectedReplicas + " oldReplicas " + oldReplicas +
+                                  " oldExpectedReplicas  " + oldExpectedReplicas + " curPri  " + curPri + " oldPri  " + oldPri);
     if(oldPri != LEVEL && oldPri != curPri) {
       remove(block, oldPri);
     }
     if(curPri != LEVEL && priorityQueues.get(curPri).add(block)) {
-      NameNode.stateChangeLog.debug(
-                                    "BLOCK* NameSystem.UnderReplicationBlock.update:"
-                                    + block
-                                    + " has only "+curReplicas
-                                    + " replicas and need " + curExpectedReplicas
-                                    + " replicas so is added to neededReplications"
-                                    + " at priority level " + curPri);
+      NameNode.stateChangeLog.debug("BLOCK* NameSystem.UnderReplicationBlock.update:"+ block + " has only "+curReplicas
+                                    + " replicas and need " + curExpectedReplicas + " replicas so is added to neededReplications"+ " at priority level " + curPri);
     }
   }
       
@@ -192,14 +161,14 @@ class UnderReplicatedBlocks implements Iterable<Block> {
       private List<Iterator<Block>> iterators = new ArrayList<Iterator<Block>>();
       BlockIterator()  
       {
-        level=0;
-        for(int i=0; i<LEVEL; i++) {
+        level = 0;
+        for(int i = 0; i < LEVEL; i++) {
           iterators.add(priorityQueues.get(i).iterator());
         }
       }
               
       private void update() {
-        while(level< LEVEL-1 && !iterators.get(level).hasNext()) {
+        while(level < LEVEL-1 && !iterators.get(level).hasNext()) {
           level++;
         }
       }

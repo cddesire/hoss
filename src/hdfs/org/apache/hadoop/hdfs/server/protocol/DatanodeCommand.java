@@ -62,9 +62,7 @@ public abstract class DatanodeCommand implements Writable {
     return this.action;
   }
   
-  ///////////////////////////////////////////
   // Writable
-  ///////////////////////////////////////////
   public void write(DataOutput out) throws IOException {
     out.writeInt(this.action);
   }

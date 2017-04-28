@@ -40,8 +40,7 @@ public abstract class UpgradeObjectNamenode extends UpgradeObject {
    * @param command
    * @return the reply command which is analyzed on the client side.
    */
-  public abstract UpgradeCommand processUpgradeCommand(UpgradeCommand command
-                                               ) throws IOException;
+  public abstract UpgradeCommand processUpgradeCommand(UpgradeCommand command) throws IOException;
 
   public HdfsConstants.NodeType getType() {
     return HdfsConstants.NodeType.NAME_NODE;
@@ -51,8 +50,7 @@ public abstract class UpgradeObjectNamenode extends UpgradeObject {
    */
   public UpgradeCommand startUpgrade() throws IOException {
     // broadcast that data-nodes must start the upgrade
-    return new UpgradeCommand(UpgradeCommand.UC_ACTION_START_UPGRADE,
-                              getVersion(), (short)0);
+    return new UpgradeCommand(UpgradeCommand.UC_ACTION_START_UPGRADE, getVersion(), (short)0);
   }
 
   protected FSNamesystem getFSNamesystem() {
@@ -61,7 +59,6 @@ public abstract class UpgradeObjectNamenode extends UpgradeObject {
 
   public void forceProceed() throws IOException {
     // do nothing by default
-    NameNode.LOG.info("forceProceed() is not defined for the upgrade. " 
-        + getDescription());
+    NameNode.LOG.info("forceProceed() is not defined for the upgrade. "+ getDescription());
   }
 }

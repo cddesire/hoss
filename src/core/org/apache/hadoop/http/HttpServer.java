@@ -80,8 +80,7 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 public class HttpServer implements FilterContainer {
   public static final Log LOG = LogFactory.getLog(HttpServer.class);
 
-  static final String FILTER_INITIALIZER_PROPERTY
-      = "hadoop.http.filter.initializers";
+  static final String FILTER_INITIALIZER_PROPERTY = "hadoop.http.filter.initializers";
 
   // The ServletContext attribute where the daemon Configuration
   // gets stored.
@@ -94,8 +93,7 @@ public class HttpServer implements FilterContainer {
   protected final Connector listener;
   protected final WebAppContext webAppContext;
   protected final boolean findPort;
-  protected final Map<Context, Boolean> defaultContexts =
-      new HashMap<Context, Boolean>();
+  protected final Map<Context, Boolean> defaultContexts = new HashMap<Context, Boolean>();
   protected final List<String> filterNames = new ArrayList<String>();
   private static final int MAX_RETRIES = 10;
   private final Configuration conf;
@@ -103,8 +101,7 @@ public class HttpServer implements FilterContainer {
   private boolean listenerStartedExternally = false;
 
   /** Same as this(name, bindAddress, port, findPort, null); */
-  public HttpServer(String name, String bindAddress, int port, boolean findPort
-      ) throws IOException {
+  public HttpServer(String name, String bindAddress, int port, boolean findPort) throws IOException {
     this(name, bindAddress, port, findPort, new Configuration());
   }
 
@@ -129,8 +126,7 @@ public class HttpServer implements FilterContainer {
    * @param adminsAcl {@link AccessControlList} of the admins
    */
   public HttpServer(String name, String bindAddress, int port,
-      boolean findPort, Configuration conf, AccessControlList adminsAcl)
-      throws IOException {
+      boolean findPort, Configuration conf, AccessControlList adminsAcl) throws IOException {
     this(name, bindAddress, port, findPort, conf, adminsAcl, null);
   }
 
@@ -189,8 +185,7 @@ public class HttpServer implements FilterContainer {
    * provided. This wrapper and all subclasses must create at least one
    * listener.
    */
-  public Connector createBaseListener(Configuration conf)
-      throws IOException {
+  public Connector createBaseListener(Configuration conf) throws IOException {
     return HttpServer.createDefaultChannelConnector();
   }
   
@@ -228,8 +223,7 @@ public class HttpServer implements FilterContainer {
    * @param appDir The application directory
    * @throws IOException
    */
-  protected void addDefaultApps(ContextHandlerCollection parent,
-      final String appDir) throws IOException {
+  protected void addDefaultApps(ContextHandlerCollection parent, final String appDir) throws IOException {
     // set up the context for "/logs/" if "hadoop.log.dir" property is defined. 
     String logDir = System.getProperty("hadoop.log.dir");
     if (logDir != null) {
@@ -264,8 +258,7 @@ public class HttpServer implements FilterContainer {
     addServlet("jmx", "/jmx", JMXJsonServlet.class);
   }
 
-  public void addContext(Context ctxt, boolean isFiltered)
-      throws IOException {
+  public void addContext(Context ctxt, boolean isFiltered) throws IOException {
     webServer.addHandler(ctxt);
     defaultContexts.put(ctxt, isFiltered);
   }
@@ -313,10 +306,8 @@ public class HttpServer implements FilterContainer {
    * @param packageName The Java package name containing the Jersey resource.
    * @param pathSpec The path spec for the servlet
    */
-  public void addJerseyResourcePackage(final String packageName,
-      final String pathSpec) {
-    LOG.info("addJerseyResourcePackage: packageName=" + packageName
-        + ", pathSpec=" + pathSpec);
+  public void addJerseyResourcePackage(final String packageName, final String pathSpec) {
+    LOG.info("addJerseyResourcePackage: packageName=" + packageName + ", pathSpec=" + pathSpec);
     final ServletHolder sh = new ServletHolder(ServletContainer.class);
     sh.setInitParameter("com.sun.jersey.config.property.resourceConfigClass",
         "com.sun.jersey.api.core.PackagesResourceConfig");
@@ -344,8 +335,7 @@ public class HttpServer implements FilterContainer {
    * @deprecated this is a temporary method
    */
   @Deprecated
-  public void addInternalServlet(String name, String pathSpec,
-      Class<? extends HttpServlet> clazz) {
+  public void addInternalServlet(String name, String pathSpec, Class<? extends HttpServlet> clazz) {
     addInternalServlet(name, pathSpec, clazz, false);
   }
 

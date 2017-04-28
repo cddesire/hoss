@@ -48,8 +48,7 @@ public interface NamenodeProtocol extends VersionedProtocol {
    * @throws RemoteException if size is less than or equal to 0 or
                                    datanode does not exist
    */
-  public BlocksWithLocations getBlocks(DatanodeInfo datanode, long size)
-  throws IOException;
+  public BlocksWithLocations getBlocks(DatanodeInfo datanode, long size) throws IOException;
 
   /**
    * Get the current block keys

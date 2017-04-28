@@ -33,10 +33,7 @@ import org.apache.hadoop.mapred.RecordReader;
  * Base class for Composite join returning values derived from multiple
  * sources, but generally not tuples.
  */
-public abstract class MultiFilterRecordReader<K extends WritableComparable,
-                                              V extends Writable>
-    extends CompositeRecordReader<K,V,V>
-    implements ComposableRecordReader<K,V> {
+public abstract class MultiFilterRecordReader<K extends WritableComparable, V extends Writable> extends CompositeRecordReader<K,V,V> implements ComposableRecordReader<K,V> {
 
   private Class<? extends Writable> valueclass;
   private TupleWritable ivalue;

@@ -44,21 +44,32 @@ public interface DataTransferProtocol {
 
   // Processed at datanode stream-handler
   public static final byte OP_WRITE_BLOCK = (byte) 80;
+
   public static final byte OP_READ_BLOCK = (byte) 81;
+
   /**
    * @deprecated As of version 15, OP_READ_METADATA is no longer supported
    */
   @Deprecated public static final byte OP_READ_METADATA = (byte) 82;
+
   public static final byte OP_REPLACE_BLOCK = (byte) 83;
+
   public static final byte OP_COPY_BLOCK = (byte) 84;
+
   public static final byte OP_BLOCK_CHECKSUM = (byte) 85;
   
   public static final int OP_STATUS_SUCCESS = 0;  
+
   public static final int OP_STATUS_ERROR = 1;  
+
   public static final int OP_STATUS_ERROR_CHECKSUM = 2;  
+
   public static final int OP_STATUS_ERROR_INVALID = 3;  
+
   public static final int OP_STATUS_ERROR_EXISTS = 4;  
+
   public static final int OP_STATUS_ERROR_ACCESS_TOKEN = 5;
+
   public static final int OP_STATUS_CHECKSUM_OK = 6;
 
   /** reply **/
@@ -68,8 +79,7 @@ public interface DataTransferProtocol {
     final public static long UNKOWN_SEQNO = -2; 
 
     /** default constructor **/
-    public PipelineAck() {
-    }
+    public PipelineAck() {}
 
     /**
      * Constructor
@@ -119,7 +129,7 @@ public interface DataTransferProtocol {
     }
 
     /**** Writable interface ****/
-    @Override // Writable
+    @Override 
     public void readFields(DataInput in) throws IOException {
       seqno = in.readLong();
       short numOfReplies = in.readShort();
@@ -129,7 +139,7 @@ public interface DataTransferProtocol {
       }
     }
 
-    @Override // Writable
+    @Override 
     public void write(DataOutput out) throws IOException {
       //WritableUtils.writeVLong(out, seqno);
       out.writeLong(seqno);
@@ -139,7 +149,7 @@ public interface DataTransferProtocol {
       }
     }
 
-    @Override //Object
+    @Override 
     public String toString() {
       StringBuilder ack = new StringBuilder("Replies for seqno ");
       ack.append( seqno ).append( " are" );
@@ -153,5 +163,6 @@ public interface DataTransferProtocol {
       }
       return ack.toString();
     }
+    
   }
 }

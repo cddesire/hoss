@@ -84,7 +84,7 @@ class INodeDirectory extends INode {
    * @param newChild Child node to be added
    */
   void replaceChild(INode newChild) {
-    if ( children == null ) {
+    if (children == null) {
       throw new IllegalArgumentException("The directory is empty");
     }
     int low = Collections.binarySearch(children, newChild.name);
@@ -197,9 +197,7 @@ class INodeDirectory extends INode {
   INode[] getExistingPathINodes(String path) {
     byte[][] components = getPathComponents(path);
     INode[] inodes = new INode[components.length];
-
     this.getExistingPathINodes(components, inodes);
-    
     return inodes;
   }
 
@@ -273,8 +271,7 @@ class INodeDirectory extends INode {
    * @throws FileNotFoundException if parent does not exist or 
    * is not a directory.
    */
-  <T extends INode> T addNode(String path, T newNode, boolean inheritPermission
-      ) throws FileNotFoundException {
+  <T extends INode> T addNode(String path, T newNode, boolean inheritPermission) throws FileNotFoundException {
     if(addToParent(path, newNode, null, inheritPermission) == null)
       return null;
     return newNode;
@@ -289,12 +286,8 @@ class INodeDirectory extends INode {
    * @throws  FileNotFoundException if parent does not exist or 
    *          is not a directory.
    */
-  <T extends INode> INodeDirectory addToParent(
-                                      String path,
-                                      T newNode,
-                                      INodeDirectory parent,
-                                      boolean inheritPermission
-                                    ) throws FileNotFoundException {
+  <T extends INode> INodeDirectory addToParent(String path, T newNode, INodeDirectory parent,
+                                      boolean inheritPermission) throws FileNotFoundException {
     byte[][] pathComponents = getPathComponents(path);
     assert pathComponents != null : "Incorrect path " + path;
     int pathLen = pathComponents.length;
@@ -362,8 +355,6 @@ class INodeDirectory extends INode {
     return summary;
   }
 
-  /**
-   */
   List<INode> getChildren() {
     return children==null ? new ArrayList<INode>() : children;
   }

@@ -78,8 +78,7 @@ public interface DatanodeProtocol extends VersionedProtocol {
    * new storageID if the datanode did not have one and
    * registration ID for further communication.
    */
-  public DatanodeRegistration register(DatanodeRegistration registration
-                                       ) throws IOException;
+  public DatanodeRegistration register(DatanodeRegistration registration) throws IOException;
   /**
    * sendHeartbeat() tells the NameNode that the DataNode is still
    * alive and well.  Includes some status info, too. 
@@ -89,10 +88,8 @@ public interface DatanodeProtocol extends VersionedProtocol {
    * or to copy them to other DataNodes, etc.
    */
   public DatanodeCommand[] sendHeartbeat(DatanodeRegistration registration,
-                                       long capacity,
-                                       long dfsUsed, long remaining,
-                                       int xmitsInProgress,
-                                       int xceiverCount) throws IOException;
+                                       long capacity, long dfsUsed, long remaining,
+                                       int xmitsInProgress, int xceiverCount) throws IOException;
 
   /**
    * blockReport() tells the NameNode about all the locally-stored blocks.
@@ -108,8 +105,7 @@ public interface DatanodeProtocol extends VersionedProtocol {
    * @return - the next command for DN to process.
    * @throws IOException
    */
-  public DatanodeCommand blockReport(DatanodeRegistration registration,
-                                     long[] blocks) throws IOException;
+  public DatanodeCommand blockReport(DatanodeRegistration registration, long[] blocks) throws IOException;
   
   /**
    * blocksBeingWrittenReport() tells the NameNode about the blocks-being-
@@ -119,8 +115,7 @@ public interface DatanodeProtocol extends VersionedProtocol {
    * @param blocks
    * @throws IOException
    */
-  public void blocksBeingWrittenReport(DatanodeRegistration registration,
-      long[] blocks) throws IOException;
+  public void blocksBeingWrittenReport(DatanodeRegistration registration, long[] blocks) throws IOException;
     
   /**
    * blockReceived() allows the DataNode to tell the NameNode about
@@ -130,17 +125,13 @@ public interface DatanodeProtocol extends VersionedProtocol {
    * writes a new Block here, or another DataNode copies a Block to
    * this DataNode, it will call blockReceived().
    */
-  public void blockReceived(DatanodeRegistration registration,
-                            Block blocks[],
-                            String[] delHints) throws IOException;
+  public void blockReceived(DatanodeRegistration registration, Block blocks[], String[] delHints) throws IOException;
 
   /**
    * errorReport() tells the NameNode about something that has gone
    * awry.  Useful for debugging.
    */
-  public void errorReport(DatanodeRegistration registration,
-                          int errorCode, 
-                          String msg) throws IOException;
+  public void errorReport(DatanodeRegistration registration, int errorCode, String msg) throws IOException;
     
   public NamespaceInfo versionRequest() throws IOException;
 
@@ -175,8 +166,6 @@ public interface DatanodeProtocol extends VersionedProtocol {
   /**
    * Commit block synchronization in lease recovery
    */
-  public void commitBlockSynchronization(Block block,
-      long newgenerationstamp, long newlength,
-      boolean closeFile, boolean deleteblock, DatanodeID[] newtargets
-      ) throws IOException;
+  public void commitBlockSynchronization(Block block, long newgenerationstamp, long newlength,
+      boolean closeFile, boolean deleteblock, DatanodeID[] newtargets) throws IOException;
 }

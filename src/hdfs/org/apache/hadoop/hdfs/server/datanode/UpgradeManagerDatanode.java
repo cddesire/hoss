@@ -51,10 +51,8 @@ class UpgradeManagerDatanode extends UpgradeManager {
   synchronized void initializeUpgrade(NamespaceInfo nsInfo) throws IOException {
     if( ! super.initializeUpgrade())
       return; // distr upgrade is not needed
-    DataNode.LOG.info("\n   Distributed upgrade for DataNode " 
-        + dataNode.dnRegistration.getName() 
-        + " version " + getUpgradeVersion() + " to current LV " 
-        + FSConstants.LAYOUT_VERSION + " is initialized.");
+    DataNode.LOG.info("\n   Distributed upgrade for DataNode "+ dataNode.dnRegistration.getName()
+        + " version " + getUpgradeVersion() + " to current LV "+ FSConstants.LAYOUT_VERSION + " is initialized.");
     UpgradeObjectDatanode curUO = (UpgradeObjectDatanode)currentUpgrades.first();
     curUO.setDatanode(dataNode);
     upgradeState = curUO.preUpgradeAction(nsInfo);
@@ -70,8 +68,7 @@ class UpgradeManagerDatanode extends UpgradeManager {
    */
   public synchronized boolean startUpgrade() throws IOException {
     if(upgradeState) {  // upgrade is already in progress
-      assert currentUpgrades != null : 
-        "UpgradeManagerDatanode.currentUpgrades is null.";
+      assert currentUpgrades != null : "UpgradeManagerDatanode.currentUpgrades is null.";
       UpgradeObjectDatanode curUO = (UpgradeObjectDatanode)currentUpgrades.first();
       curUO.startUpgrade();
       return true;
@@ -85,10 +82,8 @@ class UpgradeManagerDatanode extends UpgradeManager {
         // the upgrade has been finished by this data-node,
         // but the cluster is still running it, 
         // reply with the broadcast command
-        assert currentUpgrades == null : 
-          "UpgradeManagerDatanode.currentUpgrades is not null.";
-        assert upgradeDaemon == null : 
-          "UpgradeManagerDatanode.upgradeDaemon is not null.";
+        assert currentUpgrades == null : "UpgradeManagerDatanode.currentUpgrades is not null.";
+        assert upgradeDaemon == null : "UpgradeManagerDatanode.upgradeDaemon is not null.";
         dataNode.namenode.processUpgradeCommand(broadcastCommand);
         return true;
       }
@@ -96,10 +91,8 @@ class UpgradeManagerDatanode extends UpgradeManager {
     if(currentUpgrades == null)
       currentUpgrades = getDistributedUpgrades();
     if(currentUpgrades == null) {
-      DataNode.LOG.info("\n   Distributed upgrade for DataNode version " 
-          + getUpgradeVersion() + " to current LV " 
-          + FSConstants.LAYOUT_VERSION + " cannot be started. "
-          + "The upgrade object is not defined.");
+      DataNode.LOG.info("\n   Distributed upgrade for DataNode version " + getUpgradeVersion() + " to current LV "
+          + FSConstants.LAYOUT_VERSION + " cannot be started. " + "The upgrade object is not defined.");
       return false;
     }
     upgradeState = true;
@@ -108,39 +101,31 @@ class UpgradeManagerDatanode extends UpgradeManager {
     curUO.startUpgrade();
     upgradeDaemon = new Daemon(curUO);
     upgradeDaemon.start();
-    DataNode.LOG.info("\n   Distributed upgrade for DataNode " 
-        + dataNode.dnRegistration.getName() 
-        + " version " + getUpgradeVersion() + " to current LV " 
-        + FSConstants.LAYOUT_VERSION + " is started.");
+    DataNode.LOG.info("\n   Distributed upgrade for DataNode " + dataNode.dnRegistration.getName()
+        + " version " + getUpgradeVersion() + " to current LV " + FSConstants.LAYOUT_VERSION + " is started.");
     return true;
   }
 
-  synchronized void processUpgradeCommand(UpgradeCommand command
-                                          ) throws IOException {
-    assert command.getAction() == UpgradeCommand.UC_ACTION_START_UPGRADE :
-      "Only start upgrade action can be processed at this time.";
+  synchronized void processUpgradeCommand(UpgradeCommand command) throws IOException {
+    assert command.getAction() == UpgradeCommand.UC_ACTION_START_UPGRADE : "Only start upgrade action can be processed at this time.";
     this.upgradeVersion = command.getVersion();
     // Start distributed upgrade
     if(startUpgrade()) // upgrade started
       return;
-    throw new IOException(
-        "Distributed upgrade for DataNode " + dataNode.dnRegistration.getName() 
-        + " version " + getUpgradeVersion() + " to current LV " 
-        + FSConstants.LAYOUT_VERSION + " cannot be started. "
+    throw new IOException("Distributed upgrade for DataNode " + dataNode.dnRegistration.getName()
+        + " version " + getUpgradeVersion() + " to current LV " + FSConstants.LAYOUT_VERSION + " cannot be started. "
         + "The upgrade object is not defined.");
   }
 
   public synchronized void completeUpgrade() throws IOException {
-    assert currentUpgrades != null : 
-      "UpgradeManagerDatanode.currentUpgrades is null.";
+    assert currentUpgrades != null : "UpgradeManagerDatanode.currentUpgrades is null.";
     UpgradeObjectDatanode curUO = (UpgradeObjectDatanode)currentUpgrades.first();
     broadcastCommand = curUO.completeUpgrade();
     upgradeState = false;
     currentUpgrades = null;
     upgradeDaemon = null;
     DataNode.LOG.info("\n   Distributed upgrade for DataNode " 
-        + dataNode.dnRegistration.getName() 
-        + " version " + getUpgradeVersion() + " to current LV " 
+        + dataNode.dnRegistration.getName() + " version " + getUpgradeVersion() + " to current LV "
         + FSConstants.LAYOUT_VERSION + " is complete.");
   }
 

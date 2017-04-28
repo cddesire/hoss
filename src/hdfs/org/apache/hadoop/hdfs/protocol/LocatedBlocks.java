@@ -44,7 +44,6 @@ public class LocatedBlocks implements Writable {
   }
   
   public LocatedBlocks(long flength, List<LocatedBlock> blks, boolean isUnderConstuction) {
-
     fileLength = flength;
     blocks = blks;
     underConstruction = isUnderConstuction;
@@ -125,8 +124,7 @@ public class LocatedBlocks implements Writable {
   public void insertRange(int blockIdx, List<LocatedBlock> newBlocks) {
     int oldIdx = blockIdx;
     int insStart = 0, insEnd = 0;
-    for(int newIdx = 0; newIdx < newBlocks.size() && oldIdx < blocks.size(); 
-                                                        newIdx++) {
+    for(int newIdx = 0; newIdx < newBlocks.size() && oldIdx < blocks.size(); newIdx++) {
       long newOff = newBlocks.get(newIdx).getStartOffset();
       long oldOff = blocks.get(oldIdx).getStartOffset();
       if(newOff < oldOff) {
@@ -154,10 +152,7 @@ public class LocatedBlocks implements Writable {
     return binSearchResult >= 0 ? binSearchResult : -(binSearchResult+1);
   }
 
-  //////////////////////////////////////////////////
-  // Writable
-  //////////////////////////////////////////////////
-  static {                                      // register a ctor
+  static {                                      
     WritableFactories.setFactory
       (LocatedBlocks.class,
        new WritableFactory() {

@@ -84,8 +84,7 @@ public class ArrayFile extends MapFile {
     }
 
     /** Return the <code>n</code>th value in the file. */
-    public synchronized Writable get(long n, Writable value)
-      throws IOException {
+    public synchronized Writable get(long n, Writable value) throws IOException {
       key.set(n);
       return get(key, value);
     }

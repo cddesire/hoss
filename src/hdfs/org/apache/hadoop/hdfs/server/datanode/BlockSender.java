@@ -121,15 +121,13 @@ class BlockSender implements java.io.Closeable, FSConstants {
        short version = header.getVersion();
 
         if (version != FSDataset.METADATA_VERSION) {
-          LOG.warn("Wrong version (" + version + ") for metadata file for "
-              + block + " ignoring ...");
+          LOG.warn("Wrong version (" + version + ") for metadata file for "+ block + " ignoring ...");
         }
         checksum = header.getChecksum();
       } else {
         LOG.warn("Could not find metadata file for " + block);
         // This only decides the buffer size. Use BUFFER_SIZE?
-        checksum = DataChecksum.newDataChecksum(DataChecksum.CHECKSUM_NULL,
-            16 * 1024);
+        checksum = DataChecksum.newDataChecksum(DataChecksum.CHECKSUM_NULL, 16 * 1024);
       }
 
       /* If bytesPerChecksum is very large, then the metadata file
@@ -149,8 +147,7 @@ class BlockSender implements java.io.Closeable, FSConstants {
       }
 
       endOffset = blockLength;
-      if (startOffset < 0 || startOffset > endOffset
-          || (length + startOffset) > endOffset) {
+      if (startOffset < 0 || startOffset > endOffset || (length + startOffset) > endOffset) {
         String msg = " Offset " + startOffset + " and length " + length
         + " don't match block " + block + " ( blockLen " + endOffset + " )";
         LOG.warn(datanode.dnRegistration + ":sendBlock() : " + msg);
@@ -412,8 +409,7 @@ class BlockSender implements java.io.Closeable, FSConstants {
         blockInPosition = fileChannel.position();
         streamForSendChunks = baseStream;
         // assure a mininum buffer size.
-        maxChunksPerPacket = (Math.max(BUFFER_SIZE,
-                                       MIN_BUFFER_WITH_TRANSFERTO)
+        maxChunksPerPacket = (Math.max(BUFFER_SIZE, MIN_BUFFER_WITH_TRANSFERTO)
                               + bytesPerChecksum - 1)/bytesPerChecksum;
         
         // packet buffer has to be able to do a normal transfer in the case
@@ -424,9 +420,7 @@ class BlockSender implements java.io.Closeable, FSConstants {
                  (BUFFER_SIZE + bytesPerChecksum - 1)/bytesPerChecksum);
         pktSize += (bytesPerChecksum + checksumSize) * maxChunksPerPacket;
       }
-
       ByteBuffer pktBuf = ByteBuffer.allocate(pktSize);
-
       while (endOffset > offset) {
         long len = sendChunks(pktBuf, maxChunksPerPacket, streamForSendChunks);
         offset += len;
@@ -485,18 +479,14 @@ class BlockSender implements java.io.Closeable, FSConstants {
       // (blockInPosition >= 0 => we are using transferTo and File Channels
       if (BlockSender.this.blockInPosition >= 0) {
         long currentLength = ((FileInputStream) inputStream).getChannel().size();
-        
         return (blockInPosition % bytesPerChecksum != 0 || 
-            dataLen % bytesPerChecksum != 0) &&
-          currentLength > blockLength;
+            dataLen % bytesPerChecksum != 0) && currentLength > blockLength;
 
       } else {
         long currentLength = fsDataset.getLength(block);
-        
         // offset is the offset into the block
         return (BlockSender.this.offset % bytesPerChecksum != 0 || 
-            dataLen % bytesPerChecksum != 0) &&
-            currentLength > blockLength;
+            dataLen % bytesPerChecksum != 0) && currentLength > blockLength;
       }
     }
 

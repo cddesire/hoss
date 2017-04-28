@@ -27,11 +27,11 @@ import org.apache.hadoop.util.Progressable;
  * The context for task attempts.
  */
 public class TaskAttemptContext extends JobContext implements Progressable {
+  
   private final TaskAttemptID taskId;
   private String status = "";
   
-  public TaskAttemptContext(Configuration conf, 
-                            TaskAttemptID taskId) {
+  public TaskAttemptContext(Configuration conf, TaskAttemptID taskId) {
     super(conf, taskId.getJobID());
     this.taskId = taskId;
   }
@@ -63,4 +63,5 @@ public class TaskAttemptContext extends JobContext implements Progressable {
    */
   public void progress() { 
   }
+  
 }

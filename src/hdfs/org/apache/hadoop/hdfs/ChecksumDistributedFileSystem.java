@@ -41,8 +41,7 @@ public class ChecksumDistributedFileSystem extends ChecksumFileSystem {
   }
 
   /** @deprecated */
-  public ChecksumDistributedFileSystem(InetSocketAddress namenode,
-                                       Configuration conf) throws IOException {
+  public ChecksumDistributedFileSystem(InetSocketAddress namenode, Configuration conf) throws IOException {
     super( new DistributedFileSystem(namenode, conf) );
   }
   
@@ -74,8 +73,7 @@ public class ChecksumDistributedFileSystem extends ChecksumFileSystem {
    *  
    * @see org.apache.hadoop.hdfs.protocol.ClientProtocol#setSafeMode(FSConstants.SafeModeAction)
    */
-  public boolean setSafeMode(FSConstants.SafeModeAction action) 
-    throws IOException {
+  public boolean setSafeMode(FSConstants.SafeModeAction action) throws IOException {
     return getDFS().setSafeMode(action);
   }
 
@@ -94,8 +92,7 @@ public class ChecksumDistributedFileSystem extends ChecksumFileSystem {
     getDFS().finalizeUpgrade();
   }
 
-  public UpgradeStatusReport distributedUpgradeProgress(UpgradeAction action
-                                                        ) throws IOException {
+  public UpgradeStatusReport distributedUpgradeProgress(UpgradeAction action) throws IOException {
     return getDFS().distributedUpgradeProgress(action);
   }
 
@@ -111,9 +108,7 @@ public class ChecksumDistributedFileSystem extends ChecksumFileSystem {
    * is corrupt but we will report both to the namenode.  In the future,
    * we can consider figuring out exactly which block is corrupt.
    */
-  public boolean reportChecksumFailure(Path f, 
-                                       FSDataInputStream in, long inPos, 
-                                       FSDataInputStream sums, long sumsPos) {
+  public boolean reportChecksumFailure(Path f, FSDataInputStream in, long inPos, FSDataInputStream sums, long sumsPos) {
     return getDFS().reportChecksumFailure(f, in, inPos, sums, sumsPos);
   }
   

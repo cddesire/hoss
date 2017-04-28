@@ -35,31 +35,18 @@ class INodeFileUnderConstruction extends INodeFile {
   private DatanodeDescriptor[] targets = null;   //locations for last block
   private long lastRecoveryTime = 0;
   
-  INodeFileUnderConstruction(PermissionStatus permissions,
-                             short replication,
-                             long preferredBlockSize,
-                             long modTime,
-                             String clientName,
-                             String clientMachine,
-                             DatanodeDescriptor clientNode) {
-    super(permissions.applyUMask(UMASK), 0, replication, modTime, modTime,
-        preferredBlockSize);
+  INodeFileUnderConstruction(PermissionStatus permissions, short replication, long preferredBlockSize,
+                             long modTime, String clientName, String clientMachine, DatanodeDescriptor clientNode) {
+    super(permissions.applyUMask(UMASK), 0, replication, modTime, modTime, preferredBlockSize);
     this.clientName = clientName;
     this.clientMachine = clientMachine;
     this.clientNode = clientNode;
   }
 
-  public INodeFileUnderConstruction(byte[] name,
-                             short blockReplication,
-                             long modificationTime,
-                             long preferredBlockSize,
-                             BlockInfo[] blocks,
-                             PermissionStatus perm,
-                             String clientName,
-                             String clientMachine,
-                             DatanodeDescriptor clientNode) {
-    super(perm, blocks, blockReplication, modificationTime, modificationTime,
-          preferredBlockSize);
+  public INodeFileUnderConstruction(byte[] name, short blockReplication, long modificationTime,
+                             long preferredBlockSize, BlockInfo[] blocks, PermissionStatus perm,
+                             String clientName, String clientMachine, DatanodeDescriptor clientNode) {
+    super(perm, blocks, blockReplication, modificationTime, modificationTime, preferredBlockSize);
     setLocalName(name);
     this.clientName = clientName;
     this.clientMachine = clientMachine;
@@ -128,12 +115,8 @@ class INodeFileUnderConstruction extends INodeFile {
   // use the modification time as the access time
   //
   INodeFile convertToInodeFile() {
-    INodeFile obj = new INodeFile(getPermissionStatus(),
-                                  getBlocks(),
-                                  getReplication(),
-                                  getModificationTime(),
-                                  getModificationTime(),
-                                  getPreferredBlockSize());
+    INodeFile obj = new INodeFile(getPermissionStatus(), getBlocks(), getReplication(),
+                                  getModificationTime(), getModificationTime(), getPreferredBlockSize());
     return obj;
     
   }
@@ -150,12 +133,10 @@ class INodeFileUnderConstruction extends INodeFile {
     if (!blocks[size_1].equals(oldblock)) {
       throw new IOException("Trying to delete non-last block " + oldblock);
     }
-
     //copy to a new list
     BlockInfo[] newlist = new BlockInfo[size_1];
     System.arraycopy(blocks, 0, newlist, 0, size_1);
     blocks = newlist;
-    
     // Remove the block locations for the last block.
     targets = null;
   }
@@ -163,8 +144,7 @@ class INodeFileUnderConstruction extends INodeFile {
   synchronized void setLastBlock(BlockInfo newblock, DatanodeDescriptor[] newtargets
       ) throws IOException {
     if (blocks == null || blocks.length == 0) {
-      throw new IOException("Trying to update non-existant block (newblock="
-          + newblock + ")");
+      throw new IOException("Trying to update non-existant block (newblock=" + newblock + ")");
     }
     BlockInfo oldLast = blocks[blocks.length - 1];
     if (oldLast.getBlockId() != newblock.getBlockId()) {
@@ -172,17 +152,13 @@ class INodeFileUnderConstruction extends INodeFile {
       // on an internal block in the file!
       NameNode.stateChangeLog.error(
         "Trying to commit block synchronization for an internal block on"
-        + " inode=" + this
-        + " newblock=" + newblock + " oldLast=" + oldLast);
-      throw new IOException("Trying to update an internal block of " +
-                            "pending file " + this);
+        + " inode=" + this + " newblock=" + newblock + " oldLast=" + oldLast);
+      throw new IOException("Trying to update an internal block of " + "pending file " + this);
     }
 
     if (oldLast.getGenerationStamp() > newblock.getGenerationStamp()) {
-      NameNode.stateChangeLog.warn(
-        "Updating last block " + oldLast + " of inode " +
-        "under construction " + this + " with a block that " +
-        "has an older generation stamp: " + newblock);
+      NameNode.stateChangeLog.warn("Updating last block " + oldLast + " of inode " +
+        "under construction " + this + " with a block that " + "has an older generation stamp: " + newblock);
     }
 
     blocks[blocks.length - 1] = newblock;
@@ -195,10 +171,8 @@ class INodeFileUnderConstruction extends INodeFile {
    */
   void assignPrimaryDatanode() {
     //assign the first alive datanode as the primary datanode
-
     if (targets.length == 0) {
-      NameNode.stateChangeLog.warn("BLOCK*"
-        + " INodeFileUnderConstruction.initLeaseRecovery:"
+      NameNode.stateChangeLog.warn("BLOCK*" + " INodeFileUnderConstruction.initLeaseRecovery:"
         + " No blocks found, lease removed.");
     }
 
@@ -209,8 +183,7 @@ class INodeFileUnderConstruction extends INodeFile {
       if (targets[j].isAlive) {
         DatanodeDescriptor primary = targets[primaryNodeIndex = j]; 
         primary.addBlockToBeRecovered(blocks[blocks.length - 1], targets);
-        NameNode.stateChangeLog.info("BLOCK* " + blocks[blocks.length - 1]
-          + " recovery started, primary=" + primary);
+        NameNode.stateChangeLog.info("BLOCK* " + blocks[blocks.length - 1] + " recovery started, primary=" + primary);
         return;
       }
     }

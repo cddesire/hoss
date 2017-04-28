@@ -40,11 +40,9 @@ class INodeFile extends INode {
 
   protected BlockInfo blocks[] = null;
 
-  INodeFile(PermissionStatus permissions,
-            int nrBlocks, short replication, long modificationTime,
+  INodeFile(PermissionStatus permissions, int nrBlocks, short replication, long modificationTime,
             long atime, long preferredBlockSize) {
-    this(permissions, new BlockInfo[nrBlocks], replication,
-        modificationTime, atime, preferredBlockSize);
+    this(permissions, new BlockInfo[nrBlocks], replication, modificationTime, atime, preferredBlockSize);
   }
 
   protected INodeFile() {
@@ -53,8 +51,7 @@ class INodeFile extends INode {
   }
 
   protected INodeFile(PermissionStatus permissions, BlockInfo[] blklist,
-                      short replication, long modificationTime,
-                      long atime, long preferredBlockSize) {
+                      short replication, long modificationTime, long atime, long preferredBlockSize) {
     super(permissions, modificationTime, atime);
     this.setReplication(replication);
     this.setPreferredBlockSize(preferredBlockSize);
@@ -96,8 +93,7 @@ class INodeFile extends INode {
         return header & ~HEADERMASK;
   }
 
-  public void setPreferredBlockSize(long preferredBlkSize)
-  {
+  public void setPreferredBlockSize(long preferredBlkSize) {
     if((preferredBlkSize < 0) || (preferredBlkSize > ~HEADERMASK ))
        throw new IllegalArgumentException("Unexpected value for the block size");
     header = (header & HEADERMASK) | (preferredBlkSize & ~HEADERMASK);
@@ -196,15 +192,12 @@ class INodeFile extends INode {
   }
 
   INodeFileUnderConstruction toINodeFileUnderConstruction(
-      String clientName, String clientMachine, DatanodeDescriptor clientNode
-      ) throws IOException {
+      String clientName, String clientMachine, DatanodeDescriptor clientNode) throws IOException {
     if (isUnderConstruction()) {
       return (INodeFileUnderConstruction)this;
     }
-    return new INodeFileUnderConstruction(name,
-        getReplication(), modificationTime, getPreferredBlockSize(),
-        blocks, getPermissionStatus(),
-        clientName, clientMachine, clientNode);
+    return new INodeFileUnderConstruction(name, getReplication(), modificationTime, getPreferredBlockSize(),
+        blocks, getPermissionStatus(), clientName, clientMachine, clientNode);
   }
 
   /**

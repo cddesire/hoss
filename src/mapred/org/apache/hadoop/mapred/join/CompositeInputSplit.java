@@ -134,8 +134,7 @@ public class CompositeInputSplit implements InputSplit {
     Class<? extends InputSplit>[] cls = new Class[card];
     try {
       for (int i = 0; i < card; ++i) {
-        cls[i] =
-          Class.forName(Text.readString(in)).asSubclass(InputSplit.class);
+        cls[i] = Class.forName(Text.readString(in)).asSubclass(InputSplit.class);
       }
       for (int i = 0; i < card; ++i) {
         splits[i] = ReflectionUtils.newInstance(cls[i], null);

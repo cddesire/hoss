@@ -48,6 +48,7 @@ import static org.apache.hadoop.hdfs.server.datanode.DataNode.DN_CLIENTTRACE_FOR
  * streaming throttling is also supported.
  **/
 class BlockReceiver implements java.io.Closeable, FSConstants {
+
   public static final Log LOG = DataNode.LOG;
 
   static final Log ClientTraceLog = DataNode.ClientTraceLog;
@@ -205,8 +206,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
    */
   private void handleMirrorOutError(IOException ioe) throws IOException {
     LOG.info(datanode.dnRegistration + ": Exception writing block " +
-             block + " to mirror " + mirrorAddr + "\n" +
-             StringUtils.stringifyException(ioe));
+             block + " to mirror " + mirrorAddr + "\n" + StringUtils.stringifyException(ioe));
     if (Thread.interrupted()) { // shut down if the thread is interrupted
       throw ioe;
     } else { // encounter an error while writing to mirror
@@ -225,16 +225,13 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
                              throws IOException {
     while (len > 0) {
       int chunkLen = Math.min(len, bytesPerChecksum);
-      
       checksum.update(dataBuf, dataOff, chunkLen);
-
       if (!checksum.compare(checksumBuf, checksumOff)) {
         if (srcDataNode != null) {
           try {
             LOG.info("report corrupt block " + block + " from datanode " +
                       srcDataNode + " to namenode");
-            LocatedBlock lb = new LocatedBlock(block, 
-                                            new DatanodeInfo[] {srcDataNode});
+            LocatedBlock lb = new LocatedBlock(block, new DatanodeInfo[] {srcDataNode});
             datanode.namenode.reportBadBlocks(new LocatedBlock[] {lb});
           } catch (IOException e) {
             LOG.warn("Failed to report bad block " + block + 
@@ -258,10 +255,8 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
    */
   private void shiftBufData() {
     if (bufRead != buf.limit()) {
-      throw new IllegalStateException("bufRead should be same as " +
-                                      "buf.limit()");
+      throw new IllegalStateException("bufRead should be same as " + "buf.limit()");
     }
-    
     //shift the remaining data on buf to the front
     if (buf.position() > 0) {
       int dataLeft = buf.remaining();
@@ -281,8 +276,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
    */
   private int readToBuf(int toRead) throws IOException {
     if (toRead < 0) {
-      toRead = (maxPacketReadLen > 0 ? maxPacketReadLen : buf.capacity())
-               - buf.limit();
+      toRead = (maxPacketReadLen > 0 ? maxPacketReadLen : buf.capacity()) - buf.limit();
     }
     int nRead = in.read(buf.array(), buf.limit(), toRead);
     if (nRead < 0) {
@@ -347,12 +341,10 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
     
     // check corrupt values for pktLen, 100MB upper limit should be ok?
     if (payloadLen < 0 || payloadLen > (100*1024*1024)) {
-      throw new IOException("Incorrect value for packet payload : " +
-                            payloadLen);
+      throw new IOException("Incorrect value for packet payload : " + payloadLen);
     }
     
     int pktSize = payloadLen + DataNode.PKT_HEADER_LEN;
-    
     if (buf.remaining() < pktSize) {
       //we need to read more data
       int toRead = pktSize - buf.remaining();
@@ -407,8 +399,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
     buf.reset();
     if (LOG.isDebugEnabled()){
       LOG.debug("Receiving one packet for block " + block +
-                " of length " + payloadLen +
-                " seqno " + seqno +
+                " of length " + payloadLen + " seqno " + seqno +
                 " offsetInBlock " + offsetInBlock +
                 " lastPacketInBlock " + lastPacketInBlock);
     }
@@ -428,8 +419,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
     int len = buf.getInt();
     if (len < 0) {
       throw new IOException("Got wrong length during writeBlock(" + block + 
-                            ") from " + inAddr + " at offset " + 
-                            offsetInBlock + ": " + len); 
+                            ") from " + inAddr + " at offset " + offsetInBlock + ": " + len);
     } 
 
     if (len == 0) {
@@ -438,7 +428,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
       offsetInBlock += len;
       int checksumLen = ((len + bytesPerChecksum - 1)/bytesPerChecksum)*
                                                             checksumSize;
-      if ( buf.remaining() != (checksumLen + len)) {
+      if (buf.remaining() != (checksumLen + len)) {
         throw new IOException("Data remaining in packet does not match " +
                               "sum of checksumLen and dataLen");
       }
@@ -498,8 +488,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
 
     // put in queue for pending acks
     if (responder != null) {
-      ((PacketResponder)responder.getRunnable()).enqueue(seqno,
-                                      lastPacketInBlock); 
+      ((PacketResponder)responder.getRunnable()).enqueue(seqno, lastPacketInBlock);
     }
     
     if (throttler != null) { // throttle I/O
@@ -520,11 +509,9 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
       DataOutputStream replyOut,  // output to previous datanode
       String mirrAddr, BlockTransferThrottler throttlerArg,
       int numTargets) throws IOException {
-
       mirrorOut = mirrOut;
       mirrorAddr = mirrAddr;
       throttler = throttlerArg;
-
     try {
       // write data chunk header
       if (!finalized) {
@@ -532,9 +519,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
       }
       if (clientName.length() > 0) {
         responder = new Daemon(datanode.threadGroup, 
-                               new PacketResponder(this, block, mirrIn, 
-                                                   replyOut, numTargets,
-                                                   Thread.currentThread()));
+                               new PacketResponder(this, block, mirrIn, replyOut, numTargets, Thread.currentThread()));
         responder.start(); // start thread to processes reponses
       }
 
@@ -608,13 +593,11 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
   private void setBlockPosition(long offsetInBlock) throws IOException {
     if (finalized) {
       if (!isRecovery) {
-        throw new IOException("Write to offset " + offsetInBlock +
-                              " of block " + block +
+        throw new IOException("Write to offset " + offsetInBlock + " of block " + block +
                               " that is already finalized.");
       }
       if (offsetInBlock > datanode.data.getLength(block)) {
-        throw new IOException("Write to offset " + offsetInBlock +
-                              " of block " + block +
+        throw new IOException("Write to offset " + offsetInBlock + " of block " + block +
                               " that is already finalized and is of size " +
                               datanode.data.getLength(block));
       }
@@ -636,18 +619,15 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
     // If this is a partial chunk, then read in pre-existing checksum
     if (offsetInBlock % bytesPerChecksum != 0) {
       LOG.info("setBlockPosition trying to set position to " +
-               offsetInBlock +
-               " for block " + block +
-               " which is not a multiple of bytesPerChecksum " +
-               bytesPerChecksum);
+               offsetInBlock + " for block " + block +
+               " which is not a multiple of bytesPerChecksum " + bytesPerChecksum);
       computePartialChunkCrc(offsetInBlock, offsetInChecksum, bytesPerChecksum);
     }
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Changing block file offset of block " + block + " from " + 
         datanode.data.getChannelPosition(block, streams) +
-             " to " + offsetInBlock +
-             " meta file offset to " + offsetInChecksum);
+             " to " + offsetInBlock + " meta file offset to " + offsetInChecksum);
     }
 
     // set the position of the block file
@@ -660,28 +640,21 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
    */
   private void computePartialChunkCrc(long blkoff, long ckoff, 
                                       int bytesPerChecksum) throws IOException {
-
     // find offset of the beginning of partial chunk.
-    //
     int sizePartialChunk = (int) (blkoff % bytesPerChecksum);
     int checksumSize = checksum.getChecksumSize();
     blkoff = blkoff - sizePartialChunk;
-    LOG.info("computePartialChunkCrc sizePartialChunk " + 
-              sizePartialChunk +
-              " block " + block +
-              " offset in block " + blkoff +
-              " offset in metafile " + ckoff);
+    LOG.info("computePartialChunkCrc sizePartialChunk " + sizePartialChunk +
+              " block " + block + " offset in block " + blkoff + " offset in metafile " + ckoff);
 
     // create an input stream from the block file
     // and read in partial crc chunk into temporary buffer
-    //
     byte[] buf = new byte[sizePartialChunk];
     byte[] crcbuf = new byte[checksumSize];
     FSDataset.BlockInputStreams instr = null;
     try { 
       instr = datanode.data.getTmpInputStreams(block, blkoff, ckoff);
       IOUtils.readFully(instr.dataIn, buf, 0, sizePartialChunk);
-
       // open meta file and read in crc value computer earlier
       IOUtils.readFully(instr.checksumIn, crcbuf, 0, crcbuf.length);
     } finally {
@@ -696,14 +669,10 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
     // paranoia! verify that the pre-computed crc matches what we
     // recalculated just now
     if (partialCrc.getValue() != FSInputChecker.checksum2long(crcbuf)) {
-      String msg = "Partial CRC " + partialCrc.getValue() +
-                   " does not match value computed the " +
-                   " last time file was closed " +
-                   FSInputChecker.checksum2long(crcbuf);
+      String msg = "Partial CRC " + partialCrc.getValue() + " does not match value computed the " +
+                   " last time file was closed " + FSInputChecker.checksum2long(crcbuf);
       throw new IOException(msg);
     }
-    //LOG.debug("Partial CRC matches 0x" + 
-    //            Long.toHexString(partialCrc.getValue()));
   }
   
   
@@ -745,8 +714,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
      */
     synchronized void enqueue(long seqno, boolean lastPacketInBlock) {
       if (running) {
-        LOG.debug("PacketResponder " + numTargets + " adding seqno " + seqno +
-                  " to ack queue.");
+        LOG.debug("PacketResponder " + numTargets + " adding seqno " + seqno + " to ack queue.");
         ackQueue.addLast(new Packet(seqno, lastPacketInBlock));
         notifyAll();
       }
@@ -763,8 +731,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
           running = false;
         }
       }
-      LOG.debug("PacketResponder " + numTargets +
-               " for block " + block + " Closing down.");
+      LOG.debug("PacketResponder " + numTargets + " for block " + block + " Closing down.");
       running = false;
       notifyAll();
     }
@@ -823,10 +790,8 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
                 seqno = ack.getSeqno();
                 // verify seqno
                 if (seqno != expected) {
-                  throw new IOException("PacketResponder " + numTargets +
-                      " for block " + block +
-                      " expected seqno:" + expected +
-                      " received:" + seqno);
+                  throw new IOException("PacketResponder " + numTargets + " for block " + block +
+                      " expected seqno:" + expected + " received:" + seqno);
                 }
               }
               lastPacketInBlock = pkt.lastPacketInBlock;
@@ -853,8 +818,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
                * because this datanode has a problem. The upstream datanode
                * will detect that this datanode is bad, and rightly so.
                */
-              LOG.info("PacketResponder " + block +  " " + numTargets +
-                       " : Thread is interrupted.");
+              LOG.info("PacketResponder " + block +  " " + numTargets + " : Thread is interrupted.");
               break;
             }
             
@@ -876,25 +840,23 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
                       "HDFS_WRITE", receiver.clientName, offset, 
                       datanode.dnRegistration.getStorageID(), block, endTime-startTime));
               } else {
-                LOG.info("Received block " + block + 
-                         " of size " + block.getNumBytes() + 
-                         " from " + receiver.inAddr);
+                LOG.info("Received block " + block + " of size " + block.getNumBytes() + " from " + receiver.inAddr);
               }
             }
 
             // construct my ack message
             short[] replies = null;
             if (mirrorError) { // no ack is read
-            	replies = new short[2];
-            	replies[0] = DataTransferProtocol.OP_STATUS_SUCCESS;
-            	replies[1] = DataTransferProtocol.OP_STATUS_ERROR;
+              replies = new short[2];
+              replies[0] = DataTransferProtocol.OP_STATUS_SUCCESS;
+              replies[1] = DataTransferProtocol.OP_STATUS_ERROR;
             } else {
-            	short ackLen = numTargets == 0 ? 0 : ack.getNumOfReplies();
-            	replies = new short[1+ackLen];
-            	replies[0] = DataTransferProtocol.OP_STATUS_SUCCESS;
-            	for (int i=0; i<ackLen; i++) {
-            		replies[i+1] = ack.getReply(i);
-            	}
+              short ackLen = numTargets == 0 ? 0 : ack.getNumOfReplies();
+              replies = new short[1+ackLen];
+              replies[0] = DataTransferProtocol.OP_STATUS_SUCCESS;
+              for (int i=0; i<ackLen; i++) {
+                replies[i+1] = ack.getReply(i);
+              }
             }
             PipelineAck replyAck = new PipelineAck(expected, replies);
  
@@ -902,9 +864,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
             replyAck.write(replyOut);
             replyOut.flush();
             if (LOG.isDebugEnabled()) {
-              LOG.debug("PacketResponder " + numTargets +
-                        " for block " + block +
-                        " responded an ack: " + replyAck);
+              LOG.debug("PacketResponder " + numTargets + " for block " + block + " responded an ack: " + replyAck);
             }
         } catch (Throwable e) {
           LOG.warn("IOException in BlockReceiver.run(): ", e);
@@ -918,8 +878,7 @@ class BlockReceiver implements java.io.Closeable, FSConstants {
           }
         }
       }
-      LOG.info("PacketResponder " + numTargets + 
-               " for block " + block + " terminating");
+      LOG.info("PacketResponder " + numTargets + " for block " + block + " terminating");
     }
   }
   

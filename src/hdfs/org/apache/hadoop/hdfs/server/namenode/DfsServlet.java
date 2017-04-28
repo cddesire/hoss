@@ -48,8 +48,7 @@ abstract class DfsServlet extends HttpServlet {
   static final Log LOG = LogFactory.getLog(DfsServlet.class.getCanonicalName());
 
   /** Write the object to XML format */
-  protected void writeXml(Exception except,
-                          String path, XMLOutputter doc) throws IOException {
+  protected void writeXml(Exception except, String path, XMLOutputter doc) throws IOException {
     doc.startTag(RemoteException.class.getSimpleName());
     doc.attribute("path", path);
     if (except instanceof RemoteException) {
@@ -68,9 +67,7 @@ abstract class DfsServlet extends HttpServlet {
 
   /** Get {@link UserGroupInformation} from request 
    *    * @throws IOException */
-  protected UserGroupInformation getUGI(HttpServletRequest request,
-                                        Configuration conf
-					) throws IOException {
+  protected UserGroupInformation getUGI(HttpServletRequest request, Configuration conf) throws IOException {
     return JspHelper.getUGI(getServletContext(), request, conf);
   }
 
@@ -92,28 +89,21 @@ abstract class DfsServlet extends HttpServlet {
   }
 
   /** Create a URI for redirecting request */
-  protected URI createRedirectUri(
-      String servletpath, UserGroupInformation ugi,
-      DatanodeID host, HttpServletRequest request, 
-      String tokenString)  throws URISyntaxException {
-    final String hostname = host instanceof DatanodeInfo?
-        ((DatanodeInfo)host).getHostName(): host.getHost();
+  protected URI createRedirectUri(String servletpath, UserGroupInformation ugi,
+      DatanodeID host, HttpServletRequest request, String tokenString)  throws URISyntaxException {
+    final String hostname = host instanceof DatanodeInfo ? ((DatanodeInfo)host).getHostName(): host.getHost();
     final String scheme = request.getScheme();
-    final int port = "https".equals(scheme)?
-        (Integer)getServletContext().getAttribute("datanode.https.port")
-        : host.getInfoPort();
+    final int port = "https".equals(scheme) ? (Integer)getServletContext().getAttribute("datanode.https.port") : host.getInfoPort();
     final String filename = request.getPathInfo();
-    String dt="";
+    String dt = "";
     if(tokenString!=null) {
       dt = JspHelper.getDelegationTokenUrlParam(tokenString);
     }
-    return new URI(scheme, null, hostname, port, servletpath,
-        "filename=" + filename + "&ugi=" + ugi.getShortUserName() + dt, null);
+    return new URI(scheme, null, hostname, port, servletpath, "filename=" + filename + "&ugi=" + ugi.getShortUserName() + dt, null);
   }
 
   /** Get filename from the request */
-  protected String getFilename(HttpServletRequest request,
-      HttpServletResponse response) throws IOException {
+  protected String getFilename(HttpServletRequest request, HttpServletResponse response) throws IOException {
     final String filename = request.getParameter("filename");
     if (filename == null || filename.length() == 0) {
       throw new IOException("Invalid filename");

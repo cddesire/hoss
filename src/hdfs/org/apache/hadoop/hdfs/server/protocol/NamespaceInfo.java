@@ -58,9 +58,7 @@ public class NamespaceInfo extends StorageInfo implements Writable {
     return distributedUpgradeVersion;
   }
   
-  /////////////////////////////////////////////////
   // Writable
-  /////////////////////////////////////////////////
   static {                                      // register a ctor
     WritableFactories.setFactory
       (NamespaceInfo.class,

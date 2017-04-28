@@ -36,8 +36,7 @@ class PermissionChecker {
   private final Set<String> groups = new HashSet<String>();
   final boolean isSuper;
 
-  PermissionChecker(String fsOwner, String supergroup
-      ) throws AccessControlException{
+  PermissionChecker(String fsOwner, String supergroup) throws AccessControlException{
     try {
       ugi = UserGroupInformation.getCurrentUser();
     } catch (IOException e) {
@@ -52,7 +51,9 @@ class PermissionChecker {
     isSuper = user.equals(fsOwner) || groups.contains(supergroup);
   }
 
-  boolean containsGroup(String group) {return groups.contains(group);}
+  boolean containsGroup(String group) {
+    return groups.contains(group);
+  }
 
   /**
    * Verify if the caller has the required permission. This will result into 
@@ -60,14 +61,11 @@ class PermissionChecker {
    * @param owner owner of the system
    * @param supergroup supergroup of the system
    */
-  public static void checkSuperuserPrivilege(UserGroupInformation owner, 
-                                             String supergroup)
+  public static void checkSuperuserPrivilege(UserGroupInformation owner, String supergroup)
   throws AccessControlException {
-    PermissionChecker checker = 
-      new PermissionChecker(owner.getShortUserName(), supergroup);
+    PermissionChecker checker = new PermissionChecker(owner.getShortUserName(), supergroup);
     if (!checker.isSuper) {
-      throw new AccessControlException("Access denied for user " 
-          + checker.user + ". Superuser privilege is required");
+      throw new AccessControlException("Access denied for user "+ checker.user + ". Superuser privilege is required");
     }
   }
 
@@ -105,12 +103,8 @@ class PermissionChecker {
       FsAction ancestorAccess, FsAction parentAccess, FsAction access,
       FsAction subAccess) throws AccessControlException {
     if (LOG.isDebugEnabled()) {
-      LOG.debug("ACCESS CHECK: " + this
-          + ", doCheckOwner=" + doCheckOwner
-          + ", ancestorAccess=" + ancestorAccess
-          + ", parentAccess=" + parentAccess
-          + ", access=" + access
-          + ", subAccess=" + subAccess);
+      LOG.debug("ACCESS CHECK: " + this + ", doCheckOwner=" + doCheckOwner + ", ancestorAccess=" + ancestorAccess
+          + ", parentAccess=" + parentAccess + ", access=" + access + ", subAccess=" + subAccess);
     }
 
     synchronized(root) {
@@ -171,28 +165,29 @@ class PermissionChecker {
     }
   }
 
-  private void check(INode[] inodes, int i, FsAction access
-      ) throws AccessControlException {
+  private void check(INode[] inodes, int i, FsAction access) throws AccessControlException {
     check(i >= 0? inodes[i]: null, access);
   }
 
-  private void check(INode inode, FsAction access
-      ) throws AccessControlException {
+  private void check(INode inode, FsAction access) throws AccessControlException {
     if (inode == null) {
       return;
     }
     FsPermission mode = inode.getFsPermission();
 
     if (user.equals(inode.getUserName())) { //user class
-      if (mode.getUserAction().implies(access)) { return; }
+      if (mode.getUserAction().implies(access)) { 
+        return; 
+      }
+    } else if (groups.contains(inode.getGroupName())) { //group class
+      if (mode.getGroupAction().implies(access)) {
+       return; 
+      }
+    } else { //other class
+      if (mode.getOtherAction().implies(access)) { 
+        return; 
+      }
     }
-    else if (groups.contains(inode.getGroupName())) { //group class
-      if (mode.getGroupAction().implies(access)) { return; }
-    }
-    else { //other class
-      if (mode.getOtherAction().implies(access)) { return; }
-    }
-    throw new AccessControlException("Permission denied: user=" + user
-        + ", access=" + access + ", inode=" + inode);
+    throw new AccessControlException("Permission denied: user=" + user + ", access=" + access + ", inode=" + inode);
   }
 }

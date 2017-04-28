@@ -114,9 +114,12 @@ public class DatanodeDescriptor extends DatanodeInfo {
    * while writing the block).
    */
   private int currApproxBlocksScheduled = 0;
+
   private int prevApproxBlocksScheduled = 0;
+
   private long lastBlocksScheduledRollTime = 0;
-  private static final int BLOCKS_SCHEDULED_ROLL_INTERVAL = 600*1000; //10min
+
+  private static final int BLOCKS_SCHEDULED_ROLL_INTERVAL = 600 * 1000; //10min
   
   // Set to false after processing first block report
   private boolean firstBlockReport = true; 
@@ -136,8 +139,7 @@ public class DatanodeDescriptor extends DatanodeInfo {
    * @param nodeID id of the data node
    * @param networkLocation location of the data node in network
    */
-  public DatanodeDescriptor(DatanodeID nodeID, 
-                            String networkLocation) {
+  public DatanodeDescriptor(DatanodeID nodeID, String networkLocation) {
     this(nodeID, networkLocation, null);
   }
   
@@ -147,9 +149,7 @@ public class DatanodeDescriptor extends DatanodeInfo {
    * @param networkLocation location of the data node in network
    * @param hostName it could be different from host specified for DatanodeID
    */
-  public DatanodeDescriptor(DatanodeID nodeID, 
-                            String networkLocation,
-                            String hostName) {
+  public DatanodeDescriptor(DatanodeID nodeID, String networkLocation, String hostName) {
     this(nodeID, networkLocation, hostName, 0L, 0L, 0L, 0);
   }
   
@@ -161,11 +161,7 @@ public class DatanodeDescriptor extends DatanodeInfo {
    * @param remaining remaing capacity of the data node
    * @param xceiverCount # of data transfers at the data node
    */
-  public DatanodeDescriptor(DatanodeID nodeID, 
-                            long capacity,
-                            long dfsUsed,
-                            long remaining,
-                            int xceiverCount) {
+  public DatanodeDescriptor(DatanodeID nodeID, long capacity, long dfsUsed, long remaining, int xceiverCount) {
     super(nodeID);
     updateHeartbeat(capacity, dfsUsed, remaining, xceiverCount);
   }
@@ -179,13 +175,8 @@ public class DatanodeDescriptor extends DatanodeInfo {
    * @param remaining remaing capacity of the data node
    * @param xceiverCount # of data transfers at the data node
    */
-  public DatanodeDescriptor(DatanodeID nodeID,
-                            String networkLocation,
-                            String hostName,
-                            long capacity,
-                            long dfsUsed,
-                            long remaining,
-                            int xceiverCount) {
+  public DatanodeDescriptor(DatanodeID nodeID, String networkLocation, String hostName, long capacity,
+                            long dfsUsed, long remaining, int xceiverCount) {
     super(nodeID, networkLocation, hostName);
     updateHeartbeat(capacity, dfsUsed, remaining, xceiverCount);
   }
@@ -234,8 +225,7 @@ public class DatanodeDescriptor extends DatanodeInfo {
 
   /**
    */
-  void updateHeartbeat(long capacity, long dfsUsed, long remaining,
-      int xceiverCount) {
+  void updateHeartbeat(long capacity, long dfsUsed, long remaining, int xceiverCount) {
     this.capacity = capacity;
     this.dfsUsed = dfsUsed;
     this.remaining = remaining;
@@ -379,11 +369,8 @@ public class DatanodeDescriptor extends DatanodeInfo {
     return blockarray;
   }
 
-  void reportDiff(BlocksMap blocksMap,
-                  BlockListAsLongs newReport,
-                  Collection<Block> toAdd,
-                  Collection<Block> toRemove,
-                  Collection<Block> toInvalidate) {
+  void reportDiff(BlocksMap blocksMap, BlockListAsLongs newReport, Collection<Block> toAdd,
+                  Collection<Block> toRemove, Collection<Block> toInvalidate) {
     // place a deilimiter in the list which separates blocks 
     // that have been reported from those that have not
     BlockInfo delimiter = new BlockInfo(new Block(), 1);

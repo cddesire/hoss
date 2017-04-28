@@ -920,8 +920,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		stateChangeLog.debug("*DIR* NameNode.rename: " + src + " to " + dst);
 		if (!checkPathLength(dst)) {
 			throw new IOException("rename: Pathname too long.  Limit "
-					+ MAX_PATH_LENGTH + " characters, " + MAX_PATH_DEPTH
-					+ " levels.");
+					+ MAX_PATH_LENGTH + " characters, " + MAX_PATH_DEPTH + " levels.");
 		}
 		boolean ret = namesystem.renameTo(src, dst);
 		if (ret) {
@@ -965,8 +964,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		stateChangeLog.debug("*DIR* NameNode.mkdirs: " + src);
 		if (!checkPathLength(src)) {
 			throw new IOException("mkdirs: Pathname too long.  Limit "
-					+ MAX_PATH_LENGTH + " characters, " + MAX_PATH_DEPTH
-					+ " levels.");
+					+ MAX_PATH_LENGTH + " characters, " + MAX_PATH_DEPTH + " levels.");
 		}
 		return namesystem.mkdirs(src, new PermissionStatus(UserGroupInformation
 				.getCurrentUser().getShortUserName(), null, masked));
@@ -1121,11 +1119,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		namesystem.setTimes(src, mtime, atime);
 	}
 
-	// //////////////////////////////////////////////////////////////
 	// DatanodeProtocol
-	// //////////////////////////////////////////////////////////////
-	/** 
-   */
 	public DatanodeRegistration register(DatanodeRegistration nodeReg)
 			throws IOException {
 		verifyVersion(nodeReg.getVersion());
@@ -1152,8 +1146,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		verifyRequest(nodeReg);
 		BlockListAsLongs blist = new BlockListAsLongs(blocks);
 		stateChangeLog.debug("*BLOCK* NameNode.blockReport: " + "from "
-				+ nodeReg.getName() + " " + blist.getNumberOfBlocks()
-				+ " blocks");
+				+ nodeReg.getName() + " " + blist.getNumberOfBlocks() + " blocks");
 
 		namesystem.processReport(nodeReg, blist);
 		if (getFSImage().isUpgradeFinalized())
@@ -1172,8 +1165,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		namesystem.processBlocksBeingWrittenReport(nodeReg, blist);
 
 		stateChangeLog.info("*BLOCK* NameNode.blocksBeingWrittenReport: "
-				+ "from " + nodeReg.getName() + " " + blist.getNumberOfBlocks()
-				+ " blocks");
+				+ "from " + nodeReg.getName() + " " + blist.getNumberOfBlocks() + " blocks");
 
 	}
 
@@ -1194,8 +1186,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 
 	/**
    */
-	public void errorReport(DatanodeRegistration nodeReg, int errorCode,
-			String msg) throws IOException {
+	public void errorReport(DatanodeRegistration nodeReg, int errorCode, String msg) throws IOException {
 		// Log error message from datanode
 		String dnName = (nodeReg == null ? "unknown DataNode" : nodeReg
 				.getName());
@@ -1215,8 +1206,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		return namesystem.getNamespaceInfo();
 	}
 
-	public UpgradeCommand processUpgradeCommand(UpgradeCommand comm)
-			throws IOException {
+	public UpgradeCommand processUpgradeCommand(UpgradeCommand comm) throws IOException {
 		return namesystem.processDistributedUpgradeCommand(comm);
 	}
 
@@ -1351,18 +1341,15 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 	@Override
 	public void refreshServiceAcl() throws IOException {
 		if (!serviceAuthEnabled) {
-			throw new AuthorizationException(
-					"Service Level Authorization not enabled!");
+			throw new AuthorizationException("Service Level Authorization not enabled!");
 		}
 
-		ServiceAuthorizationManager.refresh(new Configuration(),
-				new HDFSPolicyProvider());
+		ServiceAuthorizationManager.refresh(new Configuration(), new HDFSPolicyProvider());
 	}
 
 	@Override
 	public void refreshUserToGroupsMappings() throws IOException {
-		LOG.info("Refreshing all user-to-groups mappings. Requested by user: "
-				+ UserGroupInformation.getCurrentUser().getShortUserName());
+		LOG.info("Refreshing all user-to-groups mappings. Requested by user: " + UserGroupInformation.getCurrentUser().getShortUserName());
 		Groups.getUserToGroupsMappingService().refresh();
 	}
 
@@ -1458,7 +1445,6 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 				// 2 hours.
 				TimeUnit.HOURS.sleep(hours);
 				//TimeUnit.MINUTES.sleep(2);
-				LOG.info("Combine small object ......");
 				boolean combined = true;
 				synchronized (metaDataDb) {
 					SmallObjectsManager som  = new SmallObjectsManager(metaDataDb);
@@ -1482,8 +1468,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 	}
 
 	private void addShutdownHook() {
-		Thread hook = new Thread(new CloseOnJVMShutdown(this),
-				"hos meta data shutdown hook");
+		Thread hook = new Thread(new CloseOnJVMShutdown(this), "hos meta data shutdown hook");
 		Runtime.getRuntime().addShutdownHook(hook);
 	}
 
@@ -1500,8 +1485,6 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 		}
 	}
 
-	/**
-   */
 	public static void main(String argv[]) throws Exception {
 		try {
 			StringUtils.startupShutdownMessage(NameNode.class, argv, LOG);
@@ -1518,7 +1501,5 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
 			System.exit(-1);
 		}
 	}
-	
-	
 
 }

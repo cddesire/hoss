@@ -30,8 +30,7 @@ import org.apache.hadoop.io.WritableUtils;
  * added to it, replaying them as requested.
  * Prefer {@link StreamBackedIterator}.
  */
-public class ArrayListBackedIterator<X extends Writable>
-    implements ResetableIterator<X> {
+public class ArrayListBackedIterator<X extends Writable> implements ResetableIterator<X> {
 
   private Iterator<X> iter;
   private ArrayList<X> data;

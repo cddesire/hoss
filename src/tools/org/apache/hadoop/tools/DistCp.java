@@ -311,8 +311,7 @@ public class DistCp implements Tool {
   /**
    * FSCopyFilesMapper: The mapper for copying files between FileSystems.
    */
-  static class CopyFilesMapper
-      implements Mapper<LongWritable, FilePair, WritableComparable<?>, Text> {
+  static class CopyFilesMapper implements Mapper<LongWritable, FilePair, WritableComparable<?>, Text> {
     // config
     private int sizeBuf = 128 * 1024;
     private FileSystem destFileSys = null;
@@ -983,6 +982,7 @@ public class DistCp implements Tool {
   }
 
   private static final Random RANDOM = new Random();
+
   public static String getRandomId() {
     return Integer.toString(RANDOM.nextInt(Integer.MAX_VALUE), 36);
   }
@@ -994,8 +994,7 @@ public class DistCp implements Tool {
    * @param args Arguments
    * @return true if it is necessary to launch a job.
    */
-  private static boolean setup(Configuration conf, JobConf jobConf,
-                            final Arguments args)
+  private static boolean setup(Configuration conf, JobConf jobConf, final Arguments args)
       throws IOException {
     jobConf.set(DST_DIR_LABEL, args.dst.toUri().toString());
 
@@ -1374,8 +1373,7 @@ public class DistCp implements Tool {
         prevsrc = cursrc;
         cursrc = new Text();
       }
-    }
-    finally {
+    } finally {
       checkAndClose(in);
     }
   } 
@@ -1384,8 +1382,7 @@ public class DistCp implements Tool {
     if (io != null) {
       try {
         io.close();
-      }
-      catch(IOException ioe) {
+      } catch(IOException ioe) {
         LOG.warn(StringUtils.stringifyException(ioe));
         return false;
       }
@@ -1396,8 +1393,13 @@ public class DistCp implements Tool {
   /** An exception class for duplicated source files. */
   public static class DuplicationException extends IOException {
     private static final long serialVersionUID = 1L;
+
     /** Error code for this exception */
     public static final int ERROR_CODE = -2;
-    DuplicationException(String message) {super(message);}
+
+    DuplicationException(String message) {
+    	super(message);
+    }
+
   }
 }

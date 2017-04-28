@@ -87,8 +87,7 @@ class DatanodeBlockInfo {
                         16*1024, true);
       if (file.length() != tmpFile.length()) {
         throw new IOException("Copy of file " + file + " size " + file.length()+
-                              " into file " + tmpFile +
-                              " resulted in a size of " + tmpFile.length());
+                              " into file " + tmpFile + " resulted in a size of " + tmpFile.length());
       }
       FileUtil.replaceFile(tmpFile, file);
     } catch (IOException e) {
@@ -128,7 +127,6 @@ class DatanodeBlockInfo {
   }
   
   public String toString() {
-    return getClass().getSimpleName() + "(volume=" + volume
-        + ", file=" + file + ", detached=" + detached + ")";
+    return getClass().getSimpleName() + "(volume=" + volume + ", file=" + file + ", detached=" + detached + ")";
   }
 }

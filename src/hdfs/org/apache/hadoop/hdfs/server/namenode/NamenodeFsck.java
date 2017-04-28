@@ -116,10 +116,8 @@ public class NamenodeFsck {
    * @param remoteAddress source address of the fsck request
    * @throws IOException
    */
-  NamenodeFsck(Configuration conf, NameNode namenode,
-      NetworkTopology networktopology, 
-      Map<String,String[]> pmap, PrintWriter out,
-      int totalDatanodes, short minReplication, InetAddress remoteAddress) {
+  NamenodeFsck(Configuration conf, NameNode namenode, NetworkTopology networktopology,
+      Map<String,String[]> pmap, PrintWriter out, int totalDatanodes, short minReplication, InetAddress remoteAddress) {
     this.conf = conf;
     this.namenode = namenode;
     this.networktopology = networktopology;
@@ -130,14 +128,23 @@ public class NamenodeFsck {
 
     for (Iterator<String> it = pmap.keySet().iterator(); it.hasNext();) {
       String key = it.next();
-      if (key.equals("path")) { this.path = pmap.get("path")[0]; }
-      else if (key.equals("move")) { this.fixing = FIXING_MOVE; }
-      else if (key.equals("delete")) { this.fixing = FIXING_DELETE; }
-      else if (key.equals("files")) { this.showFiles = true; }
-      else if (key.equals("blocks")) { this.showBlocks = true; }
-      else if (key.equals("locations")) { this.showLocations = true; }
-      else if (key.equals("racks")) { this.showRacks = true; }
-      else if (key.equals("openforwrite")) {this.showOpenFiles = true; }
+      if (key.equals("path")) { 
+        this.path = pmap.get("path")[0]; 
+      } else if (key.equals("move")) {
+       this.fixing = FIXING_MOVE; 
+      } else if (key.equals("delete")) {
+       this.fixing = FIXING_DELETE; 
+      } else if (key.equals("files")) {
+        this.showFiles = true; 
+      } else if (key.equals("blocks")) {
+       this.showBlocks = true; 
+      } else if (key.equals("locations")) {
+       this.showLocations = true; 
+      } else if (key.equals("racks")) {
+       this.showRacks = true; 
+      } else if (key.equals("openforwrite")) {
+        this.showOpenFiles = true; 
+      }
     }
   }
   
@@ -156,13 +163,11 @@ public class NamenodeFsck {
       final HdfsFileStatus file = namenode.getFileInfo(path);
       if (file != null) {
         check(path, file, res);
-
         out.println(res);
         out.println(" Number of data-nodes:\t\t" + totalDatanodes);
         out.println(" Number of racks:\t\t" + networktopology.getNumOfRacks());
 
-        out.println("FSCK ended at " + new Date() + " in "
-            + (System.currentTimeMillis() - startTime + " milliseconds"));
+        out.println("FSCK ended at " + new Date() + " in " + (System.currentTimeMillis() - startTime + " milliseconds"));
 
         // DFSck client scans for the string HEALTHY/CORRUPT to check the status
         // of file system and return appropriate code. Changing the output string
@@ -179,8 +184,7 @@ public class NamenodeFsck {
     } catch (Exception e) {
       String errMsg = "Fsck on path '" + path + "' " + FAILURE_STATUS;
       LOG.warn(errMsg, e);
-      out.println("FSCK ended at " + new Date() + " in "
-          + (System.currentTimeMillis() - startTime + " milliseconds"));
+      out.println("FSCK ended at " + new Date() + " in " + (System.currentTimeMillis() - startTime + " milliseconds"));
       out.println(e.getMessage());
       out.print("\n\n"+errMsg);
     } finally {
@@ -216,8 +220,7 @@ public class NamenodeFsck {
     long fileLen = file.getLen();
     // Get block locations without updating the file access time 
     // and without block access tokens
-    LocatedBlocks blocks = namenode.getNamesystem().getBlockLocations(path, 0,
-        fileLen, false, false);
+    LocatedBlocks blocks = namenode.getNamesystem().getBlockLocations(path, 0, fileLen, false, false);
     if (blocks == null) { // the file is deleted
       return;
     }
@@ -233,15 +236,15 @@ public class NamenodeFsck {
     res.totalSize += fileLen;
     res.totalBlocks += blocks.locatedBlockCount();
     if (showOpenFiles && isOpen) {
-      out.print(path + " " + fileLen + " bytes, " +
-        blocks.locatedBlockCount() + " block(s), OPENFORWRITE: ");
+      out.print(path + " " + fileLen + " bytes, " + blocks.locatedBlockCount() + " block(s), OPENFORWRITE: ");
     } else if (showFiles) {
-      out.print(path + " " + fileLen + " bytes, " +
-        blocks.locatedBlockCount() + " block(s): ");
+      out.print(path + " " + fileLen + " bytes, " + blocks.locatedBlockCount() + " block(s): ");
     } else {
       out.print('.');
     }
-    if (res.totalFiles % 100 == 0) { out.println(); out.flush(); }
+    if (res.totalFiles % 100 == 0) { 
+      out.println(); out.flush(); 
+    }
     int missing = 0;
     int corrupt = 0;
     long missize = 0;
@@ -275,14 +278,11 @@ public class NamenodeFsck {
         if (!showFiles) {
           out.print("\n" + path + ": ");
         }
-        out.println(" Under replicated " + block +
-                    ". Target Replicas is " +
-                    targetFileReplication + " but found " +
-                    locs.length + " replica(s).");
+        out.println(" Under replicated " + block + ". Target Replicas is " +
+                    targetFileReplication + " but found " + locs.length + " replica(s).");
       }
       // verify block placement policy
-      int missingRacks = ReplicationTargetChooser.verifyBlockPlacement(
-                    lBlk, targetFileReplication, networktopology);
+      int missingRacks = ReplicationTargetChooser.verifyBlockPlacement(lBlk, targetFileReplication, networktopology);
       if (missingRacks > 0) {
         res.numMisReplicatedBlocks++;
         misReplicatedPerFile++;
@@ -322,8 +322,7 @@ public class NamenodeFsck {
     }
     if ((missing > 0) || (corrupt > 0)) {
       if (!showFiles && (missing > 0)) {
-        out.print("\n" + path + ": MISSING " + missing
-            + " blocks of total size " + missize + " B.");
+        out.print("\n" + path + ": MISSING " + missing + " blocks of total size " + missize + " B.");
       }
       res.corruptFiles++;
       switch(fixing) {
@@ -350,8 +349,7 @@ public class NamenodeFsck {
     }
   }
   
-  private void lostFoundMove(String parent, HdfsFileStatus file, LocatedBlocks blocks)
-    throws IOException {
+  private void lostFoundMove(String parent, HdfsFileStatus file, LocatedBlocks blocks) throws IOException {
     final DFSClient dfs = new DFSClient(NameNode.getAddress(conf), conf);
     try {
     if (!lfInited) {
@@ -422,8 +420,7 @@ public class NamenodeFsck {
    * bad. Both places should be refactored to provide a method to copy blocks
    * around.
    */
-  private void copyBlock(DFSClient dfs, LocatedBlock lblock,
-                         OutputStream fos) throws Exception {
+  private void copyBlock(DFSClient dfs, LocatedBlock lblock, OutputStream fos) throws Exception {
     int failures = 0;
     InetSocketAddress targetAddr = null;
     TreeSet<DatanodeInfo> deadNodes = new TreeSet<DatanodeInfo>();
@@ -455,15 +452,10 @@ public class NamenodeFsck {
         s.connect(targetAddr, HdfsConstants.READ_TIMEOUT);
         s.setSoTimeout(HdfsConstants.READ_TIMEOUT);
         
-        blockReader = 
-          DFSClient.BlockReader.newBlockReader(s, targetAddr.toString() + ":" + 
-                                               block.getBlockId(), 
-                                               block.getBlockId(), 
-                                               lblock.getBlockToken(),
-                                               block.getGenerationStamp(), 
-                                               0, -1,
-                                               conf.getInt("io.file.buffer.size", 4096));
-        
+        blockReader = DFSClient.BlockReader.newBlockReader(s, targetAddr.toString() + ":" +
+                                               block.getBlockId(), block.getBlockId(),
+                                               lblock.getBlockToken(), block.getGenerationStamp(),
+                                               0, -1, conf.getInt("io.file.buffer.size", 4096));
       }  catch (IOException ex) {
         // Put chosen node into dead list, continue
         LOG.info("Failed to connect to " + targetAddr + ":" + ex);
@@ -497,7 +489,11 @@ public class NamenodeFsck {
       e.printStackTrace();
       success = false;
     } finally {
-      try {s.close(); } catch (Exception e1) {}
+      try {
+        s.close(); 
+      } catch (Exception e1) {
+        
+      }
     }
     if (!success)
       throw new Exception("Could not copy block data for " + lblock.getBlock());
@@ -510,8 +506,7 @@ public class NamenodeFsck {
    * That's the local one, if available.
    */
   Random r = new Random();
-  private DatanodeInfo bestNode(DFSClient dfs, DatanodeInfo[] nodes,
-                                TreeSet<DatanodeInfo> deadNodes) throws IOException {
+  private DatanodeInfo bestNode(DFSClient dfs, DatanodeInfo[] nodes, TreeSet<DatanodeInfo> deadNodes) throws IOException {
     if ((nodes == null) ||
         (nodes.length - deadNodes.size() < 1)) {
       throw new IOException("No live nodes contain current block");

@@ -41,14 +41,12 @@ import org.apache.hadoop.hdfs.protocol.FSConstants;
  * 2) For each file f in the lease, consider the last block b of f
  * 2.1) Get the datanodes which contains b
  * 2.2) Assign one of the datanodes as the primary datanode p
-
  * 2.3) p obtains a new generation stamp form the namenode
  * 2.4) p get the block info from each datanode
  * 2.5) p computes the minimum block length
  * 2.6) p updates the datanodes, which have a valid generation stamp,
  *      with the new generation stamp and the minimum block length 
  * 2.7) p acknowledges the namenode the update results
-
  * 2.8) Namenode updates the BlockInfo
  * 2.9) Namenode removes f from the lease
  *      and removes the lease once all files have been removed
@@ -76,19 +74,27 @@ public class LeaseManager {
   //
   private SortedMap<String, Lease> sortedLeasesByPath = new TreeMap<String, Lease>();
 
-  LeaseManager(FSNamesystem fsnamesystem) {this.fsnamesystem = fsnamesystem;}
+  LeaseManager(FSNamesystem fsnamesystem) {
+    this.fsnamesystem = fsnamesystem;
+  }
 
   Lease getLease(String holder) {
     return leases.get(holder);
   }
   
-  SortedSet<Lease> getSortedLeases() {return sortedLeases;}
+  SortedSet<Lease> getSortedLeases() {
+    return sortedLeases;
+  }
 
   /** @return the lease containing src */
-  public Lease getLeaseByPath(String src) {return sortedLeasesByPath.get(src);}
+  public Lease getLeaseByPath(String src) {
+    return sortedLeasesByPath.get(src);
+  }
 
   /** @return the number of leases currently in the system */
-  public synchronized int countLease() {return sortedLeases.size();}
+  public synchronized int countLease() {
+    return sortedLeases.size();
+  }
 
   /** @return the number of paths contained in all leases */
   synchronized int countPath() {
@@ -166,8 +172,7 @@ public class LeaseManager {
         return src;
       }
     }
-    throw new IOException("pendingFile (=" + pendingFile + ") not found."
-        + "(lease=" + lease + ")");
+    throw new IOException("pendingFile (=" + pendingFile + ") not found."+ "(lease=" + lease + ")");
   }
 
   /**
@@ -176,6 +181,7 @@ public class LeaseManager {
   synchronized void renewLease(String holder) {
     renewLease(getLease(holder));
   }
+
   synchronized void renewLease(Lease lease) {
     if (lease != null) {
       sortedLeases.remove(lease);
@@ -243,8 +249,7 @@ public class LeaseManager {
 
     /** {@inheritDoc} */
     public String toString() {
-      return "[Lease.  Holder: " + holder
-          + ", pendingcreates: " + paths.size() + "]";
+      return "[Lease.  Holder: " + holder + ", pendingcreates: " + paths.size() + "]";
     }
   
     /** {@inheritDoc} */
@@ -293,10 +298,8 @@ public class LeaseManager {
   synchronized void changeLease(String src, String dst,
       String overwrite, String replaceBy) {
     if (LOG.isDebugEnabled()) {
-      LOG.debug(getClass().getSimpleName() + ".changelease: " +
-               " src=" + src + ", dest=" + dst + 
-               ", overwrite=" + overwrite +
-               ", replaceBy=" + replaceBy);
+      LOG.debug(getClass().getSimpleName() + ".changelease: " + " src=" + src + ", dest=" + dst +
+               ", overwrite=" + overwrite + ", replaceBy=" + replaceBy);
     }
 
     final int len = overwrite.length();
@@ -317,15 +320,13 @@ public class LeaseManager {
   synchronized void removeLeaseWithPrefixPath(String prefix) {
     for(Map.Entry<String, Lease> entry : findLeaseWithPrefixPath(prefix, sortedLeasesByPath)) {
       if (LOG.isDebugEnabled()) {
-        LOG.debug(LeaseManager.class.getSimpleName()
-            + ".removeLeaseWithPrefixPath: entry=" + entry);
+        LOG.debug(LeaseManager.class.getSimpleName() + ".removeLeaseWithPrefixPath: entry=" + entry);
       }
       removeLease(entry.getValue(), entry.getKey());    
     }
   }
 
-  static private List<Map.Entry<String, Lease>> findLeaseWithPrefixPath(
-      String prefix, SortedMap<String, Lease> path2lease) {
+  static private List<Map.Entry<String, Lease>> findLeaseWithPrefixPath(String prefix, SortedMap<String, Lease> path2lease) {
     if (LOG.isDebugEnabled()) {
       LOG.debug(LeaseManager.class.getSimpleName() + ".findLease: prefix=" + prefix);
     }
@@ -396,7 +397,7 @@ public class LeaseManager {
         try {
           fsnamesystem.internalReleaseLeaseOne(oldest, p);
         } catch (IOException e) {
-          LOG.error("Cannot release the path "+p+" in the lease "+oldest, e);
+          LOG.error("Cannot release the path " + p + " in the lease " + oldest, e);
           removing.add(p);
         }
       }
@@ -409,10 +410,7 @@ public class LeaseManager {
 
   /** {@inheritDoc} */
   public synchronized String toString() {
-    return getClass().getSimpleName() + "= {"
-        + "\n leases=" + leases
-        + "\n sortedLeases=" + sortedLeases
-        + "\n sortedLeasesByPath=" + sortedLeasesByPath
-        + "\n}";
+    return getClass().getSimpleName() + "= {"+ "\n leases=" + leases
+        + "\n sortedLeases=" + sortedLeases + "\n sortedLeasesByPath=" + sortedLeasesByPath + "\n}";
   }
 }

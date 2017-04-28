@@ -33,6 +33,7 @@ import org.apache.hadoop.security.KerberosInfo;
     serverPrincipal = DFSConfigKeys.DFS_DATANODE_USER_NAME_KEY,
     clientPrincipal = DFSConfigKeys.DFS_DATANODE_USER_NAME_KEY)
 public interface InterDatanodeProtocol extends VersionedProtocol {
+  
   public static final Log LOG = LogFactory.getLog(InterDatanodeProtocol.class);
 
   /**

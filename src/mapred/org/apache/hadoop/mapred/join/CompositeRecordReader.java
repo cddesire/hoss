@@ -62,9 +62,7 @@ public abstract class CompositeRecordReader<
    * on this is not recommended.
    */
   @SuppressWarnings("unchecked") // Generic array assignment
-  public CompositeRecordReader(int id, int capacity,
-      Class<? extends WritableComparator> cmpcl)
-      throws IOException {
+  public CompositeRecordReader(int id, int capacity, Class<? extends WritableComparator> cmpcl) throws IOException {
     assert capacity > 0 : "Invalid capacity";
     this.id = id;
     if (null != cmpcl) {
@@ -236,8 +234,7 @@ public abstract class CompositeRecordReader<
         }
         return true;
       }
-      while (0 <= pos && !(iters[pos].hasNext() &&
-                           iters[pos].next((X)val.get(pos)))) {
+      while (0 <= pos && !(iters[pos].hasNext() && iters[pos].next((X)val.get(pos)))) {
         --pos;
       }
       if (pos < 0) {

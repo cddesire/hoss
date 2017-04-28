@@ -33,12 +33,9 @@ import org.apache.hadoop.mapred.JobConf;
  * from S3 over S2, and values from S2 over S1 for all keys
  * emitted from all sources.
  */
-public class OverrideRecordReader<K extends WritableComparable,
-                                  V extends Writable>
-    extends MultiFilterRecordReader<K,V> {
+public class OverrideRecordReader<K extends WritableComparable, V extends Writable> extends MultiFilterRecordReader<K,V> {
 
-  OverrideRecordReader(int id, JobConf conf, int capacity,
-      Class<? extends WritableComparator> cmpcl) throws IOException {
+  OverrideRecordReader(int id, JobConf conf, int capacity, Class<? extends WritableComparator> cmpcl) throws IOException {
     super(id, conf, capacity, cmpcl);
   }
 

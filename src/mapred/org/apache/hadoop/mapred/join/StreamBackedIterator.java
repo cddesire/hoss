@@ -29,8 +29,7 @@ import org.apache.hadoop.io.Writable;
  * This class provides an implementation of ResetableIterator. This
  * implementation uses a byte array to store elements added to it.
  */
-public class StreamBackedIterator<X extends Writable>
-    implements ResetableIterator<X> {
+public class StreamBackedIterator<X extends Writable> implements ResetableIterator<X> {
 
   private static class ReplayableByteInputStream extends ByteArrayInputStream {
     public ReplayableByteInputStream(byte[] arr) {
@@ -43,8 +42,11 @@ public class StreamBackedIterator<X extends Writable>
   }
 
   private ByteArrayOutputStream outbuf = new ByteArrayOutputStream();
+
   private DataOutputStream outfbuf = new DataOutputStream(outbuf);
+
   private ReplayableByteInputStream inbuf;
+  
   private DataInputStream infbuf;
 
   public StreamBackedIterator() { }

@@ -45,18 +45,23 @@ public class JobControl implements Runnable{
   private static final int STOPPED = 2;
   private static final int STOPPING = 3;
   private static final int READY = 4;
-	
-  private int runnerState;			// the thread state
-	
+  
+  private int runnerState;      // the thread state
+  
   private Map<String, Job> waitingJobs;
+
   private Map<String, Job> readyJobs;
+
   private Map<String, Job> runningJobs;
+
   private Map<String, Job> successfulJobs;
+
   private Map<String, Job> failedJobs;
-	
+  
   private long nextJobID;
+
   private String groupName;
-	
+  
   /** 
    * Construct a job control for a group of jobs.
    * @param groupName a name identifying this group
@@ -71,7 +76,7 @@ public class JobControl implements Runnable{
     this.groupName = groupName;
     this.runnerState = JobControl.READY;
   }
-	
+  
   private static ArrayList<Job> toArrayList(Map<String, Job> jobs) {
     ArrayList<Job> retv = new ArrayList<Job>();
     synchronized (jobs) {
@@ -81,68 +86,76 @@ public class JobControl implements Runnable{
     }
     return retv;
   }
-	
+  
   /**
    * @return the jobs in the waiting state
    */
   public ArrayList<Job> getWaitingJobs() {
     return JobControl.toArrayList(this.waitingJobs);
   }
-	
+  
   /**
    * @return the jobs in the running state
    */
   public ArrayList<Job> getRunningJobs() {
     return JobControl.toArrayList(this.runningJobs);
   }
-	
+  
   /**
    * @return the jobs in the ready state
    */
   public ArrayList<Job> getReadyJobs() {
     return JobControl.toArrayList(this.readyJobs);
   }
-	
+  
   /**
    * @return the jobs in the success state
    */
   public ArrayList<Job> getSuccessfulJobs() {
     return JobControl.toArrayList(this.successfulJobs);
   }
-	
+  
   public ArrayList<Job> getFailedJobs() {
     return JobControl.toArrayList(this.failedJobs);
   }
-	
+  
   private String getNextJobID() {
     nextJobID += 1;
     return this.groupName + this.nextJobID;
   }
-	
+  
   private static void addToQueue(Job aJob, Map<String, Job> queue) {
     synchronized(queue) {
       queue.put(aJob.getJobID(), aJob);
-    }		
+    }   
   }
-	
+  
   private void addToQueue(Job aJob) {
     Map<String, Job> queue = getQueue(aJob.getState());
-    addToQueue(aJob, queue);	
+    addToQueue(aJob, queue);  
   }
-	
+  
   private Map<String, Job> getQueue(int state) {
     Map<String, Job> retv = null;
-    if (state == Job.WAITING) {
-      retv = this.waitingJobs;
-    } else if (state == Job.READY) {
-      retv = this.readyJobs;
-    } else if (state == Job.RUNNING) {
-      retv = this.runningJobs;
-    } else if (state == Job.SUCCESS) {
-      retv = this.successfulJobs;
-    } else if (state == Job.FAILED || state == Job.DEPENDENT_FAILED) {
-      retv = this.failedJobs;
-    } 
+    switch(state) {
+      case Job.WAITING:
+        retv = this.waitingJobs;
+        break;
+      case Job.READY:
+        retv = this.readyJobs;
+        break;
+      case Job.RUNNING:
+        retv = this.runningJobs;
+        break;
+      case Job.SUCCESS:
+        retv = this.successfulJobs;
+        break;
+      case Job.FAILED:
+      case Job.DEPENDENT_FAILED
+        retv = this.failedJobs;
+        break;
+      
+    }
     return retv;
   }
 
@@ -155,9 +168,9 @@ public class JobControl implements Runnable{
     aJob.setJobID(id);
     aJob.setState(Job.WAITING);
     this.addToQueue(aJob);
-    return id;	
+    return id;  
   }
-	
+  
   /**
    * Add a collection of jobs
    * 
@@ -168,14 +181,14 @@ public class JobControl implements Runnable{
       addJob(job);
     }
   }
-	
+  
   /**
    * @return the thread state
    */
   public int getState() {
     return this.runnerState;
   }
-	
+  
   /**
    * set the thread state to STOPPING so that the 
    * thread will stop when it wakes up.
@@ -183,7 +196,7 @@ public class JobControl implements Runnable{
   public void stop() {
     this.runnerState = JobControl.STOPPING;
   }
-	
+  
   /**
    * suspend the running thread
    */
@@ -192,7 +205,7 @@ public class JobControl implements Runnable{
       this.runnerState = JobControl.SUSPENDED;
     }
   }
-	
+  
   /**
    * resume the suspended thread
    */
@@ -201,67 +214,50 @@ public class JobControl implements Runnable{
       this.runnerState = JobControl.RUNNING;
     }
   }
-	
+  
   synchronized private void checkRunningJobs() {
-		
     Map<String, Job> oldJobs = null;
     oldJobs = this.runningJobs;
     this.runningJobs = new Hashtable<String, Job>();
-		
+    
     for (Job nextJob : oldJobs.values()) {
       int state = nextJob.checkState();
-      /*
-        if (state != Job.RUNNING) {
-        System.out.println("The state of the running job " +
-        nextJob.getJobName() + " has changed to: " + nextJob.getState());
-        }
-      */
       this.addToQueue(nextJob);
     }
   }
-	
+  
   synchronized private void checkWaitingJobs() {
     Map<String, Job> oldJobs = null;
     oldJobs = this.waitingJobs;
     this.waitingJobs = new Hashtable<String, Job>();
-		
     for (Job nextJob : oldJobs.values()) {
       int state = nextJob.checkState();
-      /*
-        if (state != Job.WAITING) {
-        System.out.println("The state of the waiting job " +
-        nextJob.getJobName() + " has changed to: " + nextJob.getState());
-        }
-      */
       this.addToQueue(nextJob);
     }
   }
-	
+  
   synchronized private void startReadyJobs() {
     Map<String, Job> oldJobs = null;
     oldJobs = this.readyJobs;
     this.readyJobs = new Hashtable<String, Job>();
-		
     for (Job nextJob : oldJobs.values()) {
-      //System.out.println("Job to submit to Hadoop: " + nextJob.getJobName());
       nextJob.submit();
-      //System.out.println("Hadoop ID: " + nextJob.getMapredJobID());
       this.addToQueue(nextJob);
-    }	
+    } 
   }
-	
+  
   synchronized public boolean allFinished() {
     return this.waitingJobs.size() == 0 &&
       this.readyJobs.size() == 0 &&
       this.runningJobs.size() == 0;
   }
-	
+  
   /**
    *  The main loop for the thread.
    *  The loop does the following:
-   *  	Check the states of the running jobs
-   *  	Update the states of waiting jobs
-   *  	Submit the jobs in ready state
+   *    Check the states of the running jobs
+   *    Update the states of waiting jobs
+   *    Submit the jobs in ready state
    */
   public void run() {
     this.runnerState = JobControl.RUNNING;
@@ -271,12 +267,12 @@ public class JobControl implements Runnable{
           Thread.sleep(5000);
         }
         catch (Exception e) {
-					
+          
         }
       }
-      checkRunningJobs();	
-      checkWaitingJobs();		
-      startReadyJobs();		
+      checkRunningJobs(); 
+      checkWaitingJobs();   
+      startReadyJobs();   
       if (this.runnerState != JobControl.RUNNING && 
           this.runnerState != JobControl.SUSPENDED) {
         break;
@@ -285,7 +281,7 @@ public class JobControl implements Runnable{
         Thread.sleep(5000);
       }
       catch (Exception e) {
-				
+        
       }
       if (this.runnerState != JobControl.RUNNING && 
           this.runnerState != JobControl.SUSPENDED) {

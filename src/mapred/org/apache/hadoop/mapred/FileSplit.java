@@ -64,15 +64,23 @@ public class FileSplit extends org.apache.hadoop.mapreduce.InputSplit
   }
 
   /** The file containing this split's data. */
-  public Path getPath() { return file; }
+  public Path getPath() { 
+      return file; 
+  }
   
   /** The position of the first byte in the file to process. */
-  public long getStart() { return start; }
+  public long getStart() {
+      return start; 
+  }
   
   /** The number of bytes in the file to process. */
-  public long getLength() { return length; }
+  public long getLength() { 
+      return length; 
+  }
 
-  public String toString() { return file + ":" + start + "+" + length; }
+  public String toString() { 
+      return file + ":" + start + "+" + length; 
+  }
 
   ////////////////////////////////////////////
   // Writable methods

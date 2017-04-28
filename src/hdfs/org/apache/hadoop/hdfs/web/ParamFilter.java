@@ -35,8 +35,7 @@ import com.sun.jersey.spi.container.ResourceFilter;
  */
 public class ParamFilter implements ResourceFilter {
 	
-  private static final ContainerRequestFilter LOWER_CASE
-      = new ContainerRequestFilter() {
+  private static final ContainerRequestFilter LOWER_CASE = new ContainerRequestFilter() {
     @Override
     public ContainerRequest filter(final ContainerRequest request) {
       final MultivaluedMap<String, String> parameters = request.getQueryParameters();
@@ -72,8 +71,7 @@ public class ParamFilter implements ResourceFilter {
   }
 
   /** Rebuild the URI query with lower case parameter names. */
-  private static URI rebuildQuery(final URI uri,
-      final MultivaluedMap<String, String> parameters) {
+  private static URI rebuildQuery(final URI uri, final MultivaluedMap<String, String> parameters) {
     UriBuilder b = UriBuilder.fromUri(uri).replaceQuery("");
     for(Map.Entry<String, List<String>> e : parameters.entrySet()) {
       final String key = e.getKey().toLowerCase();

@@ -83,7 +83,7 @@ class DataXceiver implements Runnable, FSConstants {
       in = new DataInputStream(new BufferedInputStream(NetUtils.getInputStream(s),  SMALL_BUFFER_SIZE));
       short version = in.readShort();
       if ( version != DataTransferProtocol.DATA_TRANSFER_VERSION ) {
-        throw new IOException( "Version Mismatch" );
+        throw new IOException("Version Mismatch");
       }
       boolean local = s.getInetAddress().equals(s.getLocalAddress());
       byte op = in.readByte();
@@ -233,14 +233,9 @@ class DataXceiver implements Runnable, FSConstants {
     DatanodeInfo srcDataNode = null;
     LOG.debug("writeBlock receive buf size " + s.getReceiveBufferSize() +
               " tcp no delay " + s.getTcpNoDelay());
-    //
     // Read in the header
-    //
-    Block block = new Block(in.readLong(), 
-        dataXceiverServer.estimateBlockSize, in.readLong());
-    LOG.info("Receiving block " + block + 
-             " src: " + remoteAddress +
-             " dest: " + localAddress);
+    Block block = new Block(in.readLong(), dataXceiverServer.estimateBlockSize, in.readLong());
+    LOG.info("Receiving block " + block + " src: " + remoteAddress + " dest: " + localAddress);
     int pipelineSize = in.readInt(); // num of datanodes in entire pipeline
     boolean isRecovery = in.readBoolean(); // is this part of recovery?
     String client = Text.readString(in); // working on behalf of this client
@@ -262,8 +257,7 @@ class DataXceiver implements Runnable, FSConstants {
     Token<BlockTokenIdentifier> accessToken = new Token<BlockTokenIdentifier>();
     accessToken.readFields(in);
     DataOutputStream replyOut = null;   // stream to prev target
-    replyOut = new DataOutputStream(
-                   NetUtils.getOutputStream(s, datanode.socketWriteTimeout));
+    replyOut = new DataOutputStream(NetUtils.getOutputStream(s, datanode.socketWriteTimeout));
     if (datanode.isBlockTokenEnabled) {
       try {
         datanode.blockTokenSecretManager.checkAccess(accessToken, null, block, 
@@ -430,8 +424,7 @@ class DataXceiver implements Runnable, FSConstants {
     final Block block = new Block(in.readLong(), 0 , in.readLong());
     Token<BlockTokenIdentifier> accessToken = new Token<BlockTokenIdentifier>();
     accessToken.readFields(in);
-    DataOutputStream out = new DataOutputStream(NetUtils.getOutputStream(s,
-        datanode.socketWriteTimeout));
+    DataOutputStream out = new DataOutputStream(NetUtils.getOutputStream(s, datanode.socketWriteTimeout));
     if (datanode.isBlockTokenEnabled) {
       try {
         datanode.blockTokenSecretManager.checkAccess(accessToken, null, block, 
@@ -604,16 +597,13 @@ class DataXceiver implements Runnable, FSConstants {
     
     try {
       // get the output stream to the proxy
-      InetSocketAddress proxyAddr = NetUtils.createSocketAddr(
-          proxySource.getName());
+      InetSocketAddress proxyAddr = NetUtils.createSocketAddr(proxySource.getName());
       proxySock = datanode.newSocket();
       NetUtils.connect(proxySock, proxyAddr, datanode.socketTimeout);
       proxySock.setSoTimeout(datanode.socketTimeout);
 
-      OutputStream baseStream = NetUtils.getOutputStream(proxySock, 
-          datanode.socketWriteTimeout);
-      proxyOut = new DataOutputStream(
-                     new BufferedOutputStream(baseStream, SMALL_BUFFER_SIZE));
+      OutputStream baseStream = NetUtils.getOutputStream(proxySock, datanode.socketWriteTimeout);
+      proxyOut = new DataOutputStream(new BufferedOutputStream(baseStream, SMALL_BUFFER_SIZE));
 
       /* send request to the proxy */
       proxyOut.writeShort(DataTransferProtocol.DATA_TRANSFER_VERSION); // transfer version
@@ -624,8 +614,7 @@ class DataXceiver implements Runnable, FSConstants {
       proxyOut.flush();
 
       // receive the response from the proxy
-      proxyReply = new DataInputStream(new BufferedInputStream(
-          NetUtils.getInputStream(proxySock), BUFFER_SIZE));
+      proxyReply = new DataInputStream(new BufferedInputStream(NetUtils.getInputStream(proxySock), BUFFER_SIZE));
       short status = proxyReply.readShort();
       if (status != DataTransferProtocol.OP_STATUS_SUCCESS) {
         if (status == DataTransferProtocol.OP_STATUS_ERROR_ACCESS_TOKEN) {
@@ -639,18 +628,15 @@ class DataXceiver implements Runnable, FSConstants {
       // open a block receiver and check if the block does not exist
       blockReceiver = new BlockReceiver(
           block, proxyReply, proxySock.getRemoteSocketAddress().toString(),
-          proxySock.getLocalSocketAddress().toString(),
-          false, "", null, datanode);
+          proxySock.getLocalSocketAddress().toString(), false, "", null, datanode);
 
       // receive a block
-      blockReceiver.receiveBlock(null, null, null, null, 
-          dataXceiverServer.balanceThrottler, -1);
+      blockReceiver.receiveBlock(null, null, null, null, dataXceiverServer.balanceThrottler, -1);
                     
       // notify name node
       datanode.notifyNamenodeReceivedBlock(block, sourceID);
 
-      LOG.info("Moved block " + block + 
-          " from " + s.getRemoteSocketAddress());
+      LOG.info("Moved block " + block + " from " + s.getRemoteSocketAddress());
       
     } catch (IOException ioe) {
       opStatus = DataTransferProtocol.OP_STATUS_ERROR;
@@ -687,8 +673,7 @@ class DataXceiver implements Runnable, FSConstants {
    **/
   private void sendResponse(Socket s, short opStatus, long timeout) 
                                                        throws IOException {
-    DataOutputStream reply = 
-      new DataOutputStream(NetUtils.getOutputStream(s, timeout));
+    DataOutputStream reply = new DataOutputStream(NetUtils.getOutputStream(s, timeout));
     try {
       reply.writeShort(opStatus);
       reply.flush();

@@ -40,8 +40,7 @@ public class ContentSummaryServlet extends DfsServlet {
   /** {@inheritDoc} */
   public void doGet(final HttpServletRequest request,
       final HttpServletResponse response) throws ServletException, IOException {
-    final Configuration conf = 
-      (Configuration) getServletContext().getAttribute(JspHelper.CURRENT_CONF);
+    final Configuration conf = (Configuration) getServletContext().getAttribute(JspHelper.CURRENT_CONF);
     final UserGroupInformation ugi = getUGI(request, conf);
     try {
       ugi.doAs(new PrivilegedExceptionAction<Void>() {

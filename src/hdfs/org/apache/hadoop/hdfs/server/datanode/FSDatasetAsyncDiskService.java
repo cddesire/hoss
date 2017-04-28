@@ -60,8 +60,7 @@ class FSDatasetAsyncDiskService {
   
   private ThreadFactory threadFactory;
   
-  private HashMap<File, ThreadPoolExecutor> executors
-      = new HashMap<File, ThreadPoolExecutor>();
+  private HashMap<File, ThreadPoolExecutor> executors = new HashMap<File, ThreadPoolExecutor>();
   
   /**
    * Create a AsyncDiskServices with a set of volumes (specified by their
@@ -82,10 +81,8 @@ class FSDatasetAsyncDiskService {
     
     // Create one ThreadPool per volume
     for (int v = 0 ; v < volumes.length; v++) {
-      ThreadPoolExecutor executor = new ThreadPoolExecutor(
-          CORE_THREADS_PER_VOLUME, MAXIMUM_THREADS_PER_VOLUME, 
-          THREADS_KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, 
-          new LinkedBlockingQueue<Runnable>(), threadFactory);
+      ThreadPoolExecutor executor = new ThreadPoolExecutor(CORE_THREADS_PER_VOLUME, MAXIMUM_THREADS_PER_VOLUME,
+          THREADS_KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
 
       // This can reduce the number of running threads
       executor.allowCoreThreadTimeOut(true);
@@ -103,8 +100,7 @@ class FSDatasetAsyncDiskService {
     }
     ThreadPoolExecutor executor = executors.get(root);
     if (executor == null) {
-      throw new RuntimeException("Cannot find root " + root
-          + " for execution of task " + task);
+      throw new RuntimeException("Cannot find root " + root + " for execution of task " + task);
     } else {
       executor.execute(task);
     }
@@ -115,21 +111,15 @@ class FSDatasetAsyncDiskService {
    * tasks to finish.
    */
   synchronized void shutdown() {
-    
     if (executors == null) {
-      
       LOG.warn("AsyncDiskService has already shut down.");
-      
     } else {
       LOG.info("Shutting down all async disk service threads...");
-      
-      for (Map.Entry<File, ThreadPoolExecutor> e
-          : executors.entrySet()) {
+      for (Map.Entry<File, ThreadPoolExecutor> e : executors.entrySet()) {
         e.getValue().shutdown();
       }
       // clear the executor map so that calling execute again will fail.
       executors = null;
-      
       LOG.info("All async disk service threads have been shut down.");
     }
   }
@@ -138,13 +128,9 @@ class FSDatasetAsyncDiskService {
    * Delete the block file and meta file from the disk asynchronously, adjust
    * dfsUsed statistics accordingly.
    */
-  void deleteAsync(FSDataset.FSVolume volume, File blockFile,
-      File metaFile, long dfsBytes, String blockName) {
-    DataNode.LOG.info("Scheduling block " + blockName + " file " + blockFile
-        + " for deletion");
-    ReplicaFileDeleteTask deletionTask = 
-        new ReplicaFileDeleteTask(volume, blockFile, metaFile, dfsBytes,
-            blockName);
+  void deleteAsync(FSDataset.FSVolume volume, File blockFile, File metaFile, long dfsBytes, String blockName) {
+    DataNode.LOG.info("Scheduling block " + blockName + " file " + blockFile + " for deletion");
+    ReplicaFileDeleteTask deletionTask = new ReplicaFileDeleteTask(volume, blockFile, metaFile, dfsBytes, blockName);
     execute(volume.getCurrentDir(), deletionTask);
   }
   
@@ -152,15 +138,13 @@ class FSDatasetAsyncDiskService {
    *  as decrement the dfs usage of the volume. 
    */
   static class ReplicaFileDeleteTask implements Runnable {
-
     FSDataset.FSVolume volume;
     File blockFile;
     File metaFile;
     long dfsBytes;
     String blockName;
     
-    ReplicaFileDeleteTask(FSDataset.FSVolume volume, File blockFile,
-        File metaFile, long dfsBytes, String blockName) {
+    ReplicaFileDeleteTask(FSDataset.FSVolume volume, File blockFile, File metaFile, long dfsBytes, String blockName) {
       this.volume = volume;
       this.blockFile = blockFile;
       this.metaFile = metaFile;
@@ -182,8 +166,7 @@ class FSDatasetAsyncDiskService {
     @Override
     public void run() {
       if ( !blockFile.delete() || ( !metaFile.delete() && metaFile.exists() ) ) {
-        DataNode.LOG.warn("Unexpected error trying to delete block "
-            + blockName + " at file " + blockFile + ". Ignored.");
+        DataNode.LOG.warn("Unexpected error trying to delete block " + blockName + " at file " + blockFile + ". Ignored.");
       } else {
         volume.decDfsUsed(dfsBytes);
         DataNode.LOG.info("Deleted block " + blockName + " at file " + blockFile);

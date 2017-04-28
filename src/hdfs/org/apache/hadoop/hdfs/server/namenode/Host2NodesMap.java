@@ -22,8 +22,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class Host2NodesMap {
-  private HashMap<String, DatanodeDescriptor[]> map
-    = new HashMap<String, DatanodeDescriptor[]>();
+  private HashMap<String, DatanodeDescriptor[]> map = new HashMap<String, DatanodeDescriptor[]>();
   private Random r = new Random();
   private ReadWriteLock hostmapLock = new ReentrantReadWriteLock();
                       
@@ -89,7 +88,6 @@ class Host2NodesMap {
     String host = node.getHost();
     hostmapLock.writeLock().lock();
     try {
-
       DatanodeDescriptor[] nodes = map.get(host);
       if (nodes==null) {
         return false;
@@ -115,7 +113,7 @@ class Host2NodesMap {
         DatanodeDescriptor[] newNodes;
         newNodes = new DatanodeDescriptor[nodes.length-1];
         System.arraycopy(nodes, 0, newNodes, 0, i);
-        System.arraycopy(nodes, i+1, newNodes, i, nodes.length-i-1);
+        System.arraycopy(nodes, i + 1, newNodes, i, nodes.length - i - 1);
         map.put(host, newNodes);
         return true;
       }

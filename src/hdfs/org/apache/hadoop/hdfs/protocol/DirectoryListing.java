@@ -38,13 +38,13 @@ public class DirectoryListing implements Writable {
   }
 
   private HdfsFileStatus[] partialListing;
+
   private int remainingEntries;
   
   /**
    * default constructor
    */
-  public DirectoryListing() {
-  }
+  public DirectoryListing() {}
   
   /**
    * constructor

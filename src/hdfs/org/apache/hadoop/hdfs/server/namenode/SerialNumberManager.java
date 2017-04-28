@@ -29,10 +29,21 @@ class SerialNumberManager {
 
   private SerialNumberManager() {}
 
-  int getUserSerialNumber(String u) {return usermap.get(u);}
-  int getGroupSerialNumber(String g) {return groupmap.get(g);}
-  String getUser(int n) {return usermap.get(n);}
-  String getGroup(int n) {return groupmap.get(n);}
+  int getUserSerialNumber(String u) {
+    return usermap.get(u);
+  }
+
+  int getGroupSerialNumber(String g) {
+    return groupmap.get(g);
+  }
+
+  String getUser(int n) {
+    return usermap.get(n);
+  }
+  
+  String getGroup(int n) {
+    return groupmap.get(n);
+  }
 
   {
     getUserSerialNumber(null);
@@ -58,8 +69,7 @@ class SerialNumberManager {
 
     synchronized T get(int i) {
       if (!i2t.containsKey(i)) {
-        throw new IllegalStateException("!i2t.containsKey(" + i
-            + "), this=" + this);
+        throw new IllegalStateException("!i2t.containsKey(" + i + "), this=" + this);
       }
       return i2t.get(i);
     }

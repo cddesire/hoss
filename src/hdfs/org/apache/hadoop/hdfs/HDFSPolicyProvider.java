@@ -34,16 +34,12 @@ public class HDFSPolicyProvider extends PolicyProvider {
   private static final Service[] hdfsServices =
     new Service[] {
     new Service("security.client.protocol.acl", ClientProtocol.class),
-    new Service("security.client.datanode.protocol.acl", 
-                ClientDatanodeProtocol.class),
+    new Service("security.client.datanode.protocol.acl", ClientDatanodeProtocol.class),
     new Service("security.datanode.protocol.acl", DatanodeProtocol.class),
-    new Service("security.inter.datanode.protocol.acl", 
-                InterDatanodeProtocol.class),
+    new Service("security.inter.datanode.protocol.acl", InterDatanodeProtocol.class),
     new Service("security.namenode.protocol.acl", NamenodeProtocol.class),
-    new Service("security.refresh.policy.protocol.acl", 
-                RefreshAuthorizationPolicyProtocol.class),
-    new Service("security.refresh.usertogroups.mappings.protocol.acl", 
-                RefreshUserMappingsProtocol.class),
+    new Service("security.refresh.policy.protocol.acl", RefreshAuthorizationPolicyProtocol.class),
+    new Service("security.refresh.usertogroups.mappings.protocol.acl", RefreshUserMappingsProtocol.class),
   };
   
   @Override
