@@ -107,8 +107,7 @@ public class ReduceContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT>
     }
     firstValue = !nextKeyIsSame;
     DataInputBuffer next = input.getKey();
-    currentRawKey.set(next.getData(), next.getPosition(), 
-                      next.getLength() - next.getPosition());
+    currentRawKey.set(next.getData(), next.getPosition(), next.getLength() - next.getPosition());
     buffer.reset(currentRawKey.getBytes(), 0, currentRawKey.getLength());
     key = keyDeserializer.deserialize(key);
     next = input.getValue();
@@ -119,10 +118,7 @@ public class ReduceContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT>
       next = input.getKey();
       nextKeyIsSame = comparator.compare(currentRawKey.getBytes(), 0, 
                                          currentRawKey.getLength(),
-                                         next.getData(),
-                                         next.getPosition(),
-                                         next.getLength() - next.getPosition()
-                                         ) == 0;
+                                         next.getData(), next.getPosition(), next.getLength() - next.getPosition()) == 0;
     } else {
       nextKeyIsSame = false;
     }
