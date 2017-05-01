@@ -25,7 +25,6 @@ import org.apache.hadoop.fs.FileSystem;
 /**
  * <code>RecordWriter</code> writes the output &lt;key, value&gt; pairs 
  * to an output file.
- 
  * <p><code>RecordWriter</code> implementations write the job outputs to the
  * {@link FileSystem}.
  * 
@@ -39,8 +38,7 @@ public abstract class RecordWriter<K, V> {
    * @param value the value to write.
    * @throws IOException
    */      
-  public abstract void write(K key, V value
-                             ) throws IOException, InterruptedException;
+  public abstract void write(K key, V value) throws IOException, InterruptedException;
 
   /** 
    * Close this <code>RecordWriter</code> to future operations.
@@ -48,6 +46,5 @@ public abstract class RecordWriter<K, V> {
    * @param context the context of the task
    * @throws IOException
    */ 
-  public abstract void close(TaskAttemptContext context
-                             ) throws IOException, InterruptedException;
+  public abstract void close(TaskAttemptContext context) throws IOException, InterruptedException;
 }
