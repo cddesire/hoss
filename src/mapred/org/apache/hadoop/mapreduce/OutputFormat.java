@@ -50,8 +50,7 @@ public abstract class OutputFormat<K, V> {
    * @return a {@link RecordWriter} to write the output for the job.
    * @throws IOException
    */
-  public abstract RecordWriter<K, V> 
-    getRecordWriter(TaskAttemptContext context
+  public abstract RecordWriter<K, V> getRecordWriter(TaskAttemptContext context
                     ) throws IOException, InterruptedException;
 
   /** 
@@ -65,9 +64,7 @@ public abstract class OutputFormat<K, V> {
    * @param context information about the job
    * @throws IOException when output should not be attempted
    */
-  public abstract void checkOutputSpecs(JobContext context
-                                        ) throws IOException, 
-                                                 InterruptedException;
+  public abstract void checkOutputSpecs(JobContext context) throws IOException, InterruptedException;
 
   /**
    * Get the output committer for this output format. This is responsible
@@ -78,7 +75,6 @@ public abstract class OutputFormat<K, V> {
    * @throws InterruptedException
    */
   public abstract 
-  OutputCommitter getOutputCommitter(TaskAttemptContext context
-                                     ) throws IOException, InterruptedException;
+  OutputCommitter getOutputCommitter(TaskAttemptContext context) throws IOException, InterruptedException;
 }
 
