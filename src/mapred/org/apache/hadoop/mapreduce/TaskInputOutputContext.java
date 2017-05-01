@@ -33,8 +33,11 @@ import org.apache.hadoop.util.Progressable;
  */
 public abstract class TaskInputOutputContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT> 
        extends TaskAttemptContext implements Progressable {
+
   private RecordWriter<KEYOUT,VALUEOUT> output;
+
   private StatusReporter reporter;
+
   private OutputCommitter committer;
 
   public TaskInputOutputContext(Configuration conf, TaskAttemptID taskid,
@@ -51,8 +54,7 @@ public abstract class TaskInputOutputContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT>
    * Advance to the next key, value pair, returning null if at end.
    * @return the key object that was read into, or null if no more
    */
-  public abstract 
-  boolean nextKeyValue() throws IOException, InterruptedException;
+  public abstract boolean nextKeyValue() throws IOException, InterruptedException;
  
   /**
    * Get the current key.
@@ -60,8 +62,7 @@ public abstract class TaskInputOutputContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT>
    * @throws IOException
    * @throws InterruptedException
    */
-  public abstract 
-  KEYIN getCurrentKey() throws IOException, InterruptedException;
+  public abstract KEYIN getCurrentKey() throws IOException, InterruptedException;
 
   /**
    * Get the current value.
@@ -69,14 +70,12 @@ public abstract class TaskInputOutputContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT>
    * @throws IOException
    * @throws InterruptedException
    */
-  public abstract VALUEIN getCurrentValue() throws IOException, 
-                                                   InterruptedException;
+  public abstract VALUEIN getCurrentValue() throws IOException, InterruptedException;
 
   /**
    * Generate an output key/value pair.
    */
-  public void write(KEYOUT key, VALUEOUT value
-                    ) throws IOException, InterruptedException {
+  public void write(KEYOUT key, VALUEOUT value) throws IOException, InterruptedException {
     output.write(key, value);
   }
 
