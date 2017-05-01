@@ -18,8 +18,12 @@
 package org.apache.hadoop.mapreduce;
 
 public abstract class StatusReporter {
+  
   public abstract Counter getCounter(Enum<?> name);
+  
   public abstract Counter getCounter(String group, String name);
+  
   public abstract void progress();
+  
   public abstract void setStatus(String status);
 }
