@@ -34,7 +34,7 @@ public abstract class Partitioner<KEY, VALUE> {
   
   /** 
    * Get the partition number for a given key (hence record) given the total 
-   * number of partitions i.e. number of reduce-tasks for the job.
+   * number of partitions i.e. number of reduce-tasks for the job. 
    *   
    * <p>Typically a hash function on a all or a subset of the key.</p>
    *
