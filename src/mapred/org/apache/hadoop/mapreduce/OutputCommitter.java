@@ -88,14 +88,12 @@ public abstract class OutputCommitter {
    * For aborting an unsuccessful job's output. Note that this is invoked for 
    * jobs with final run state as {@link JobStatus.State#FAILED} or 
    * {@link JobStatus.State#KILLED}.
- 
    * @param jobContext Context of the job whose output is being written.
    * @param state final run state of the job, should be either 
    * {@link JobStatus.State#KILLED} or {@link JobStatus.State#FAILED} 
    * @throws IOException
    */
-  public void abortJob(JobContext jobContext, JobStatus.State state) 
-  throws IOException {
+  public void abortJob(JobContext jobContext, JobStatus.State state) throws IOException {
     cleanupJob(jobContext);
   }
   
@@ -105,8 +103,7 @@ public abstract class OutputCommitter {
    * @param taskContext Context of the task whose output is being written.
    * @throws IOException
    */
-  public abstract void setupTask(TaskAttemptContext taskContext)
-  throws IOException;
+  public abstract void setupTask(TaskAttemptContext taskContext) throws IOException;
   
   /**
    * Check whether task needs a commit
@@ -115,8 +112,7 @@ public abstract class OutputCommitter {
    * @return true/false
    * @throws IOException
    */
-  public abstract boolean needsTaskCommit(TaskAttemptContext taskContext)
-  throws IOException;
+  public abstract boolean needsTaskCommit(TaskAttemptContext taskContext) throws IOException;
 
   /**
    * To promote the task's temporary output to final output location
@@ -126,8 +122,7 @@ public abstract class OutputCommitter {
    * @param taskContext Context of the task whose output is being written.
    * @throws IOException if commit is not 
    */
-  public abstract void commitTask(TaskAttemptContext taskContext)
-  throws IOException;
+  public abstract void commitTask(TaskAttemptContext taskContext) throws IOException;
   
   /**
    * Discard the task output
@@ -135,6 +130,5 @@ public abstract class OutputCommitter {
    * @param taskContext
    * @throws IOException
    */
-  public abstract void abortTask(TaskAttemptContext taskContext)
-  throws IOException;
+  public abstract void abortTask(TaskAttemptContext taskContext) throws IOException;
 }
