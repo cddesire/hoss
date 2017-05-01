@@ -31,7 +31,6 @@ import org.apache.hadoop.mapred.RawKeyValueIterator;
  * <p><code>Reducer</code> implementations 
  * can access the {@link Configuration} for the job via the 
  * {@link JobContext#getConfiguration()} method.</p>
-
  * <p><code>Reducer</code> has 3 primary phases:</p>
  * <ol>
  *   <li>
@@ -128,8 +127,7 @@ public class Reducer<KEYIN,VALUEIN,KEYOUT,VALUEOUT> {
                    StatusReporter reporter,
                    RawComparator<KEYIN> comparator,
                    Class<KEYIN> keyClass,
-                   Class<VALUEIN> valueClass
-                   ) throws IOException, InterruptedException {
+                   Class<VALUEIN> valueClass) throws IOException, InterruptedException {
       super(conf, taskid, input, inputKeyCounter, inputValueCounter,
             output, committer, reporter, 
             comparator, keyClass, valueClass);
@@ -139,8 +137,7 @@ public class Reducer<KEYIN,VALUEIN,KEYOUT,VALUEOUT> {
   /**
    * Called once at the start of the task.
    */
-  protected void setup(Context context
-                       ) throws IOException, InterruptedException {
+  protected void setup(Context context) throws IOException, InterruptedException {
     // NOTHING
   }
 
@@ -150,8 +147,7 @@ public class Reducer<KEYIN,VALUEIN,KEYOUT,VALUEOUT> {
    * is an identity function.
    */
   @SuppressWarnings("unchecked")
-  protected void reduce(KEYIN key, Iterable<VALUEIN> values, Context context
-                        ) throws IOException, InterruptedException {
+  protected void reduce(KEYIN key, Iterable<VALUEIN> values, Context context) throws IOException, InterruptedException {
     for(VALUEIN value: values) {
       context.write((KEYOUT) key, (VALUEOUT) value);
     }
@@ -160,8 +156,7 @@ public class Reducer<KEYIN,VALUEIN,KEYOUT,VALUEOUT> {
   /**
    * Called once at the end of the task.
    */
-  protected void cleanup(Context context
-                         ) throws IOException, InterruptedException {
+  protected void cleanup(Context context) throws IOException, InterruptedException {
     // NOTHING
   }
 
