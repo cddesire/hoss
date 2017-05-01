@@ -36,9 +36,7 @@ public abstract class RecordReader<KEYIN, VALUEIN> implements Closeable {
    * @throws IOException
    * @throws InterruptedException
    */
-  public abstract void initialize(InputSplit split,
-                                  TaskAttemptContext context
-                                  ) throws IOException, InterruptedException;
+  public abstract void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException;
 
   /**
    * Read the next key, value pair.
