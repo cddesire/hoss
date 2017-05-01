@@ -29,6 +29,7 @@ import org.apache.hadoop.util.Progressable;
 public class TaskAttemptContext extends JobContext implements Progressable {
   
   private final TaskAttemptID taskId;
+  
   private String status = "";
   
   public TaskAttemptContext(Configuration conf, TaskAttemptID taskId) {
