@@ -46,8 +46,10 @@ import java.text.NumberFormat;
  * @see TaskAttemptID
  */
 public class TaskID extends org.apache.hadoop.mapred.ID {
+
   protected static final String TASK = "task";
   protected static final NumberFormat idFormat = NumberFormat.getInstance();
+  
   static {
     idFormat.setGroupingUsed(false);
     idFormat.setMinimumIntegerDigits(6);
