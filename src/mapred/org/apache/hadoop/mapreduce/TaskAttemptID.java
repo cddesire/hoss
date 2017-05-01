@@ -67,8 +67,7 @@ public class TaskAttemptID extends org.apache.hadoop.mapred.ID {
    * @param taskId taskId number
    * @param id the task attempt number
    */
-  public TaskAttemptID(String jtIdentifier, int jobId, boolean isMap, 
-                       int taskId, int id) {
+  public TaskAttemptID(String jtIdentifier, int jobId, boolean isMap, int taskId, int id) {
     this(new TaskID(jtIdentifier, jobId, isMap, taskId), id);
   }
   
@@ -145,8 +144,7 @@ public class TaskAttemptID extends org.apache.hadoop.mapred.ID {
    * @return constructed TaskAttemptID object or null if the given String is null
    * @throws IllegalArgumentException if the given string is malformed
    */
-  public static TaskAttemptID forName(String str
-                                      ) throws IllegalArgumentException {
+  public static TaskAttemptID forName(String str) throws IllegalArgumentException {
     if(str == null)
       return null;
     try {
@@ -158,10 +156,7 @@ public class TaskAttemptID extends org.apache.hadoop.mapred.ID {
           else if(parts[3].equals("r")) isMap = false;
           else throw new Exception();
           return new org.apache.hadoop.mapred.TaskAttemptID
-                       (parts[1],
-                        Integer.parseInt(parts[2]),
-                        isMap, Integer.parseInt(parts[4]), 
-                        Integer.parseInt(parts[5]));
+                       (parts[1], Integer.parseInt(parts[2]), isMap, Integer.parseInt(parts[4]), Integer.parseInt(parts[5])); 
         }
       }
     } catch (Exception ex) {
