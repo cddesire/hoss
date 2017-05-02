@@ -80,8 +80,7 @@ public abstract class InputFormat<K, V> {
    * @return an array of {@link InputSplit}s for the job.
    */
   public abstract 
-    List<InputSplit> getSplits(JobContext context
-                               ) throws IOException, InterruptedException;
+    List<InputSplit> getSplits(JobContext context) throws IOException, InterruptedException;
   
   /**
    * Create a record reader for a given split. The framework will call
@@ -93,11 +92,8 @@ public abstract class InputFormat<K, V> {
    * @throws IOException
    * @throws InterruptedException
    */
-  public abstract 
-    RecordReader<K,V> createRecordReader(InputSplit split,
-                                         TaskAttemptContext context
-                                        ) throws IOException, 
-                                                 InterruptedException;
+  public abstract RecordReader<K,V> createRecordReader(InputSplit split, TaskAttemptContext context
+                                        ) throws IOException, InterruptedException;
 
 }
 
