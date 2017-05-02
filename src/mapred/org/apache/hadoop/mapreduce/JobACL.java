@@ -30,7 +30,7 @@ public enum JobACL {
 
   /**
    * ACL for 'modifying' job. Dictates who can 'modify' the job for e.g., by
-   * killing the job, killing/failing a task of the job or setting priority of
+   * killing the job, killing / failing a task of the job or setting priority of
    * the job.
    */
   MODIFY_JOB(JobContext.JOB_ACL_MODIFY_JOB);
