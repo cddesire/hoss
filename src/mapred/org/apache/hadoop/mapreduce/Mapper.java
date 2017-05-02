@@ -109,8 +109,7 @@ public class Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
   /**
    * Called once at the beginning of the task.
    */
-  protected void setup(Context context
-                       ) throws IOException, InterruptedException {
+  protected void setup(Context context) throws IOException, InterruptedException {
     // NOTHING
   }
 
@@ -127,8 +126,7 @@ public class Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
   /**
    * Called once at the end of the task.
    */
-  protected void cleanup(Context context
-                         ) throws IOException, InterruptedException {
+  protected void cleanup(Context context) throws IOException, InterruptedException {
     // NOTHING
   }
   
