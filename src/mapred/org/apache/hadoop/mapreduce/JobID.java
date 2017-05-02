@@ -44,13 +44,12 @@ import org.apache.hadoop.io.Text;
  * @see org.apache.hadoop.mapred.JobTracker#getNewJobId()
  * @see org.apache.hadoop.mapred.JobTracker#getStartTime()
  */
-public class JobID extends org.apache.hadoop.mapred.ID 
-                   implements Comparable<ID> {
+public class JobID extends org.apache.hadoop.mapred.ID implements Comparable<ID> {
+  
   protected static final String JOB = "job";
   
   // Jobid regex for various tools and framework components
-  public static final String JOBID_REGEX = 
-    JOB + SEPARATOR + "[0-9]+" + SEPARATOR + "[0-9]+";
+  public static final String JOBID_REGEX = JOB + SEPARATOR + "[0-9]+" + SEPARATOR + "[0-9]+";
   
   private final Text jtIdentifier;
   
@@ -145,14 +144,12 @@ public class JobID extends org.apache.hadoop.mapred.ID
       String[] parts = str.split("_");
       if(parts.length == 3) {
         if(parts[0].equals(JOB)) {
-          return new org.apache.hadoop.mapred.JobID(parts[1], 
-                                                    Integer.parseInt(parts[2]));
+          return new org.apache.hadoop.mapred.JobID(parts[1], Integer.parseInt(parts[2]));
         }
       }
     }catch (Exception ex) {//fall below
     }
-    throw new IllegalArgumentException("JobId string : " + str 
-        + " is not properly formed");
+    throw new IllegalArgumentException("JobId string : " + str + " is not properly formed");
   }
   
 }
