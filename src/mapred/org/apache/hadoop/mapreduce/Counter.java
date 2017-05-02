@@ -42,8 +42,7 @@ public class Counter implements Writable {
   private String displayName;
   private long value = 0;
     
-  protected Counter() { 
-  }
+  protected Counter() {}
 
   protected Counter(String name, String displayName) {
     this.name = name;
