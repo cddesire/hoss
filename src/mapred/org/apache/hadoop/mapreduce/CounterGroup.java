@@ -35,8 +35,11 @@ import org.apache.hadoop.io.WritableUtils;
  * it is an {@link Enum} subclass and the counters are the values.
  */
 public class CounterGroup implements Writable, Iterable<Counter> {
+
   private String name;
+
   private String displayName;
+  
   private TreeMap<String, Counter> counters = new TreeMap<String, Counter>();
   // Optional ResourceBundle for localization of group and counter names.
   private ResourceBundle bundle = null;    
