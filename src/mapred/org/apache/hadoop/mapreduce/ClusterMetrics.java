@@ -64,8 +64,7 @@ public class ClusterMetrics implements Writable {
   private int numGraylistedTrackers;
   private int numDecommissionedTrackers;
 
-  public ClusterMetrics() {
-  }
+  public ClusterMetrics() {}
   
   public ClusterMetrics(int runningMaps, int runningReduces,
       int occupiedMapSlots, int occupiedReduceSlots,
