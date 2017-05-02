@@ -31,7 +31,9 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class MapContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT> 
   extends TaskInputOutputContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT> {
+
   private RecordReader<KEYIN,VALUEIN> reader;
+  
   private InputSplit split;
 
   public MapContext(Configuration conf, TaskAttemptID taskid,
@@ -68,4 +70,3 @@ public class MapContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT>
   }
 
 }
-     
