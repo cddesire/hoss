@@ -42,4 +42,5 @@ public class JobStatus {
       return value;
     }
   }
+  
 }
