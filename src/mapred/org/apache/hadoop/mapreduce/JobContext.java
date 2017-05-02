@@ -37,35 +37,37 @@ import org.apache.hadoop.security.UserGroupInformation;
 public class JobContext {
   // Put all of the attribute names in here so that Job and JobContext are
   // consistent.
-  protected static final String INPUT_FORMAT_CLASS_ATTR = 
-    "mapreduce.inputformat.class";
+  protected static final String INPUT_FORMAT_CLASS_ATTR = "mapreduce.inputformat.class";
+
   protected static final String MAP_CLASS_ATTR = "mapreduce.map.class";
+
   protected static final String COMBINE_CLASS_ATTR = "mapreduce.combine.class";
+
   protected static final String REDUCE_CLASS_ATTR = "mapreduce.reduce.class";
-  protected static final String OUTPUT_FORMAT_CLASS_ATTR = 
-    "mapreduce.outputformat.class";
-  protected static final String PARTITIONER_CLASS_ATTR = 
-    "mapreduce.partitioner.class";
+
+  protected static final String OUTPUT_FORMAT_CLASS_ATTR = "mapreduce.outputformat.class";
+
+  protected static final String PARTITIONER_CLASS_ATTR = "mapreduce.partitioner.class";
 
   protected final org.apache.hadoop.mapred.JobConf conf;
+
   protected final Credentials credentials;
+
   private JobID jobId;
 
   public static final String JOB_NAMENODES = "mapreduce.job.hdfs-servers";
 
   public static final String JOB_ACL_VIEW_JOB = "mapreduce.job.acl-view-job";
-  public static final String JOB_ACL_MODIFY_JOB =
-    "mapreduce.job.acl-modify-job";
 
-  public static final String CACHE_FILE_VISIBILITIES = 
-    "mapreduce.job.cache.files.visibilities";
-  public static final String CACHE_ARCHIVES_VISIBILITIES = 
-    "mapreduce.job.cache.archives.visibilities";
+  public static final String JOB_ACL_MODIFY_JOB = "mapreduce.job.acl-modify-job";
+
+  public static final String CACHE_FILE_VISIBILITIES = "mapreduce.job.cache.files.visibilities";
+
+  public static final String CACHE_ARCHIVES_VISIBILITIES = "mapreduce.job.cache.archives.visibilities";
   
-  public static final String JOB_CANCEL_DELEGATION_TOKEN = 
-    "mapreduce.job.complete.cancel.delegation.tokens";
-  public static final String USER_LOG_RETAIN_HOURS = 
-    "mapred.userlog.retain.hours";
+  public static final String JOB_CANCEL_DELEGATION_TOKEN = "mapreduce.job.complete.cancel.delegation.tokens";
+  
+  public static final String USER_LOG_RETAIN_HOURS = "mapred.userlog.retain.hours";
   
   /**
    * The UserGroupInformation object that has a reference to the current user
@@ -182,10 +184,8 @@ public class JobContext {
    * @return the {@link InputFormat} class for the job.
    */
   @SuppressWarnings("unchecked")
-  public Class<? extends InputFormat<?,?>> getInputFormatClass() 
-     throws ClassNotFoundException {
-    return (Class<? extends InputFormat<?,?>>) 
-      conf.getClass(INPUT_FORMAT_CLASS_ATTR, TextInputFormat.class);
+  public Class<? extends InputFormat<?,?>> getInputFormatClass() throws ClassNotFoundException {
+    return (Class<? extends InputFormat<?,?>>) conf.getClass(INPUT_FORMAT_CLASS_ATTR, TextInputFormat.class);
   }
 
   /**
@@ -194,10 +194,8 @@ public class JobContext {
    * @return the {@link Mapper} class for the job.
    */
   @SuppressWarnings("unchecked")
-  public Class<? extends Mapper<?,?,?,?>> getMapperClass() 
-     throws ClassNotFoundException {
-    return (Class<? extends Mapper<?,?,?,?>>) 
-      conf.getClass(MAP_CLASS_ATTR, Mapper.class);
+  public Class<? extends Mapper<?,?,?,?>> getMapperClass() throws ClassNotFoundException {
+    return (Class<? extends Mapper<?,?,?,?>>) conf.getClass(MAP_CLASS_ATTR, Mapper.class);
   }
 
   /**
@@ -206,10 +204,8 @@ public class JobContext {
    * @return the combiner class for the job.
    */
   @SuppressWarnings("unchecked")
-  public Class<? extends Reducer<?,?,?,?>> getCombinerClass() 
-     throws ClassNotFoundException {
-    return (Class<? extends Reducer<?,?,?,?>>) 
-      conf.getClass(COMBINE_CLASS_ATTR, null);
+  public Class<? extends Reducer<?,?,?,?>> getCombinerClass() throws ClassNotFoundException {
+    return (Class<? extends Reducer<?,?,?,?>>) conf.getClass(COMBINE_CLASS_ATTR, null);
   }
 
   /**
@@ -218,10 +214,8 @@ public class JobContext {
    * @return the {@link Reducer} class for the job.
    */
   @SuppressWarnings("unchecked")
-  public Class<? extends Reducer<?,?,?,?>> getReducerClass() 
-     throws ClassNotFoundException {
-    return (Class<? extends Reducer<?,?,?,?>>) 
-      conf.getClass(REDUCE_CLASS_ATTR, Reducer.class);
+  public Class<? extends Reducer<?,?,?,?>> getReducerClass() throws ClassNotFoundException {
+    return (Class<? extends Reducer<?,?,?,?>>) conf.getClass(REDUCE_CLASS_ATTR, Reducer.class);
   }
 
   /**
@@ -230,10 +224,8 @@ public class JobContext {
    * @return the {@link OutputFormat} class for the job.
    */
   @SuppressWarnings("unchecked")
-  public Class<? extends OutputFormat<?,?>> getOutputFormatClass() 
-     throws ClassNotFoundException {
-    return (Class<? extends OutputFormat<?,?>>) 
-      conf.getClass(OUTPUT_FORMAT_CLASS_ATTR, TextOutputFormat.class);
+  public Class<? extends OutputFormat<?,?>> getOutputFormatClass() throws ClassNotFoundException {
+    return (Class<? extends OutputFormat<?,?>>) conf.getClass(OUTPUT_FORMAT_CLASS_ATTR, TextOutputFormat.class);
   }
 
   /**
@@ -242,10 +234,8 @@ public class JobContext {
    * @return the {@link Partitioner} class for the job.
    */
   @SuppressWarnings("unchecked")
-  public Class<? extends Partitioner<?,?>> getPartitionerClass() 
-     throws ClassNotFoundException {
-    return (Class<? extends Partitioner<?,?>>) 
-      conf.getClass(PARTITIONER_CLASS_ATTR, HashPartitioner.class);
+  public Class<? extends Partitioner<?,?>> getPartitionerClass() throws ClassNotFoundException {
+    return (Class<? extends Partitioner<?,?>>) conf.getClass(PARTITIONER_CLASS_ATTR, HashPartitioner.class);
   }
 
   /**
