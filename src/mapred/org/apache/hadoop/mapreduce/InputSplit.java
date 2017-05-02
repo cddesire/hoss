@@ -51,6 +51,5 @@ public abstract class InputSplit {
    * @throws IOException
    * @throws InterruptedException
    */
-  public abstract 
-    String[] getLocations() throws IOException, InterruptedException;
+  public abstract String[] getLocations() throws IOException, InterruptedException;
 }
