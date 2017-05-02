@@ -35,11 +35,10 @@ import org.apache.hadoop.conf.Configuration;
 public class JobSubmissionFiles {
 
   // job submission directory is private!
-  final public static FsPermission JOB_DIR_PERMISSION =
-    FsPermission.createImmutable((short) 0700); // rwx--------
+  final public static FsPermission JOB_DIR_PERMISSION = FsPermission.createImmutable((short) 0700); // rwx--------
+  
   //job files are world-wide readable and owner writable
-  final public static FsPermission JOB_FILE_PERMISSION = 
-    FsPermission.createImmutable((short) 0644); // rw-r--r--
+  final public static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644); // rw-r--r--
   
   public static Path getJobSplitFile(Path jobSubmissionDir) {
     return new Path(jobSubmissionDir, "job.split");
@@ -113,8 +112,7 @@ public class JobSubmissionFiles {
                       "by " + realUser + " and permissions must be rwx------");
       }
     } else {
-      fs.mkdirs(stagingArea, 
-          new FsPermission(JOB_DIR_PERMISSION));
+      fs.mkdirs(stagingArea, new FsPermission(JOB_DIR_PERMISSION));
     }
     return stagingArea;
   }
