@@ -61,13 +61,11 @@ public class Job extends JobContext {
   
   private void ensureState(JobState state) throws IllegalStateException {
     if (state != this.state) {
-      throw new IllegalStateException("Job in state "+ this.state + 
-                                      " instead of " + state);
+      throw new IllegalStateException("Job in state "+ this.state + " instead of " + state);
     }
 
     if (state == JobState.RUNNING && jobClient == null) {
-      throw new IllegalStateException("Job in state " + JobState.RUNNING + 
-                                      " however jobClient is not initialized!");
+      throw new IllegalStateException("Job in state " + JobState.RUNNING + " however jobClient is not initialized!");
     }
   }
 
@@ -97,8 +95,7 @@ public class Job extends JobContext {
    * @param cls the <code>InputFormat</code> to use
    * @throws IllegalStateException if the job is submitted
    */
-  public void setInputFormatClass(Class<? extends InputFormat> cls
-                                  ) throws IllegalStateException {
+  public void setInputFormatClass(Class<? extends InputFormat> cls) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setClass(INPUT_FORMAT_CLASS_ATTR, cls, InputFormat.class);
   }
@@ -108,8 +105,7 @@ public class Job extends JobContext {
    * @param cls the <code>OutputFormat</code> to use
    * @throws IllegalStateException if the job is submitted
    */
-  public void setOutputFormatClass(Class<? extends OutputFormat> cls
-                                   ) throws IllegalStateException {
+  public void setOutputFormatClass(Class<? extends OutputFormat> cls) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setClass(OUTPUT_FORMAT_CLASS_ATTR, cls, OutputFormat.class);
   }
@@ -119,8 +115,7 @@ public class Job extends JobContext {
    * @param cls the <code>Mapper</code> to use
    * @throws IllegalStateException if the job is submitted
    */
-  public void setMapperClass(Class<? extends Mapper> cls
-                             ) throws IllegalStateException {
+  public void setMapperClass(Class<? extends Mapper> cls) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setClass(MAP_CLASS_ATTR, cls, Mapper.class);
   }
@@ -146,8 +141,7 @@ public class Job extends JobContext {
    * @param cls the combiner to use
    * @throws IllegalStateException if the job is submitted
    */
-  public void setCombinerClass(Class<? extends Reducer> cls
-                               ) throws IllegalStateException {
+  public void setCombinerClass(Class<? extends Reducer> cls) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setClass(COMBINE_CLASS_ATTR, cls, Reducer.class);
   }
@@ -157,8 +151,7 @@ public class Job extends JobContext {
    * @param cls the <code>Reducer</code> to use
    * @throws IllegalStateException if the job is submitted
    */
-  public void setReducerClass(Class<? extends Reducer> cls
-                              ) throws IllegalStateException {
+  public void setReducerClass(Class<? extends Reducer> cls) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setClass(REDUCE_CLASS_ATTR, cls, Reducer.class);
   }
@@ -168,8 +161,7 @@ public class Job extends JobContext {
    * @param cls the <code>Partitioner</code> to use
    * @throws IllegalStateException if the job is submitted
    */
-  public void setPartitionerClass(Class<? extends Partitioner> cls
-                                  ) throws IllegalStateException {
+  public void setPartitionerClass(Class<? extends Partitioner> cls) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setClass(PARTITIONER_CLASS_ATTR, cls, Partitioner.class);
   }
@@ -182,8 +174,7 @@ public class Job extends JobContext {
    * @param theClass the map output key class.
    * @throws IllegalStateException if the job is submitted
    */
-  public void setMapOutputKeyClass(Class<?> theClass
-                                   ) throws IllegalStateException {
+  public void setMapOutputKeyClass(Class<?> theClass) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setMapOutputKeyClass(theClass);
   }
@@ -196,8 +187,7 @@ public class Job extends JobContext {
    * @param theClass the map output value class.
    * @throws IllegalStateException if the job is submitted
    */
-  public void setMapOutputValueClass(Class<?> theClass
-                                     ) throws IllegalStateException {
+  public void setMapOutputValueClass(Class<?> theClass) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setMapOutputValueClass(theClass);
   }
@@ -208,8 +198,7 @@ public class Job extends JobContext {
    * @param theClass the key class for the job output data.
    * @throws IllegalStateException if the job is submitted
    */
-  public void setOutputKeyClass(Class<?> theClass
-                                ) throws IllegalStateException {
+  public void setOutputKeyClass(Class<?> theClass) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setOutputKeyClass(theClass);
   }
@@ -220,8 +209,7 @@ public class Job extends JobContext {
    * @param theClass the value class for job outputs.
    * @throws IllegalStateException if the job is submitted
    */
-  public void setOutputValueClass(Class<?> theClass
-                                  ) throws IllegalStateException {
+  public void setOutputValueClass(Class<?> theClass) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setOutputValueClass(theClass);
   }
@@ -232,8 +220,7 @@ public class Job extends JobContext {
    * @param cls the raw comparator
    * @throws IllegalStateException if the job is submitted
    */
-  public void setSortComparatorClass(Class<? extends RawComparator> cls
-                                     ) throws IllegalStateException {
+  public void setSortComparatorClass(Class<? extends RawComparator> cls) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setOutputKeyComparatorClass(cls);
   }
@@ -246,8 +233,7 @@ public class Job extends JobContext {
    * @param cls the raw comparator to use
    * @throws IllegalStateException if the job is submitted
    */
-  public void setGroupingComparatorClass(Class<? extends RawComparator> cls
-                                         ) throws IllegalStateException {
+  public void setGroupingComparatorClass(Class<? extends RawComparator> cls) throws IllegalStateException {
     ensureState(JobState.DEFINE);
     conf.setOutputValueGroupingComparator(cls);
   }
@@ -385,8 +371,7 @@ public class Job extends JobContext {
    * @return an array of {@link TaskCompletionEvent}s
    * @throws IOException
    */
-  public TaskCompletionEvent[] getTaskCompletionEvents(int startFrom
-                                                       ) throws IOException {
+  public TaskCompletionEvent[] getTaskCompletionEvents(int startFrom) throws IOException {
     ensureState(JobState.RUNNING);
     return info.getTaskCompletionEvents(startFrom);
   }
@@ -411,8 +396,7 @@ public class Job extends JobContext {
    */
   public void failTask(TaskAttemptID taskId) throws IOException {
     ensureState(JobState.RUNNING);
-    info.killTask(org.apache.hadoop.mapred.TaskAttemptID.downgrade(taskId), 
-                  true);
+    info.killTask(org.apache.hadoop.mapred.TaskAttemptID.downgrade(taskId), true);
   }
 
   /**
@@ -472,8 +456,7 @@ public class Job extends JobContext {
       }
     }
     if (numReduces != 0) {
-      conf.setBooleanIfUnset("mapred.reducer.new-api",
-                             conf.get(oldReduceClass) == null);
+      conf.setBooleanIfUnset("mapred.reducer.new-api", conf.get(oldReduceClass) == null);
       if (conf.getUseNewReducer()) {
         String mode = "new reduce API";
         ensureNotSet("mapred.output.format.class", mode);
@@ -490,8 +473,7 @@ public class Job extends JobContext {
    * Submit the job to the cluster and return immediately.
    * @throws IOException
    */
-  public void submit() throws IOException, InterruptedException, 
-                              ClassNotFoundException {
+  public void submit() throws IOException, InterruptedException, ClassNotFoundException {
     ensureState(JobState.DEFINE);
     setUseNewAPI();
     
@@ -523,8 +505,7 @@ public class Job extends JobContext {
    * @throws IOException thrown if the communication with the 
    *         <code>JobTracker</code> is lost
    */
-  public boolean waitForCompletion(boolean verbose
-                                   ) throws IOException, InterruptedException,
+  public boolean waitForCompletion(boolean verbose ) throws IOException, InterruptedException,
                                             ClassNotFoundException {
     if (state == JobState.DEFINE) {
       submit();
