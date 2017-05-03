@@ -40,13 +40,11 @@ public class SplitMetaInfoReader {
   public static JobSplit.TaskSplitMetaInfo[] readSplitMetaInfo(
       JobID jobId, FileSystem fs, Configuration conf, Path jobSubmitDir) 
   throws IOException {
-    long maxMetaInfoSize = conf.getLong("mapreduce.jobtracker.split.metainfo.maxsize", 
-        10000000L);
+    long maxMetaInfoSize = conf.getLong("mapreduce.jobtracker.split.metainfo.maxsize", 10000000L);
     Path metaSplitFile = JobSubmissionFiles.getJobSplitMetaFile(jobSubmitDir);
     FileStatus fStatus = fs.getFileStatus(metaSplitFile);
     if (maxMetaInfoSize > 0 && fStatus.getLen() > maxMetaInfoSize) {
-      throw new IOException("Split metadata size exceeded " +
-          maxMetaInfoSize +". Aborting job " + jobId);
+      throw new IOException("Split metadata size exceeded " + maxMetaInfoSize +". Aborting job " + jobId);
     }
     FSDataInputStream in = fs.open(metaSplitFile);
     byte[] header = new byte[JobSplit.META_SPLIT_FILE_HEADER.length];
@@ -60,10 +58,8 @@ public class SplitMetaInfoReader {
       throw new IOException("Unsupported split version " + vers);
     }
     int numSplits = WritableUtils.readVInt(in); //TODO: check for insane values
-    JobSplit.TaskSplitMetaInfo[] allSplitMetaInfo = 
-      new JobSplit.TaskSplitMetaInfo[numSplits];
-    final int maxLocations =
-      conf.getInt(JobSplitWriter.MAX_SPLIT_LOCATIONS, Integer.MAX_VALUE);
+    JobSplit.TaskSplitMetaInfo[] allSplitMetaInfo = new JobSplit.TaskSplitMetaInfo[numSplits];
+    final int maxLocations = conf.getInt(JobSplitWriter.MAX_SPLIT_LOCATIONS, Integer.MAX_VALUE);
     for (int i = 0; i < numSplits; i++) {
       JobSplit.SplitMetaInfo splitMetaInfo = new JobSplit.SplitMetaInfo();
       splitMetaInfo.readFields(in);
@@ -76,8 +72,7 @@ public class SplitMetaInfoReader {
           JobSubmissionFiles.getJobSplitFile(jobSubmitDir).toString(), 
           splitMetaInfo.getStartOffset());
       allSplitMetaInfo[i] = new JobSplit.TaskSplitMetaInfo(splitIndex, 
-          splitMetaInfo.getLocations(), 
-          splitMetaInfo.getInputDataLength());
+          splitMetaInfo.getLocations(), splitMetaInfo.getInputDataLength());
     }
     in.close();
     return allSplitMetaInfo;
