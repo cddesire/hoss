@@ -82,13 +82,11 @@ public class JobSplitWriter {
       Configuration conf, FileSystem   fs, 
       org.apache.hadoop.mapred.InputSplit[] splits) 
   throws IOException {
-    FSDataOutputStream out = createFile(fs, 
-        JobSubmissionFiles.getJobSplitFile(jobSubmitDir), conf);
+    FSDataOutputStream out = createFile(fs, JobSubmissionFiles.getJobSplitFile(jobSubmitDir), conf);
     SplitMetaInfo[] info = writeOldSplits(splits, out, conf);
     out.close();
     writeJobSplitMetaInfo(fs,JobSubmissionFiles.getJobSplitMetaFile(jobSubmitDir), 
-        new FsPermission(JobSubmissionFiles.JOB_FILE_PERMISSION), splitVersion,
-        info);
+        new FsPermission(JobSubmissionFiles.JOB_FILE_PERMISSION), splitVersion, info);
   }
   
   private static FSDataOutputStream createFile(FileSystem fs, Path splitFile, 
@@ -100,16 +98,14 @@ public class JobSplitWriter {
     writeSplitHeader(out);
     return out;
   }
-  private static void writeSplitHeader(FSDataOutputStream out) 
-  throws IOException {
+  private static void writeSplitHeader(FSDataOutputStream out) throws IOException {
     out.write(SPLIT_FILE_HEADER);
     out.writeInt(splitVersion);
   }
   
   @SuppressWarnings("unchecked")
   private static <T extends InputSplit> 
-  SplitMetaInfo[] writeNewSplits(Configuration conf, 
-      T[] array, FSDataOutputStream out)
+  SplitMetaInfo[] writeNewSplits(Configuration conf, T[] array, FSDataOutputStream out)
   throws IOException, InterruptedException {
 
     SplitMetaInfo[] info = new SplitMetaInfo[array.length];
@@ -120,8 +116,7 @@ public class JobSplitWriter {
       for(T split: array) {
         int prevCount = out.size();
         Text.writeString(out, split.getClass().getName());
-        Serializer<T> serializer = 
-          factory.getSerializer((Class<T>) split.getClass());
+        Serializer<T> serializer = factory.getSerializer((Class<T>) split.getClass());
         serializer.open(out);
         serializer.serialize(split);
         int currCount = out.size();
@@ -129,14 +124,10 @@ public class JobSplitWriter {
         final int max_loc = conf.getInt(MAX_SPLIT_LOCATIONS, 10);
         if (locations.length > max_loc) {
           LOG.warn("Max block location exceeded for split: "
-              + split + " splitsize: " + locations.length +
-              " maxsize: " + max_loc);
+              + split + " splitsize: " + locations.length + " maxsize: " + max_loc);
           locations = Arrays.copyOf(locations, max_loc);
         }
-        info[i++] = 
-          new JobSplit.SplitMetaInfo( 
-              locations, offset,
-              split.getLength());
+        info[i++] = new JobSplit.SplitMetaInfo(locations, offset, split.getLength());
         offset += currCount - prevCount;
       }
     }
@@ -158,14 +149,10 @@ public class JobSplitWriter {
         String[] locations = split.getLocations();
         final int max_loc = conf.getInt(MAX_SPLIT_LOCATIONS, 10);
         if (locations.length > max_loc) {
-          LOG.warn("Max block location exceeded for split: "
-              + split + " splitsize: " + locations.length +
-              " maxsize: " + max_loc);
+          LOG.warn("Max block location exceeded for split: "+ split + " splitsize: " + locations.length + " maxsize: " + max_loc);
           locations = Arrays.copyOf(locations, max_loc);
         }
-        info[i++] = new JobSplit.SplitMetaInfo( 
-            locations, offset,
-            split.getLength());
+        info[i++] = new JobSplit.SplitMetaInfo(locations, offset, split.getLength());
         offset += currLen - prevLen;
       }
     }
@@ -173,12 +160,9 @@ public class JobSplitWriter {
   }
 
   private static void writeJobSplitMetaInfo(FileSystem fs, Path filename, 
-      FsPermission p, int splitMetaInfoVersion, 
-      JobSplit.SplitMetaInfo[] allSplitMetaInfo) 
-  throws IOException {
+      FsPermission p, int splitMetaInfoVersion, JobSplit.SplitMetaInfo[] allSplitMetaInfo) throws IOException {
     // write the splits meta-info to a file for the job tracker
-    FSDataOutputStream out = 
-      FileSystem.create(fs, filename, p);
+    FSDataOutputStream out = FileSystem.create(fs, filename, p);
     out.write(JobSplit.META_SPLIT_FILE_HEADER);
     WritableUtils.writeVInt(out, splitMetaInfoVersion);
     WritableUtils.writeVInt(out, allSplitMetaInfo.length);
