@@ -43,7 +43,9 @@ import org.apache.hadoop.util.StringUtils;
 
 //@InterfaceAudience.Private
 public class DelegationTokenRenewal {
+
   private static final Log LOG = LogFactory.getLog(DelegationTokenRenewal.class);
+
   public static final String SCHEME = "hdfs";
   
   /**
@@ -57,9 +59,7 @@ public class DelegationTokenRenewal {
     public long expirationDate;
     public TimerTask timerTask;
     
-    public DelegationTokenToRenew(
-        JobID jId, Token<?> t, 
-        Configuration newConf, long newExpirationDate) {
+    public DelegationTokenToRenew(JobID jId, Token<?> t, Configuration newConf, long newExpirationDate) {
       token = t;
       jobId = jId;
       conf = newConf;
@@ -70,30 +70,33 @@ public class DelegationTokenRenewal {
             ";t="+token+";j="+jobId+";c="+conf);
       }
     }
+
     public void setTimerTask(TimerTask tTask) {
       timerTask = tTask;
     }
+
     @Override
     public String toString() {
       return token + ";exp="+expirationDate;
     }
+
     @Override
     public boolean equals(Object obj) {
-      return obj instanceof DelegationTokenToRenew &&
-        token.equals(((DelegationTokenToRenew)obj).token);
+      return obj instanceof DelegationTokenToRenew && token.equals(((DelegationTokenToRenew)obj).token);
     }
+
     @Override
     public int hashCode() {
       return token.hashCode();
     }
+
   }
   
   // global single timer (daemon)
   private static Timer renewalTimer = new Timer(true);
   
   //delegation token canceler thread
-  private static DelegationTokenCancelThread dtCancelThread =
-    new DelegationTokenCancelThread();
+  private static DelegationTokenCancelThread dtCancelThread = new DelegationTokenCancelThread();
   static {
     dtCancelThread.start();
   }
@@ -113,19 +116,17 @@ public class DelegationTokenRenewal {
         this.conf = conf;
       }
     }
-    private LinkedBlockingQueue<TokenWithConf> queue =  
-      new LinkedBlockingQueue<TokenWithConf>();
+
+    private LinkedBlockingQueue<TokenWithConf> queue = new LinkedBlockingQueue<TokenWithConf>();
      
     public DelegationTokenCancelThread() {
       super("Delegation Token Canceler");
       setDaemon(true);
     }
-    public void cancelToken(Token<?> token,  
-        Configuration conf) {
+    public void cancelToken(Token<?> token, Configuration conf) {
       TokenWithConf tokenWithConf = new TokenWithConf(token, conf);
       while (!queue.offer(tokenWithConf)) {
-        LOG.warn("Unable to add token " + token + " for cancellation. " +
-        		 "Will retry..");
+        LOG.warn("Unable to add token " + token + " for cancellation. " + "Will retry..");
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
@@ -146,7 +147,6 @@ public class DelegationTokenRenewal {
           // need to use doAs so that http can find the kerberos tgt
           UserGroupInformation.getLoginUser()
             .doAs(new PrivilegedExceptionAction<Void>(){
-
               @Override
               public Void run() throws Exception {
                 current.token.cancel(current.conf);
@@ -154,8 +154,7 @@ public class DelegationTokenRenewal {
               }
             });
         } catch (IOException e) {
-          LOG.warn("Failed to cancel token " + tokenWithConf.token + " " +  
-              StringUtils.stringifyException(e));
+          LOG.warn("Failed to cancel token " + tokenWithConf.token + " " + StringUtils.stringifyException(e));
         } catch (InterruptedException ie) {
           return;
         } catch (Throwable t) {
@@ -166,6 +165,7 @@ public class DelegationTokenRenewal {
       }
     }
   }
+
   //adding token
   private static void addTokenToList(DelegationTokenToRenew t) {
     delegationTokens.add(t);
@@ -182,14 +182,11 @@ public class DelegationTokenRenewal {
     for(Token<?> t : tokens) {
       // first renew happens immediately
       if (t.isManaged()) {
-        DelegationTokenToRenew dtr = 
-          new DelegationTokenToRenew(jobId, t, conf, now); 
-
+        DelegationTokenToRenew dtr = new DelegationTokenToRenew(jobId, t, conf, now);
         addTokenToList(dtr);
       
         setTimerForTokenRenewal(dtr, true);
-        LOG.info("registering token for renewal for service =" + t.getService()+
-                 " and jobID = " + jobId);
+        LOG.info("registering token for renewal for service =" + t.getService() + " and jobID = " + jobId);
       }
     }
   }
@@ -218,8 +215,7 @@ public class DelegationTokenRenewal {
         });
 
         if (LOG.isDebugEnabled()) {
-          LOG.debug("renewing for:" + token.getService() + ";newED=" + 
-                    dttr.expirationDate);
+          LOG.debug("renewing for:" + token.getService() + ";newED=" + dttr.expirationDate);
         }
         setTimerForTokenRenewal(dttr, false);// set the next one
       } catch (Exception e) {
@@ -233,9 +229,7 @@ public class DelegationTokenRenewal {
    * set task to renew the token
    */
   private static 
-  void setTimerForTokenRenewal(DelegationTokenToRenew token, 
-                               boolean firstTime) throws IOException {
-      
+  void setTimerForTokenRenewal(DelegationTokenToRenew token, boolean firstTime) throws IOException {
     // calculate timer time
     long now = System.currentTimeMillis();
     long renewIn;
@@ -292,8 +286,7 @@ public class DelegationTokenRenewal {
         DelegationTokenToRenew dttr = it.next();
         if (dttr.jobId.equals(jobId)) {
           if (LOG.isDebugEnabled())
-            LOG.debug("removing delegation token for jobid=" + jobId + 
-                ";t=" + dttr.token.getService());
+            LOG.debug("removing delegation token for jobid=" + jobId + ";t=" + dttr.token.getService());
 
           // cancel the timer
           if(dttr.timerTask!=null)
