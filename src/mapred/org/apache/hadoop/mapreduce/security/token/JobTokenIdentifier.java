@@ -32,7 +32,9 @@ import org.apache.hadoop.security.UserGroupInformation;
  * The token identifier for job token
  */
 public class JobTokenIdentifier extends TokenIdentifier {
+
   private Text jobid;
+
   public final static Text KIND_NAME = new Text("mapreduce.job");
   
   /**
@@ -50,13 +52,11 @@ public class JobTokenIdentifier extends TokenIdentifier {
     this.jobid = jobid;
   }
 
-  /** {@inheritDoc} */
   @Override
   public Text getKind() {
     return KIND_NAME;
   }
   
-  /** {@inheritDoc} */
   @Override
   public UserGroupInformation getUser() {
     if (jobid == null || "".equals(jobid.toString())) {
@@ -73,13 +73,11 @@ public class JobTokenIdentifier extends TokenIdentifier {
     return jobid;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void readFields(DataInput in) throws IOException {
     jobid.readFields(in);
   }
 
-  /** {@inheritDoc} */
   @Override
   public void write(DataOutput out) throws IOException {
     jobid.write(out);
