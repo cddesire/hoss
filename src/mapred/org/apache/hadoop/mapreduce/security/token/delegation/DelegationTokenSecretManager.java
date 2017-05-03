@@ -27,8 +27,7 @@ import org.apache.hadoop.security.token.delegation.AbstractDelegationTokenSecret
  * for each token.
  */
 //@InterfaceAudience.Private
-public class DelegationTokenSecretManager
-    extends AbstractDelegationTokenSecretManager<DelegationTokenIdentifier> {
+public class DelegationTokenSecretManager extends AbstractDelegationTokenSecretManager<DelegationTokenIdentifier> {
 
   /**
    * Create a secret manager
