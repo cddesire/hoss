@@ -70,8 +70,7 @@ public class TokenCache {
    * @param conf configuration
    * @throws IOException
    */
-  public static void obtainTokensForNamenodes(Credentials credentials,
-                                              Path [] ps, Configuration conf) 
+  public static void obtainTokensForNamenodes(Credentials credentials, Path [] ps, Configuration conf)
   throws IOException {
     if (!UserGroupInformation.isSecurityEnabled()) {
       return;
@@ -80,9 +79,7 @@ public class TokenCache {
   }
 
   static void obtainTokensForNamenodesInternal(Credentials credentials,
-                                               Path [] ps, 
-                                               Configuration conf
-                                               ) throws IOException {
+                                               Path [] ps, Configuration conf ) throws IOException {
     // get jobtracker principal id (for the renewer)
     KerberosName jtKrbName = new KerberosName(conf.get(JobTracker.JT_USER_NAME, ""));
     String delegTokenRenewer = jtKrbName.getShortName();
@@ -119,8 +116,7 @@ public class TokenCache {
         if (token != null) {
           Text fsNameText = new Text(fsName);
           credentials.addToken(fsNameText, token);
-          LOG.info("Got dt for " + p + ";uri="+ fsName + 
-                   ";t.service="+token.getService());
+          LOG.info("Got dt for " + p + ";uri="+ fsName + ";t.service="+token.getService());
         }
       }
     }
@@ -162,15 +158,11 @@ public class TokenCache {
   throws IOException {
     Path localJobTokenFile = new Path ("file:///" + jobTokenFile);
     
-    Credentials ts = 
-      Credentials.readTokenStorageFile(localJobTokenFile, conf);
+    Credentials ts = Credentials.readTokenStorageFile(localJobTokenFile, conf);
 
     if(LOG.isDebugEnabled()) {
-      LOG.debug("Task: Loaded jobTokenFile from: "+
-          localJobTokenFile.toUri().getPath() 
-        +"; num of sec keys  = " + ts.numberOfSecretKeys() +
-        " Number of tokens " + 
-        ts.numberOfTokens());
+      LOG.debug("Task: Loaded jobTokenFile from: "+ localJobTokenFile.toUri().getPath()
+        +"; num of sec keys  = " + ts.numberOfSecretKeys() + " Number of tokens " + ts.numberOfTokens());
     }
     return ts;
   }
