@@ -63,14 +63,16 @@ public class JobSplit {
    *     - hosts on which this split is local
    */
   public static class SplitMetaInfo implements Writable {
+
     private long startOffset;
+
     private long inputDataLength;
+
     private String[] locations;
 
     public SplitMetaInfo() {}
     
-    public SplitMetaInfo(String[] locations, long startOffset, 
-        long inputDataLength) {
+    public SplitMetaInfo(String[] locations, long startOffset, long inputDataLength) {
       this.locations = locations;
       this.startOffset = startOffset;
       this.inputDataLength = inputDataLength;
@@ -149,20 +151,17 @@ public class JobSplit {
       this.splitIndex = new TaskSplitIndex();
       this.locations = new String[0];
     }
-    public TaskSplitMetaInfo(TaskSplitIndex splitIndex, String[] locations, 
-        long inputDataLength) {
+    public TaskSplitMetaInfo(TaskSplitIndex splitIndex, String[] locations, long inputDataLength) {
       this.splitIndex = splitIndex;
       this.locations = locations;
       this.inputDataLength = inputDataLength;
     }
-    public TaskSplitMetaInfo(InputSplit split, long startOffset) 
-    throws InterruptedException, IOException {
+    public TaskSplitMetaInfo(InputSplit split, long startOffset) throws InterruptedException, IOException {
       this(new TaskSplitIndex("", startOffset), split.getLocations(), 
           split.getLength());
     }
     
-    public TaskSplitMetaInfo(String[] locations, long startOffset, 
-        long inputDataLength) {
+    public TaskSplitMetaInfo(String[] locations, long startOffset, long inputDataLength) {
       this(new TaskSplitIndex("",startOffset), locations, inputDataLength);
     }
     
@@ -191,26 +190,33 @@ public class JobSplit {
   public static class TaskSplitIndex {
     private String splitLocation;
     private long startOffset;
+
     public TaskSplitIndex(){
       this("", 0);
     }
+
     public TaskSplitIndex(String splitLocation, long startOffset) {
       this.splitLocation = splitLocation;
       this.startOffset = startOffset;
     }
+
     public long getStartOffset() {
       return startOffset;
     }
+
     public String getSplitLocation() {
       return splitLocation;
     }
+
     public void readFields(DataInput in) throws IOException {
       splitLocation = Text.readString(in);
       startOffset = WritableUtils.readVLong(in);
     }
+
     public void write(DataOutput out) throws IOException {
       Text.writeString(out, splitLocation);
       WritableUtils.writeVLong(out, startOffset);
     }
+    
   }
 }
