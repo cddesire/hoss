@@ -24,8 +24,7 @@ import org.apache.hadoop.security.token.delegation.AbstractDelegationTokenSelect
  * A delegation token that is specialized for MapReduce
  */
 //@InterfaceAudience.Private
-public class DelegationTokenSelector
-    extends AbstractDelegationTokenSelector<DelegationTokenIdentifier>{
+public class DelegationTokenSelector extends AbstractDelegationTokenSelector<DelegationTokenIdentifier>{
 
   public DelegationTokenSelector() {
     super(DelegationTokenIdentifier.MAPREDUCE_DELEGATION_KIND);
