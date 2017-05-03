@@ -30,7 +30,9 @@ import org.apache.hadoop.security.token.Token;
  * SecretManager for job token. It can be used to cache generated job tokens.
  */
 public class JobTokenSecretManager extends SecretManager<JobTokenIdentifier> {
+
   private final SecretKey masterKey;
+  
   private final Map<String, SecretKey> currentJobTokens;
 
   /**
@@ -117,8 +119,7 @@ public class JobTokenSecretManager extends SecretManager<JobTokenIdentifier> {
    * @throws InvalidToken
    */
   @Override
-  public byte[] retrievePassword(JobTokenIdentifier identifier)
-      throws InvalidToken {
+  public byte[] retrievePassword(JobTokenIdentifier identifier) throws InvalidToken {
     return retrieveTokenSecret(identifier.getJobId().toString()).getEncoded();
   }
   
