@@ -39,8 +39,7 @@ public class JobTokenSelector implements TokenSelector<JobTokenIdentifier> {
       return null;
     }
     for (Token<? extends TokenIdentifier> token : tokens) {
-      if (JobTokenIdentifier.KIND_NAME.equals(token.getKind())
-          && service.equals(token.getService())) {
+      if (JobTokenIdentifier.KIND_NAME.equals(token.getKind()) && service.equals(token.getService())) {
         return (Token<JobTokenIdentifier>) token;
       }
     }
