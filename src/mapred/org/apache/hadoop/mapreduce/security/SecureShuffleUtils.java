@@ -36,7 +36,9 @@ import org.apache.hadoop.record.Utils;
  *
  */
 public class SecureShuffleUtils {
+
   public static final String HTTP_HEADER_URL_HASH = "UrlHash";
+  
   public static final String HTTP_HEADER_REPLY_URL_HASH = "ReplyHash";
   
   /**
@@ -73,8 +75,7 @@ public class SecureShuffleUtils {
    * @return Base64 encodedHash
    * @throws IOException
    */
-  public static String hashFromString(String enc_str, SecretKey key) 
-  throws IOException {
+  public static String hashFromString(String enc_str, SecretKey key) throws IOException {
     return generateHash(enc_str.getBytes(), key); 
   }
   
@@ -84,12 +85,9 @@ public class SecureShuffleUtils {
    * @param msg
    * @throws IOException if not the same
    */
-  public static void verifyReply(String base64Hash, String msg, SecretKey key)
-  throws IOException {
+  public static void verifyReply(String base64Hash, String msg, SecretKey key) throws IOException {
     byte[] hash = Base64.decodeBase64(base64Hash.getBytes());
-    
     boolean res = verifyHash(hash, msg.getBytes(), key);
-    
     if(res != true) {
       throw new IOException("Verification of the hashReply failed");
     }
