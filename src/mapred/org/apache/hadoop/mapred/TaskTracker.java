@@ -1514,7 +1514,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol,
     if (port < 0) {
       shuttingDown = true;
       throw new IOException("Jetty problem. Jetty didn't bind to a " +
-      		"valid port");
+          "valid port");
     }
   }
   
@@ -2680,7 +2680,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol,
     }
 
     boolean isCleaningup() {
-   	  return this.taskStatus.inTaskCleanupPhase();
+      return this.taskStatus.inTaskCleanupPhase();
     }
     
     // checks if state has been changed for the task to be launched
@@ -2727,10 +2727,10 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol,
       if (taskCounters.size() > Counters.MAX_COUNTER_LIMIT ||
           taskCounters.getGroupNames().size() > Counters.MAX_GROUP_LIMIT) {
         LOG.warn("Killing task " + task.getTaskID() + ": " +
-        		"Exceeded limit on counters.");
+            "Exceeded limit on counters.");
         try { 
           reportDiagnosticInfo("Error: Exceeded counter limits - " +
-          		"Counters=" + taskCounters.size() + " Limit=" 
+              "Counters=" + taskCounters.size() + " Limit=" 
               + Counters.MAX_COUNTER_LIMIT  + ". " + 
               "Groups=" + taskCounters.getGroupNames().size() + " Limit=" +
               Counters.MAX_GROUP_LIMIT);
@@ -2935,11 +2935,11 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol,
               String program ="";
               String executable = Submitter.getExecutable(localJobConf);
               if ( executable != null) {
-            	try {
-            	  program = new URI(executable).getFragment();
-            	} catch (URISyntaxException ur) {
-            	  LOG.warn("Problem in the URI fragment for pipes executable");
-            	}	  
+              try {
+                program = new URI(executable).getFragment();
+              } catch (URISyntaxException ur) {
+                LOG.warn("Problem in the URI fragment for pipes executable");
+              }   
               }
               String [] debug = debugCommand.split(" ");
               Vector<String> vargs = new Vector<String>();
@@ -3370,7 +3370,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol,
       validateJVM(tip, jvmContext, taskid);
       tip.reportDiagnosticInfo(info);
     } else {
-      LOG.warn("Error from unknown child task: "+taskid+". Ignored.");
+      LOG.warn("Error from unknown child task: " + taskid + ". Ignored.");
     }
   }
   /**
@@ -3397,8 +3397,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol,
       validateJVM(tip, jvmContext, taskid);
       tip.reportNextRecordRange(range);
     } else {
-      LOG.warn("reportNextRecordRange from unknown child task: "+taskid+". " +
-      		"Ignored.");
+      LOG.warn("reportNextRecordRange from unknown child task: " + taskid + ". " + "Ignored.");
     }
   }
 
@@ -3752,28 +3751,28 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol,
   static class LRUCache<K, V> {
     private int cacheSize;
     private LinkedHashMap<K, V> map;
-	
+  
     public LRUCache(int cacheSize) {
       this.cacheSize = cacheSize;
       this.map = new LinkedHashMap<K, V>(cacheSize, 0.75f, true) {
           protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-	    return size() > LRUCache.this.cacheSize;
-	  }
+      return size() > LRUCache.this.cacheSize;
+    }
       };
     }
-	
+  
     public synchronized V get(K key) {
       return map.get(key);
     }
-	
+  
     public synchronized void put(K key, V value) {
       map.put(key, value);
     }
-	
+  
     public synchronized int size() {
       return map.size();
     }
-	
+  
     public Iterator<Entry<K, V>> getIterator() {
       return new LinkedList<Entry<K, V>>(map.entrySet()).iterator();
     }
@@ -4163,7 +4162,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol,
       } else {
         if(memoryAllotedForSlot > limitVmPerTask) {
           LOG.info("DefaultMaxVmPerTask is mis-configured. " +
-          		"It shouldn't be greater than task limits");
+              "It shouldn't be greater than task limits");
           totalMemoryAllottedForTasks = JobConf.DISABLED_MEMORY_LIMIT;
         } else {
           totalMemoryAllottedForTasks = (maxMapSlots + 
