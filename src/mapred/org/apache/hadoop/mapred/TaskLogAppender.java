@@ -30,7 +30,9 @@ import org.apache.log4j.spi.LoggingEvent;
  * 
  */
 public class TaskLogAppender extends FileAppender {
+
   private String taskId; //taskId should be managed as String rather than TaskID object
+  
   //so that log4j can configure it from the configuration(log4j.properties). 
   private int maxEvents;
   private Queue<LoggingEvent> tail = null;
