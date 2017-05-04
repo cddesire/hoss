@@ -55,20 +55,16 @@ import org.apache.hadoop.mapreduce.server.tasktracker.userlogs.UserLogManager;
 public class TaskLogsTruncater {
   static final Log LOG = LogFactory.getLog(TaskLogsTruncater.class);
 
-  static final String MAP_USERLOG_RETAIN_SIZE =
-    "mapreduce.cluster.map.userlog.retain-size";
-  static final String REDUCE_USERLOG_RETAIN_SIZE =
-    "mapreduce.cluster.reduce.userlog.retain-size";
+  static final String MAP_USERLOG_RETAIN_SIZE = "mapreduce.cluster.map.userlog.retain-size";
+  static final String REDUCE_USERLOG_RETAIN_SIZE = "mapreduce.cluster.reduce.userlog.retain-size";
   static final int DEFAULT_RETAIN_SIZE = -1;
-  static final String TRUNCATED_MSG =
-      "[ ... this log file was truncated because of excess length]\n";
+  static final String TRUNCATED_MSG = "[ ... this log file was truncated because of excess length]\n";
   
   long mapRetainSize, reduceRetainSize;
 
   public TaskLogsTruncater(Configuration conf) {
     mapRetainSize = conf.getLong(MAP_USERLOG_RETAIN_SIZE, DEFAULT_RETAIN_SIZE);
-    reduceRetainSize = conf.getLong(REDUCE_USERLOG_RETAIN_SIZE,
-        DEFAULT_RETAIN_SIZE);
+    reduceRetainSize = conf.getLong(REDUCE_USERLOG_RETAIN_SIZE, DEFAULT_RETAIN_SIZE);
     LOG.info("Initializing logs' truncater with mapRetainSize=" + mapRetainSize
         + " and reduceRetainSize=" + reduceRetainSize);
 
@@ -100,13 +96,10 @@ public class TaskLogsTruncater {
     File attemptLogDir = lInfo.getLogLocation();
 
     for (LogName logName : LogName.values()) {
-
       File logFile = new File(attemptLogDir, logName.toString());
-
       if (logFile.exists()) {
         if(!isTruncationNeeded(lInfo, taskLogFileDetails, logName)) {
-          LOG.debug("Truncation is not needed for "
-              + logFile.getAbsolutePath());
+          LOG.debug("Truncation is not needed for " + logFile.getAbsolutePath());
         } else return true;
       }
     }
@@ -151,34 +144,31 @@ public class TaskLogsTruncater {
     }
 
     File attemptLogDir = lInfo.getLogLocation();
-
     FileOutputStream tmpFileOutputStream;
     FileInputStream logFileInputStream;
     // Now truncate file by file
     logNameLoop: for (LogName logName : LogName.values()) {
 
       File logFile = new File(attemptLogDir, logName.toString());
-
-      // //// Optimization: if no task is over limit, just skip truncation-code
+      //  Optimization: if no task is over limit, just skip truncation-code
       if (logFile.exists()
           && !isTruncationNeeded(lInfo, taskLogFileDetails, logName)) {
         LOG.debug("Truncation is not needed for "
             + logFile.getAbsolutePath());
         continue;
       }
-      // //// End of optimization
+      // End of optimization
 
       // Truncation is needed for this log-file. Go ahead now.
 
-      // ////// Open truncate.tmp file for writing //////
+      // Open truncate.tmp file for writing //////
       File tmpFile = new File(attemptLogDir, "truncate.tmp");
       try {
         tmpFileOutputStream = SecureIOUtils.createForWrite(tmpFile, 0644);
       } catch (IOException ioe) {
         LOG.warn("Cannot open " + tmpFile.getAbsolutePath()
             + " for writing truncated log-file "
-            + logFile.getAbsolutePath()
-            + ". Continuing with other log files. ", ioe);
+            + logFile.getAbsolutePath() + ". Continuing with other log files. ", ioe);
         continue;
       }
       // ////// End of opening truncate.tmp file //////
@@ -194,15 +184,14 @@ public class TaskLogsTruncater {
         try {
           tmpFileOutputStream.close();
         } catch (IOException e) {
-          LOG.warn("Cannot close tmpFileOutputStream for "
-              + tmpFile.getAbsolutePath(), e);
+          LOG.warn("Cannot close tmpFileOutputStream for " + tmpFile.getAbsolutePath(), e);
         }
         if (!tmpFile.delete()) {
           LOG.warn("Cannot delete tmpFile " + tmpFile.getAbsolutePath());
         }
         continue;
       }
-      // ////// End of opening logFile for reading //////
+      // End of opening logFile for reading //////
 
       long newCurrentOffset = 0;
       // Process each attempt from the ordered list passed.
@@ -211,22 +200,18 @@ public class TaskLogsTruncater {
         // Truncate the log files of this task-attempt so that only the last
         // retainSize many bytes of this log file is retained and the log
         // file is reduced in size saving disk space.
-        long retainSize =
-            (task.isMapTask() ? mapRetainSize : reduceRetainSize);
+        long retainSize = (task.isMapTask() ? mapRetainSize : reduceRetainSize);
         LogFileDetail newLogFileDetail = null;
         try {
-          newLogFileDetail =
-              truncateALogFileOfAnAttempt(task.getTaskID(),
+          newLogFileDetail = truncateALogFileOfAnAttempt(task.getTaskID(),
                   taskLogFileDetails.get(task).get(logName), retainSize,
                   tmpFileOutputStream, logFileInputStream, logName);
         } catch (IOException ioe) {
           LOG.warn("Cannot truncate the log file "
               + logFile.getAbsolutePath()
-              + ". Caught exception while handling " + task.getTaskID(),
-              ioe);
+              + ". Caught exception while handling " + task.getTaskID(), ioe);
           // revert back updatedTaskLogFileDetails
-          copyOriginalIndexFileInfo(lInfo, taskLogFileDetails,
-              updatedTaskLogFileDetails, logName);
+          copyOriginalIndexFileInfo(lInfo, taskLogFileDetails, updatedTaskLogFileDetails, logName);
           try {
             logFileInputStream.close();
           } catch (IOException e) {
@@ -261,7 +246,7 @@ public class TaskLogsTruncater {
         }
       }
 
-      // ////// Close the file streams ////////////
+      // Close the file streams 
       try {
         tmpFileOutputStream.close();
       } catch (IOException ioe) {
@@ -281,9 +266,9 @@ public class TaskLogsTruncater {
               + logFile.getAbsolutePath(), e);
         }
       }
-      // ////// End of closing the file streams ////////////
+      // End of closing the file streams ////////////
 
-      // ////// Commit the changes from tmp file to the logFile ////////////
+      // Commit the changes from tmp file to the logFile ////////////
       if (!tmpFile.renameTo(logFile)) {
         // If the tmpFile cannot be renamed revert back
         // updatedTaskLogFileDetails to maintain the consistency of the
@@ -294,7 +279,7 @@ public class TaskLogsTruncater {
           LOG.warn("Cannot delete tmpFile " + tmpFile.getAbsolutePath());
         }
       }
-      // ////// End of committing the changes to the logFile ////////////
+      // End of committing the changes to the logFile ////////////
     }
 
     if (indexModified) {
@@ -320,8 +305,7 @@ public class TaskLogsTruncater {
           updatedTaskLogFileDetails.put(task,
               new HashMap<LogName, LogFileDetail>());
         }
-        updatedTaskLogFileDetails.get(task).put(logName,
-            taskLogFileDetails.get(task).get(logName));
+        updatedTaskLogFileDetails.get(task).put(logName, taskLogFileDetails.get(task).get(logName));
       }
     }
   }
@@ -362,10 +346,8 @@ public class TaskLogsTruncater {
     boolean truncationNeeded = false;
     LogFileDetail logFileDetail = null;
     for (Task task : lInfo.getAllAttempts()) {
-      long taskRetainSize =
-          (task.isMapTask() ? mapRetainSize : reduceRetainSize);
-      Map<LogName, LogFileDetail> allLogsFileDetails =
-          taskLogFileDetails.get(task);
+      long taskRetainSize = (task.isMapTask() ? mapRetainSize : reduceRetainSize);
+      Map<LogName, LogFileDetail> allLogsFileDetails = taskLogFileDetails.get(task);
       logFileDetail = allLogsFileDetails.get(logName);
       if (taskRetainSize > MINIMUM_RETAIN_SIZE_FOR_TRUNCATION
           && logFileDetail.length > taskRetainSize) {
@@ -399,7 +381,7 @@ public class TaskLogsTruncater {
     LogFileDetail newLogFileDetail = new LogFileDetail();
     long logSize = 0;
 
-    // ///////////// Truncate log file ///////////////////////
+    // Truncate log file 
 
     // New location of log file is same as the old
     newLogFileDetail.location = oldLogFileDetail.location;
@@ -444,8 +426,7 @@ public class TaskLogsTruncater {
       tmpFileOutputStream.write(tmpBuf);
     }
     newLogFileDetail.length += logSize;
-    // ////// End of truncating log file ///////////////////////
-
+    // End of truncating log file 
     return newLogFileDetail;
   }
 
@@ -510,9 +491,7 @@ public class TaskLogsTruncater {
     TaskLogsTruncater trunc = new TaskLogsTruncater(conf);
 
     trunc.truncateLogs(new JVMInfo(
-            TaskLog.getAttemptDir(firstTask.getTaskID(), 
-                                  firstTask.isTaskCleanupTask()),
-                      taskAttemptsRan));
+            TaskLog.getAttemptDir(firstTask.getTaskID(), firstTask.isTaskCleanupTask()), taskAttemptsRan));
     System.exit(0);
   }
 
