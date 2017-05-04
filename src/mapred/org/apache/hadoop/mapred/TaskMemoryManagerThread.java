@@ -56,17 +56,14 @@ class TaskMemoryManagerThread extends Thread {
   public TaskMemoryManagerThread(TaskTracker taskTracker) {
     
     this(taskTracker.getTotalMemoryAllottedForTasksOnTT() * 1024 * 1024L,
-      taskTracker.getJobConf().getLong(
-        "mapred.tasktracker.taskmemorymanager.monitoring-interval", 
-        5000L));
+      taskTracker.getJobConf().getLong("mapred.tasktracker.taskmemorymanager.monitoring-interval", 5000L));
 
     this.taskTracker = taskTracker;
   }
 
   // mainly for test purposes. note that the tasktracker variable is
   // not set here.
-  TaskMemoryManagerThread(long maxMemoryAllowedForAllTasks,
-                            long monitoringInterval) {
+  TaskMemoryManagerThread(long maxMemoryAllowedForAllTasks, long monitoringInterval) {
     setName(this.getClass().getName());
 
     processTreeInfoMap = new HashMap<TaskAttemptID, ProcessTreeInfo>();
@@ -74,7 +71,6 @@ class TaskMemoryManagerThread extends Thread {
     tasksToBeRemoved = new ArrayList<TaskAttemptID>();
 
     this.maxMemoryAllowedForAllTasks = maxMemoryAllowedForAllTasks;
-
     this.monitoringInterval = monitoringInterval;
   }
 
@@ -99,8 +95,7 @@ class TaskMemoryManagerThread extends Thread {
     private long memLimit;
     private String pidFile;
 
-    public ProcessTreeInfo(TaskAttemptID tid, String pid,
-        ProcfsBasedProcessTree pTree, long memLimit) {
+    public ProcessTreeInfo(TaskAttemptID tid, String pid, ProcfsBasedProcessTree pTree, long memLimit) {
       this.tid = tid;
       this.pid = pid;
       this.pTree = pTree;
@@ -134,9 +129,7 @@ class TaskMemoryManagerThread extends Thread {
 
   @Override
   public void run() {
-
     LOG.info("Starting thread: " + this.getClass());
-
     while (true) {
       // Print the processTrees for debugging.
       if (LOG.isDebugEnabled()) {
@@ -183,8 +176,7 @@ class TaskMemoryManagerThread extends Thread {
               // itself is still retained in runningTasks till successful
               // transmission to JT
 
-              ProcfsBasedProcessTree pt = 
-                new ProcfsBasedProcessTree(pId, ProcessTree.isSetsidAvailable);
+              ProcfsBasedProcessTree pt = new ProcfsBasedProcessTree(pId, ProcessTree.isSetsidAvailable);
               LOG.debug("Tracking ProcessTree " + pId + " for the first time");
 
               ptInfo.setPid(pId);
@@ -197,8 +189,7 @@ class TaskMemoryManagerThread extends Thread {
             continue; // processTree cannot be tracked
           }
 
-          LOG.debug("Constructing ProcessTree for : PID = " + pId + " TID = "
-              + tid);
+          LOG.debug("Constructing ProcessTree for : PID = " + pId + " TID = " + tid);
           ProcfsBasedProcessTree pTree = ptInfo.getProcessTree();
           pTree = pTree.getProcessTree(); // get the updated process-tree
           ptInfo.setProcessTree(pTree); // update ptInfo with proces-tree of
@@ -208,15 +199,12 @@ class TaskMemoryManagerThread extends Thread {
           // are processes more than 1 iteration old.
           long curMemUsageOfAgedProcesses = pTree.getCumulativeVmem(1);
           long limit = ptInfo.getMemLimit();
-          LOG.info(String.format(MEMORY_USAGE_STRING, 
-                                pId, tid.toString(), currentMemUsage, limit));
+          LOG.info(String.format(MEMORY_USAGE_STRING, pId, tid.toString(), currentMemUsage, limit));
 
-          if (isProcessTreeOverLimit(tid.toString(), currentMemUsage, 
-                                      curMemUsageOfAgedProcesses, limit)) {
+          if (isProcessTreeOverLimit(tid.toString(), currentMemUsage, curMemUsageOfAgedProcesses, limit)) {
             // Task (the root process) is still alive and overflowing memory.
             // Dump the process-tree and then clean it up.
-            String msg =
-                "TaskTree [pid=" + pId + ",tipID=" + tid
+            String msg = "TaskTree [pid=" + pId + ",tipID=" + tid
                     + "] is running beyond memory-limits. Current usage : "
                     + currentMemUsage + "bytes. Limit : " + limit
                     + "bytes. Killing task. \nDump of the process-tree for "
@@ -255,12 +243,10 @@ class TaskMemoryManagerThread extends Thread {
     
       // Sleep for some time before beginning next cycle
       try {
-        LOG.debug(this.getClass() + " : Sleeping for " + monitoringInterval
-            + " ms");
+        LOG.debug(this.getClass() + " : Sleeping for " + monitoringInterval + " ms");
         Thread.sleep(monitoringInterval);
       } catch (InterruptedException ie) {
-        LOG.warn(this.getClass()
-            + " interrupted. Finishing the thread and returning.");
+        LOG.warn(this.getClass() + " interrupted. Finishing the thread and returning.");
         return;
       }
     }
@@ -293,13 +279,10 @@ class TaskMemoryManagerThread extends Thread {
    *              monitoring interval, exceed the memory limit. False, 
    *              otherwise.
    */
-  boolean isProcessTreeOverLimit(String tId, 
-                                  long currentMemUsage, 
-                                  long curMemUsageOfAgedProcesses, 
-                                  long limit) {
+  boolean isProcessTreeOverLimit(String tId, long currentMemUsage, long curMemUsageOfAgedProcesses, long limit) {
     boolean isOverLimit = false;
     
-    if (currentMemUsage > (2*limit)) {
+    if (currentMemUsage > (2 * limit)) {
       LOG.warn("Process tree for task: " + tId + " running over twice " +
                 "the configured limit. Limit=" + limit + 
                 ", current usage = " + currentMemUsage);
@@ -315,18 +298,15 @@ class TaskMemoryManagerThread extends Thread {
   }
 
   // method provided just for easy testing purposes
-  boolean isProcessTreeOverLimit(ProcfsBasedProcessTree pTree, 
-                                    String tId, long limit) {
+  boolean isProcessTreeOverLimit(ProcfsBasedProcessTree pTree, String tId, long limit) {
     long currentMemUsage = pTree.getCumulativeVmem();
     // as processes begin with an age 1, we want to see if there are processes
     // more than 1 iteration old.
     long curMemUsageOfAgedProcesses = pTree.getCumulativeVmem(1);
-    return isProcessTreeOverLimit(tId, currentMemUsage, 
-                                  curMemUsageOfAgedProcesses, limit);
+    return isProcessTreeOverLimit(tId, currentMemUsage, curMemUsageOfAgedProcesses, limit);
   }
 
   private void killTasksWithLeastProgress(long memoryStillInUsage) {
-
     List<TaskAttemptID> tasksToKill = new ArrayList<TaskAttemptID>();
     List<TaskAttemptID> tasksToExclude = new ArrayList<TaskAttemptID>();
     // Find tasks to kill so as to get memory usage under limits.
