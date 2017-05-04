@@ -53,33 +53,26 @@ import org.apache.hadoop.util.StringUtils;
  */
 abstract class TaskRunner extends Thread {
 
-  static final String MAPRED_MAP_ADMIN_JAVA_OPTS =
-    "mapreduce.admin.map.child.java.opts";
+  static final String MAPRED_MAP_ADMIN_JAVA_OPTS = "mapreduce.admin.map.child.java.opts";
 
-  static final String MAPRED_REDUCE_ADMIN_JAVA_OPTS =
-    "mapreduce.admin.reduce.child.java.opts";
+  static final String MAPRED_REDUCE_ADMIN_JAVA_OPTS = "mapreduce.admin.reduce.child.java.opts";
 
-  static final String DEFAULT_MAPRED_ADMIN_JAVA_OPTS =
-    "-Djava.net.preferIPv4Stack=true " +
+  static final String DEFAULT_MAPRED_ADMIN_JAVA_OPTS = "-Djava.net.preferIPv4Stack=true " +
     "-Dhadoop.metrics.log.level=WARN ";
 
-  static final String MAPRED_ADMIN_USER_SHELL =
-    "mapreduce.admin.user.shell";
+  static final String MAPRED_ADMIN_USER_SHELL = "mapreduce.admin.user.shell";
   
   static final String DEFAULT_SHELL = "/bin/bash";
   
-  static final String MAPRED_ADMIN_USER_HOME_DIR =
-    "mapreduce.admin.user.home.dir";
+  static final String MAPRED_ADMIN_USER_HOME_DIR = "mapreduce.admin.user.home.dir";
 
   static final String DEFAULT_HOME_DIR= "/homes/";
   
   static final String HADOOP_WORK_DIR = "HADOOP_WORK_DIR";
   
-  static final String MAPRED_ADMIN_USER_ENV =
-    "mapreduce.admin.user.env";
+  static final String MAPRED_ADMIN_USER_ENV = "mapreduce.admin.user.env";
 
-  public static final Log LOG =
-    LogFactory.getLog(TaskRunner.class);
+  public static final Log LOG = LogFactory.getLog(TaskRunner.class);
 
   volatile boolean killed = false;
   private TaskTracker.TaskInProgress tip;
@@ -89,10 +82,8 @@ abstract class TaskRunner extends Thread {
   private int exitCode = -1;
   private boolean exitCodeSet = false;
   
-  private static String SYSTEM_PATH_SEPARATOR = 
-    System.getProperty("path.separator");
-  static final String MAPREDUCE_USER_CLASSPATH_FIRST =
-        "mapreduce.user.classpath.first"; //a semi-hidden config
+  private static String SYSTEM_PATH_SEPARATOR = System.getProperty("path.separator");
+  static final String MAPREDUCE_USER_CLASSPATH_FIRST = "mapreduce.user.classpath.first"; //a semi-hidden config
 
   
   private TaskTracker tracker;
@@ -112,8 +103,7 @@ abstract class TaskRunner extends Thread {
   protected MapOutputFile mapOutputFile;
 
   public TaskRunner(TaskTracker.TaskInProgress tip, TaskTracker tracker, 
-                    JobConf conf, TaskTracker.RunningJob rjob
-                    ) throws IOException {
+                    JobConf conf, TaskTracker.RunningJob rjob ) throws IOException {
     this.tip = tip;
     this.t = tip.getTask();
     this.tracker = tracker;
@@ -187,7 +177,6 @@ abstract class TaskRunner extends Thread {
   public final void run() {
     String errorInfo = "Child Error";
     try {
-      
       //before preparing the job localize 
       //all the archives
       TaskAttemptID taskid = t.getTaskID();
@@ -232,8 +221,7 @@ abstract class TaskRunner extends Thread {
                  stderr);
       
       Map<String, String> env = new HashMap<String, String>();
-      errorInfo = getVMEnvironment(errorInfo, user, workDir, conf, env, taskid,
-                                   logSize);
+      errorInfo = getVMEnvironment(errorInfo, user, workDir, conf, env, taskid, logSize);
       
       // flatten the env as a set of export commands
       List <String> setupCmds = new ArrayList<String>();
@@ -255,8 +243,7 @@ abstract class TaskRunner extends Thread {
           if (exitCode == 65) {
             tracker.getTaskTrackerInstrumentation().taskFailedPing(t.getTaskID());
           }
-          throw new IOException("Task process exit with nonzero status of " +
-              exitCode + ".");
+          throw new IOException("Task process exit with nonzero status of " + exitCode + ".");
         }
       }
     } catch (FSError e) {
@@ -309,10 +296,8 @@ abstract class TaskRunner extends Thread {
   File[] prepareLogFiles(TaskAttemptID taskid, boolean isCleanup)
       throws IOException {
     File[] logFiles = new File[2];
-    logFiles[0] = TaskLog.getTaskLogFile(taskid, isCleanup,
-        TaskLog.LogName.STDOUT);
-    logFiles[1] = TaskLog.getTaskLogFile(taskid, isCleanup,
-        TaskLog.LogName.STDERR);
+    logFiles[0] = TaskLog.getTaskLogFile(taskid, isCleanup, TaskLog.LogName.STDOUT);
+    logFiles[1] = TaskLog.getTaskLogFile(taskid, isCleanup, TaskLog.LogName.STDERR);
     getTracker().getTaskController().createLogDir(taskid, isCleanup);
     return logFiles;
   }
@@ -405,8 +390,7 @@ abstract class TaskRunner extends Thread {
     //    </value>
     //  </property>
     //
-    String javaOpts = getChildJavaOpts(conf, 
-                                       JobConf.DEFAULT_MAPRED_TASK_JAVA_OPTS);
+    String javaOpts = getChildJavaOpts(conf, JobConf.DEFAULT_MAPRED_TASK_JAVA_OPTS);
     javaOpts = javaOpts.replace("@taskid@", taskid.toString());
     String [] javaOptsSplit = javaOpts.split(" ");
     
@@ -472,8 +456,7 @@ abstract class TaskRunner extends Thread {
     return vargs;
   }
 
-  private void setupLog4jProperties(Vector<String> vargs, TaskAttemptID taskid,
-      long logSize) {
+  private void setupLog4jProperties(Vector<String> vargs, TaskAttemptID taskid, long logSize) {
     vargs.add("-Dhadoop.log.dir=" + 
         new File(System.getProperty("hadoop.log.dir")).getAbsolutePath());
     vargs.add("-Dhadoop.root.logger=INFO,TLA");
@@ -514,13 +497,11 @@ abstract class TaskRunner extends Thread {
   /**
    */
   private static List<String> getClassPaths(JobConf conf, File workDir,
-      TaskDistributedCacheManager taskDistributedCacheManager)
-      throws IOException {
+      TaskDistributedCacheManager taskDistributedCacheManager) throws IOException {
     // Accumulates class paths for child.
     List<String> classPaths = new ArrayList<String>();
     
-    boolean userClassesTakesPrecedence = 
-      conf.getBoolean(MAPREDUCE_USER_CLASSPATH_FIRST,false);
+    boolean userClassesTakesPrecedence = conf.getBoolean(MAPREDUCE_USER_CLASSPATH_FIRST,false);
     
     if (!userClassesTakesPrecedence) {
       // start with same classpath as parent process
@@ -546,8 +527,7 @@ abstract class TaskRunner extends Thread {
 
   private String getVMEnvironment(String errorInfo, String user, File workDir, 
                                   JobConf conf, Map<String, String> env, 
-                                  TaskAttemptID taskid, long logSize
-                                  ) throws Throwable {
+                                  TaskAttemptID taskid, long logSize ) throws Throwable {
     StringBuffer ldLibraryPath = new StringBuffer();
     ldLibraryPath.append(workDir.toString());
     String oldLdLibraryPath = null;
@@ -584,8 +564,7 @@ abstract class TaskRunner extends Thread {
   }
 
   void updateUserLoginEnv(String errorInfo, String user, JobConf config, 
-      Map<String, String> env) 
-      throws Throwable {
+      Map<String, String> env) throws Throwable {
     env.put("USER",user);
     env.put("SHELL", config.get(MAPRED_ADMIN_USER_SHELL, DEFAULT_SHELL));
     env.put("LOGNAME", user);
@@ -674,10 +653,8 @@ abstract class TaskRunner extends Thread {
   }
 
   /** Creates the working directory pathname for a task attempt. */ 
-  static Path formWorkDir(LocalDirAllocator lDirAlloc, JobConf conf) 
-      throws IOException {
-    Path workDir =
-        lDirAlloc.getLocalPathToRead(MRConstants.WORKDIR, conf);
+  static Path formWorkDir(LocalDirAllocator lDirAlloc, JobConf conf) throws IOException {
+    Path workDir = lDirAlloc.getLocalPathToRead(MRConstants.WORKDIR, conf);
     return workDir;
   }
 
