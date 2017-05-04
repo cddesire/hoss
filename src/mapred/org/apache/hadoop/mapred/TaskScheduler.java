@@ -43,6 +43,7 @@ import org.apache.hadoop.mapreduce.server.jobtracker.TaskTracker;
 abstract class TaskScheduler implements Configurable {
 
   protected Configuration conf;
+  
   protected TaskTrackerManager taskTrackerManager;
   
   public Configuration getConf() {
@@ -53,8 +54,7 @@ abstract class TaskScheduler implements Configurable {
     this.conf = conf;
   }
 
-  public synchronized void setTaskTrackerManager(
-      TaskTrackerManager taskTrackerManager) {
+  public synchronized void setTaskTrackerManager(TaskTrackerManager taskTrackerManager) {
     this.taskTrackerManager = taskTrackerManager;
   }
   
@@ -81,8 +81,7 @@ abstract class TaskScheduler implements Configurable {
    * @param taskTracker The TaskTracker for which we're looking for tasks.
    * @return A list of tasks to run on that TaskTracker, possibly empty.
    */
-  public abstract List<Task> assignTasks(TaskTracker taskTracker)
-  throws IOException;
+  public abstract List<Task> assignTasks(TaskTracker taskTracker) throws IOException;
 
   /**
    * Returns a collection of jobs in an order which is specific to 
