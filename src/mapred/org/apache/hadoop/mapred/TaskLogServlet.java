@@ -45,11 +45,9 @@ import org.apache.hadoop.util.StringUtils;
 public class TaskLogServlet extends HttpServlet {
   private static final long serialVersionUID = -6615764817774487321L;
   
-  private static final Log LOG =
-    LogFactory.getLog(TaskLog.class);
+  private static final Log LOG = LogFactory.getLog(TaskLog.class);
   
-  private boolean haveTaskLog(TaskAttemptID taskId, boolean isCleanup,
-      TaskLog.LogName type) {
+  private boolean haveTaskLog(TaskAttemptID taskId, boolean isCleanup, TaskLog.LogName type) {
     File f = TaskLog.getTaskLogFile(taskId, isCleanup, type);
     return f.canRead();
   }
@@ -63,8 +61,7 @@ public class TaskLogServlet extends HttpServlet {
    */
   public static String getTaskLogUrl(String taskTrackerHostName,
       String httpPort, String taskAttemptID) {
-    return ("http://" + taskTrackerHostName + ":" + httpPort
-        + "/tasklog?attemptid=" + taskAttemptID);
+    return ("http://" + taskTrackerHostName + ":" + httpPort + "/tasklog?attemptid=" + taskAttemptID);
   }
 
   private void printTaskLog(HttpServletResponse response,
@@ -73,13 +70,11 @@ public class TaskLogServlet extends HttpServlet {
                             TaskLog.LogName filter, boolean isCleanup) 
   throws IOException {
     if (!plainText) {
-      out.write(("<br><b><u>" + filter + " logs</u></b><br>\n" +
-                 "<pre>\n").getBytes());
+      out.write(("<br><b><u>" + filter + " logs</u></b><br>\n" + "<pre>\n").getBytes());
     }
 
     try {
-      InputStream taskLogReader = 
-        new TaskLog.Reader(taskId, filter, start, end, isCleanup);
+      InputStream taskLogReader = new TaskLog.Reader(taskId, filter, start, end, isCleanup);
       byte[] b = new byte[65536];
       int result;
       while (true) {
@@ -106,8 +101,7 @@ public class TaskLogServlet extends HttpServlet {
         // do nothing
       }
       else {
-        String msg = "Failed to retrieve " + filter + " log for task: " + 
-                     taskId;
+        String msg = "Failed to retrieve " + filter + " log for task: " + taskId;
         LOG.warn(msg, ioe);
         response.sendError(HttpServletResponse.SC_GONE, msg);
       }
@@ -129,8 +123,7 @@ public class TaskLogServlet extends HttpServlet {
     }
 
     // build job view ACL by reading from conf
-    AccessControlList jobViewACL = tracker.getJobACLsManager().
-        constructJobACLs(conf).get(JobACL.VIEW_JOB);
+    AccessControlList jobViewACL = tracker.getJobACLsManager(). constructJobACLs(conf).get(JobACL.VIEW_JOB);
 
     // read job queue name from conf
     String queue = conf.getQueueName();
@@ -141,8 +134,7 @@ public class TaskLogServlet extends HttpServlet {
             QueueACL.ADMINISTER_JOBS.getAclName()), " "));
 
     String jobOwner = conf.get("user.name");
-    UserGroupInformation callerUGI =
-        UserGroupInformation.createRemoteUser(user);
+    UserGroupInformation callerUGI = UserGroupInformation.createRemoteUser(user);
 
     // check if user is queue admin or cluster admin or jobOwner or member of
     // job-view-acl
@@ -163,9 +155,7 @@ public class TaskLogServlet extends HttpServlet {
    * cluster).
    */
   static JobConf getConfFromJobACLsFile(JobID jobId) {
-    Path jobAclsFilePath = new Path(
-        TaskLog.getJobDir(jobId).toString(),
-        TaskTracker.jobACLsFile);
+    Path jobAclsFilePath = new Path(TaskLog.getJobDir(jobId).toString(), TaskTracker.jobACLsFile);
     JobConf conf = null;
     if (new File(jobAclsFilePath.toUri().getPath()).exists()) {
       conf = new JobConf(false);
@@ -178,8 +168,7 @@ public class TaskLogServlet extends HttpServlet {
    * Get the logs via http.
    */
   @Override
-  public void doGet(HttpServletRequest request, 
-                    HttpServletResponse response
+  public void doGet(HttpServletRequest request, HttpServletResponse response
                     ) throws ServletException, IOException {
     long start = 0;
     long end = -1;
@@ -189,19 +178,16 @@ public class TaskLogServlet extends HttpServlet {
 
     String attemptIdStr = request.getParameter("attemptid");
     if (attemptIdStr == null) {
-      response.sendError(HttpServletResponse.SC_BAD_REQUEST, 
-                         "Argument attemptid is required");
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Argument attemptid is required");
       return;
     }
 
     String logFilter = request.getParameter("filter");
     if (logFilter != null) {
       try {
-        filter = TaskLog.LogName.valueOf(TaskLog.LogName.class, 
-                                         logFilter.toUpperCase());
+        filter = TaskLog.LogName.valueOf(TaskLog.LogName.class, logFilter.toUpperCase());
       } catch (IllegalArgumentException iae) {
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                           "Illegal value for filter: " + logFilter);
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal value for filter: " + logFilter);
         return;
       }
     }
@@ -260,10 +246,8 @@ public class TaskLogServlet extends HttpServlet {
 
     OutputStream out = response.getOutputStream();
     if( !plainText ) {
-      out.write(("<html>\n" +
-                 "<title>Task Logs: '" + attemptId + "'</title>\n" +
-                 "<body>\n" +
-                 "<h1>Task Logs: '" +  attemptId +  "'</h1><br>\n").getBytes()); 
+      out.write(("<html>\n" + "<title>Task Logs: '" + attemptId + "'</title>\n" +
+                 "<body>\n" + "<h1>Task Logs: '" +  attemptId +  "'</h1><br>\n").getBytes());
 
       if (filter == null) {
         printTaskLog(response, out, attemptId, start, end, plainText, 
