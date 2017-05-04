@@ -64,31 +64,20 @@ abstract class TaskTrackerAction implements Writable {
     
     switch (actionType) {
     case LAUNCH_TASK:
-      {
-        action = new LaunchTaskAction();
-      }
+      action = new LaunchTaskAction();
       break;
     case KILL_TASK:
-      {
-        action = new KillTaskAction();
-      }
+      action = new KillTaskAction();
       break;
     case KILL_JOB:
-      {
-        action = new KillJobAction();
-      }
+      action = new KillJobAction();
       break;
     case REINIT_TRACKER:
-      {
-        action = new ReinitTrackerAction();
-      }
+      action = new ReinitTrackerAction();
       break;
     case COMMIT_TASK:
-      {
-        action = new CommitTaskAction();
-      }
+      action = new CommitTaskAction();
       break;
-    }
 
     return action;
   }
