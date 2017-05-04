@@ -69,8 +69,7 @@ class TaskTrackerInstrumentation  {
   }
 
   static TaskTrackerInstrumentation create(TaskTracker tt, MetricsSystem ms) {
-    return ms.register("TaskTrackerMetrics", "TaskTracker metrics",
-                       new TaskTrackerMetricsSource(tt));
+    return ms.register("TaskTrackerMetrics", "TaskTracker metrics", new TaskTrackerMetricsSource(tt));
   }
 
 }
