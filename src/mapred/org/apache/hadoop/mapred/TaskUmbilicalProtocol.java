@@ -140,16 +140,13 @@ public interface TaskUmbilicalProtocol extends VersionedProtocol {
   boolean canCommit(TaskAttemptID taskid, JvmContext jvmContext) throws IOException;
 
   /** Report that a reduce-task couldn't shuffle map-outputs. */
-  void shuffleError(TaskAttemptID taskId, String message, JvmContext jvmContext)
-      throws IOException;
+  void shuffleError(TaskAttemptID taskId, String message, JvmContext jvmContext) throws IOException;
   
   /** Report that the task encounted a local filesystem error.*/
-  void fsError(TaskAttemptID taskId, String message, JvmContext jvmContext)
-      throws IOException;
+  void fsError(TaskAttemptID taskId, String message, JvmContext jvmContext) throws IOException;
 
   /** Report that the task encounted a fatal error.*/
-  void fatalError(TaskAttemptID taskId, String message, JvmContext jvmContext)
-      throws IOException;
+  void fatalError(TaskAttemptID taskId, String message, JvmContext jvmContext) throws IOException;
   
   /** Called by a reduce task to get the map output locations for finished maps.
    * Returns an update centered around the map-task-completion-events. 
@@ -164,12 +161,9 @@ public interface TaskUmbilicalProtocol extends VersionedProtocol {
    * @param id The attempt id of the task that is trying to communicate
    * @return A {@link MapTaskCompletionEventsUpdate} 
    */
-  MapTaskCompletionEventsUpdate getMapCompletionEvents(JobID jobId, 
-                                                       int fromIndex, 
-                                                       int maxLocs,
+  MapTaskCompletionEventsUpdate getMapCompletionEvents(JobID jobId, int fromIndex, int maxLocs,
                                                        TaskAttemptID id,
-                                                       JvmContext jvmContext) 
-  throws IOException;
+                                                       JvmContext jvmContext) throws IOException;
 
   /**
    * The job initializer needs to report the sizes of the archive
