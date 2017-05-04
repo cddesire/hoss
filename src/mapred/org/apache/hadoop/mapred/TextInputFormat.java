@@ -29,8 +29,7 @@ import org.apache.hadoop.io.compress.*;
  * Either linefeed or carriage-return are used to signal end of line.  Keys are
  * the position in the file, and values are the line of text.. 
  */
-public class TextInputFormat extends FileInputFormat<LongWritable, Text>
-  implements JobConfigurable {
+public class TextInputFormat extends FileInputFormat<LongWritable, Text> implements JobConfigurable {
 
   private CompressionCodecFactory compressionCodecs = null;
   
@@ -42,10 +41,8 @@ public class TextInputFormat extends FileInputFormat<LongWritable, Text>
     return compressionCodecs.getCodec(file) == null;
   }
 
-  public RecordReader<LongWritable, Text> getRecordReader(
-                                          InputSplit genericSplit, JobConf job,
-                                          Reporter reporter)
-    throws IOException {
+  public RecordReader<LongWritable, Text> getRecordReader(InputSplit genericSplit, JobConf job,
+                                          Reporter reporter) throws IOException {
     
     reporter.setStatus(genericSplit.toString());
     return new LineRecordReader(job, (FileSplit) genericSplit);
