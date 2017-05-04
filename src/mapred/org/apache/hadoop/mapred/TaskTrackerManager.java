@@ -23,7 +23,7 @@ import java.util.Collection;
 /**
  * Manages information about the {@link TaskTracker}s running on a cluster.
  * This interface exits primarily to test the {@link JobTracker}, and is not
- * intended to be implemented by users.
+ * intended to be implemented by users. 
  */
 interface TaskTrackerManager {
 
