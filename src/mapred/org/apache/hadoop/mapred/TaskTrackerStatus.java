@@ -189,8 +189,7 @@ public class TaskTrackerStatus implements Writable {
      *                    in bytes.
      */
     void setAvailableVirtualMemory(long availableMem) {
-      availableVirtualMemory = availableMem > 0 ?
-                               availableMem : UNAVAILABLE;
+      availableVirtualMemory = availableMem > 0 ? availableMem : UNAVAILABLE;
     }
 
     /**
