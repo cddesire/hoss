@@ -34,8 +34,7 @@ import org.apache.hadoop.util.StringUtils;
  *
  **************************************************/
 public abstract class TaskStatus implements Writable, Cloneable {
-  static final Log LOG =
-    LogFactory.getLog(TaskStatus.class.getName());
+  static final Log LOG = LogFactory.getLog(TaskStatus.class.getName());
   
   //enumeration for reporting current phase of a task. 
   public static enum Phase{STARTING, MAP, SHUFFLE, SORT, REDUCE, CLEANUP}
@@ -96,8 +95,7 @@ public abstract class TaskStatus implements Writable, Cloneable {
   public void setRunState(State runState) { this.runState = runState; }
   public String getDiagnosticInfo() { return diagnosticInfo; }
   public void setDiagnosticInfo(String info) { 
-    diagnosticInfo = 
-      ((diagnosticInfo == null) ? info : diagnosticInfo.concat(info)); 
+    diagnosticInfo = ((diagnosticInfo == null) ? info : diagnosticInfo.concat(info));
   }
   public String getStateString() { return stateString; }
   public void setStateString(String stateString) { this.stateString = stateString; }
@@ -204,8 +202,7 @@ public abstract class TaskStatus implements Writable, Cloneable {
     } else {
       //Using String utils to get the stack trace.
       LOG.error("Trying to set illegal startTime for task : " + taskid +
-          ".Stack trace is : " +
-          StringUtils.stringifyException(new Exception()));
+          ".Stack trace is : " + StringUtils.stringifyException(new Exception()));
     }
   }
   
