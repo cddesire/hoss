@@ -33,20 +33,13 @@ public class TaskTrackerMetricsSource extends TaskTrackerInstrumentation
                                   implements MetricsSource {
 
   final MetricsRegistry registry = new MetricsRegistry("tasktracker");
-  final MetricMutableGaugeInt mapsRunning =
-      registry.newGauge("maps_running", "", 0);
-  final MetricMutableGaugeInt redsRunning =
-      registry.newGauge("reduces_running", "", 0);
-  final MetricMutableGaugeInt mapSlots =
-      registry.newGauge("mapTaskSlots", "", 0);
-  final MetricMutableGaugeInt redSlots =
-      registry.newGauge("reduceTaskSlots", "", 0);
-  final MetricMutableCounterInt completedTasks =
-      registry.newCounter("tasks_completed", "", 0);
-  final MetricMutableCounterInt timedoutTasks =
-      registry.newCounter("tasks_failed_timeout", "", 0);
-  final MetricMutableCounterInt pingFailedTasks =
-      registry.newCounter("tasks_failed_ping", "", 0);
+  final MetricMutableGaugeInt mapsRunning = registry.newGauge("maps_running", "", 0);
+  final MetricMutableGaugeInt redsRunning = registry.newGauge("reduces_running", "", 0);
+  final MetricMutableGaugeInt mapSlots = registry.newGauge("mapTaskSlots", "", 0);
+  final MetricMutableGaugeInt redSlots = registry.newGauge("reduceTaskSlots", "", 0);
+  final MetricMutableCounterInt completedTasks = registry.newCounter("tasks_completed", "", 0);
+  final MetricMutableCounterInt timedoutTasks = registry.newCounter("tasks_failed_timeout", "", 0);
+  final MetricMutableCounterInt pingFailedTasks = registry.newCounter("tasks_failed_ping", "", 0);
 
   public TaskTrackerMetricsSource(TaskTracker tt) {
     super(tt);
