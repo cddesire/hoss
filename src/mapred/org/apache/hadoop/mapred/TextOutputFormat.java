@@ -104,14 +104,11 @@ public class TextOutputFormat<K, V> extends FileOutputFormat<K, V> {
     }
   }
 
-  public RecordWriter<K, V> getRecordWriter(FileSystem ignored,
-                                                  JobConf job,
-                                                  String name,
+  public RecordWriter<K, V> getRecordWriter(FileSystem ignored, JobConf job, String name,
                                                   Progressable progress)
     throws IOException {
     boolean isCompressed = getCompressOutput(job);
-    String keyValueSeparator = job.get("mapred.textoutputformat.separator", 
-                                       "\t");
+    String keyValueSeparator = job.get("mapred.textoutputformat.separator", "\t");
     if (!isCompressed) {
       Path file = FileOutputFormat.getTaskOutputPath(job, name);
       FileSystem fs = file.getFileSystem(job);
@@ -128,8 +125,7 @@ public class TextOutputFormat<K, V> extends FileOutputFormat<K, V> {
                                            name + codec.getDefaultExtension());
       FileSystem fs = file.getFileSystem(job);
       FSDataOutputStream fileOut = fs.create(file, progress);
-      return new LineRecordWriter<K, V>(new DataOutputStream
-                                        (codec.createOutputStream(fileOut)),
+      return new LineRecordWriter<K, V>(new DataOutputStream (codec.createOutputStream(fileOut)),
                                         keyValueSeparator);
     }
   }
