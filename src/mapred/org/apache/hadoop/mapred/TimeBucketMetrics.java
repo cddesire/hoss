@@ -27,7 +27,9 @@ import java.util.HashMap;
 class TimeBucketMetrics<OBJ> {
 
   private final HashMap<OBJ, Long> map = new HashMap<OBJ, Long>();
+
   private final int[] counts;
+  
   private final long[] cuts;
 
   /**
@@ -59,7 +61,7 @@ class TimeBucketMetrics<OBJ> {
   private int findBucket(long val) {
     for(int i=0; i < cuts.length; ++i) {
       if (val < cuts[i]) {
-	return i;
+        return i;
       }
     }
     return cuts.length;
