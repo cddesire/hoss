@@ -39,8 +39,7 @@ public class TaskReport implements Writable {
   private Counters counters;
   private TIPStatus currentStatus;
   
-  private Collection<TaskAttemptID> runningAttempts = 
-    new ArrayList<TaskAttemptID>();
+  private Collection<TaskAttemptID> runningAttempts = new ArrayList<TaskAttemptID>();
   private TaskAttemptID successfulAttempt = new TaskAttemptID();
   public TaskReport() {
     taskid = new TaskID();
@@ -93,16 +92,22 @@ public class TaskReport implements Writable {
   /** @deprecated use {@link #getTaskID()} instead */
   @Deprecated
   public String getTaskId() { return taskid.toString(); }
+
   /** The id of the task. */
   public TaskID getTaskID() { return taskid; }
+
   /** The amount completed, between zero and one. */
   public float getProgress() { return progress; }
+
   /** The most recent state, reported by a {@link Reporter}. */
   public String getState() { return state; }
+
   /** A list of error messages. */
   public String[] getDiagnostics() { return diagnostics; }
+
   /** A table of counters. */
   public Counters getCounters() { return counters; }
+
   /** The current status */
   public TIPStatus getCurrentStatus() {
     return currentStatus;
@@ -190,9 +195,8 @@ public class TaskReport implements Writable {
             + this.finishTime + this.progress + this.startTime + this.state 
             + this.taskid.toString()).hashCode();
   }
-  //////////////////////////////////////////////
+
   // Writable
-  //////////////////////////////////////////////
   public void write(DataOutput out) throws IOException {
     taskid.write(out);
     out.writeFloat(progress);
