@@ -34,20 +34,15 @@ class StatisticsCollector {
 
   private static final int DEFAULT_PERIOD = 5;
 
-  static final TimeWindow 
-    SINCE_START = new TimeWindow("Since Start", -1, -1);
+  static final TimeWindow SINCE_START = new TimeWindow("Since Start", -1, -1);
   
-  static final TimeWindow 
-    LAST_WEEK = new TimeWindow("Last Week", 7 * 24 * 60 * 60, 60 * 60);
+  static final TimeWindow LAST_WEEK = new TimeWindow("Last Week", 7 * 24 * 60 * 60, 60 * 60);
   
-  static final TimeWindow 
-    LAST_DAY = new TimeWindow("Last Day", 24 * 60 * 60, 60 * 60);
+  static final TimeWindow LAST_DAY = new TimeWindow("Last Day", 24 * 60 * 60, 60 * 60);
   
-  static final TimeWindow 
-    LAST_HOUR = new TimeWindow("Last Hour", 60 * 60, 60);
+  static final TimeWindow LAST_HOUR = new TimeWindow("Last Hour", 60 * 60, 60);
   
-  static final TimeWindow 
-    LAST_MINUTE = new TimeWindow("Last Minute", 60, 10);
+  static final TimeWindow LAST_MINUTE = new TimeWindow("Last Minute", 60, 10);
 
   static final TimeWindow[] DEFAULT_COLLECT_WINDOWS = {
     StatisticsCollector.SINCE_START,
@@ -58,8 +53,7 @@ class StatisticsCollector {
   private final int period;
   private boolean started;
   
-  private final Map<TimeWindow, StatUpdater> updaters = 
-    new LinkedHashMap<TimeWindow, StatUpdater>();
+  private final Map<TimeWindow, StatUpdater> updaters = new LinkedHashMap<TimeWindow, StatUpdater>();
   private final Map<String, Stat> statistics = new HashMap<String, Stat>();
 
   StatisticsCollector() {
@@ -146,8 +140,7 @@ class StatisticsCollector {
     final int updateGranularity;
     TimeWindow(String name, int windowSize, int updateGranularity) {
       if (updateGranularity > windowSize) {
-        throw new RuntimeException(
-            "Invalid TimeWindow: updateGranularity > windowSize");
+        throw new RuntimeException("Invalid TimeWindow: updateGranularity > windowSize");
       }
       this.name = name;
       this.windowSize = windowSize;
