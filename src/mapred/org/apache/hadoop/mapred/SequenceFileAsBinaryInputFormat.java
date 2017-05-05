@@ -35,16 +35,14 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
  * InputFormat reading keys, values from SequenceFiles in binary (raw)
  * format.
  */
-public class SequenceFileAsBinaryInputFormat
-    extends SequenceFileInputFormat<BytesWritable,BytesWritable> {
+public class SequenceFileAsBinaryInputFormat extends SequenceFileInputFormat<BytesWritable,BytesWritable> {
 
   public SequenceFileAsBinaryInputFormat() {
     super();
   }
 
   public RecordReader<BytesWritable,BytesWritable> getRecordReader(
-      InputSplit split, JobConf job, Reporter reporter)
-      throws IOException {
+      InputSplit split, JobConf job, Reporter reporter) throws IOException {
     return new SequenceFileAsBinaryRecordReader(job, (FileSplit)split);
   }
 
@@ -60,8 +58,7 @@ public class SequenceFileAsBinaryInputFormat
     private DataOutputBuffer buffer = new DataOutputBuffer();
     private SequenceFile.ValueBytes vbytes;
 
-    public SequenceFileAsBinaryRecordReader(Configuration conf, FileSplit split)
-        throws IOException {
+    public SequenceFileAsBinaryRecordReader(Configuration conf, FileSplit split) throws IOException {
       Path path = split.getPath();
       FileSystem fs = path.getFileSystem(conf);
       this.in = new SequenceFile.Reader(fs, path, conf);
@@ -100,8 +97,7 @@ public class SequenceFileAsBinaryInputFormat
     /**
      * Read raw bytes from a SequenceFile.
      */
-    public synchronized boolean next(BytesWritable key, BytesWritable val)
-        throws IOException {
+    public synchronized boolean next(BytesWritable key, BytesWritable val) throws IOException {
       if (done) return false;
       long pos = in.getPosition();
       boolean eof = -1 == in.nextRawKey(buffer);
@@ -132,8 +128,7 @@ public class SequenceFileAsBinaryInputFormat
       if (end == start) {
         return 0.0f;
       } else {
-        return Math.min(1.0f, (float)((in.getPosition() - start) /
-                                      (double)(end - start)));
+        return Math.min(1.0f, (float)((in.getPosition() - start) / (double)(end - start)));
       }
     }
   }
