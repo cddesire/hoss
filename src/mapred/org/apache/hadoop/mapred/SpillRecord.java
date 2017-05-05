@@ -44,13 +44,11 @@ class SpillRecord {
   private final LongBuffer entries;
 
   public SpillRecord(int numPartitions) {
-    buf = ByteBuffer.allocate(
-        numPartitions * MapTask.MAP_OUTPUT_INDEX_RECORD_LENGTH);
+    buf = ByteBuffer.allocate(numPartitions * MapTask.MAP_OUTPUT_INDEX_RECORD_LENGTH);
     entries = buf.asLongBuffer();
   }
 
-  public SpillRecord(Path indexFileName, JobConf job, String expectedIndexOwner)
-  throws IOException {
+  public SpillRecord(Path indexFileName, JobConf job, String expectedIndexOwner) throws IOException {
     this(indexFileName, job, new CRC32(), expectedIndexOwner);
   }
 
@@ -58,8 +56,7 @@ class SpillRecord {
       String expectedIndexOwner) throws IOException {
 
     final FileSystem rfs = FileSystem.getLocal(job).getRaw();
-    final DataInputStream in =
-      new DataInputStream(SecureIOUtils.openForRead(
+    final DataInputStream in = new DataInputStream(SecureIOUtils.openForRead(
          new File(indexFileName.toUri().getPath()), expectedIndexOwner));
     try {
       final long length = rfs.getFileStatus(indexFileName).getLen();
@@ -72,8 +69,7 @@ class SpillRecord {
         CheckedInputStream chk = new CheckedInputStream(in, crc);
         IOUtils.readFully(chk, buf.array(), 0, size);
         if (chk.getChecksum().getValue() != in.readLong()) {
-          throw new ChecksumException("Checksum error reading spill index: " +
-                                indexFileName, -1);
+          throw new ChecksumException("Checksum error reading spill index: " + indexFileName, -1);
         }
       } else {
         IOUtils.readFully(in, buf.array(), 0, size);
@@ -96,8 +92,7 @@ class SpillRecord {
    */
   public IndexRecord getIndex(int partition) {
     final int pos = partition * MapTask.MAP_OUTPUT_INDEX_RECORD_LENGTH / 8;
-    return new IndexRecord(entries.get(pos), entries.get(pos + 1),
-                           entries.get(pos + 2));
+    return new IndexRecord(entries.get(pos), entries.get(pos + 1), entries.get(pos + 2));
   }
 
   /**
@@ -113,13 +108,11 @@ class SpillRecord {
   /**
    * Write this spill record to the location provided.
    */
-  public void writeToFile(Path loc, JobConf job)
-      throws IOException {
+  public void writeToFile(Path loc, JobConf job) throws IOException {
     writeToFile(loc, job, new CRC32());
   }
 
-  public void writeToFile(Path loc, JobConf job, Checksum crc)
-      throws IOException {
+  public void writeToFile(Path loc, JobConf job, Checksum crc) throws IOException {
     final FileSystem rfs = FileSystem.getLocal(job).getRaw();
     CheckedOutputStream chk = null;
     final FSDataOutputStream out = rfs.create(loc);
