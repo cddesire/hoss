@@ -64,8 +64,7 @@ import org.apache.hadoop.fs.FSDataInputStream;
  * This is NOT a public interface.
  */
 abstract public class Task implements Writable, Configurable {
-  private static final Log LOG =
-    LogFactory.getLog(Task.class);
+  private static final Log LOG = LogFactory.getLog(Task.class);
   public static final String MR_COMBINE_RECORDS_BEFORE_PROGRESS = "mapred.combine.recordsBeforeProgress";
   public static final long DEFAULT_MR_COMBINE_RECORDS_BEFORE_PROGRESS = 10000;
 
@@ -145,8 +144,7 @@ abstract public class Task implements Writable, Configurable {
   
   //currently processing record start index
   private volatile long currentRecStartIndex; 
-  private Iterator<Long> currentRecIndexIterator = 
-    skipRanges.skipRangeIterator();
+  private Iterator<Long> currentRecIndexIterator = skipRanges.skipRangeIterator();
   
   private ResourceCalculatorPlugin resourceCalculator = null;
   private long initCpuCumulativeTime = 0;
@@ -194,9 +192,7 @@ abstract public class Task implements Writable, Configurable {
     spilledRecordsCounter = counters.findCounter(Counter.SPILLED_RECORDS);
   }
 
-  ////////////////////////////////////////////
   // Accessors
-  ////////////////////////////////////////////
   public void setJobFile(String jobFile) { this.jobFile = jobFile; }
   public String getJobFile() { return jobFile; }
   public TaskAttemptID getTaskID() { return taskId; }
@@ -287,8 +283,7 @@ abstract public class Task implements Writable, Configurable {
   /**
    * Report a fatal error to the parent (task) tracker.
    */
-  protected void reportFatalError(TaskAttemptID id, Throwable throwable, 
-                                  String logMsg) {
+  protected void reportFatalError(TaskAttemptID id, Throwable throwable, String logMsg) {
     LOG.fatal(logMsg);
     Throwable tCause = throwable.getCause();
     String cause = tCause == null 
@@ -351,7 +346,7 @@ abstract public class Task implements Writable, Configurable {
   void setTaskCleanupTask() {
     taskCleanup = true;
   }
-	   
+     
   boolean isTaskCleanupTask() {
     return taskCleanup;
   }
@@ -407,10 +402,7 @@ abstract public class Task implements Writable, Configurable {
     return user;
   }
   
-  ////////////////////////////////////////////
   // Writable methods
-  ////////////////////////////////////////////
-
   public void write(DataOutput out) throws IOException {
     Text.writeString(out, jobFile);
     taskId.write(out);
@@ -567,9 +559,11 @@ abstract public class Task implements Writable, Configurable {
     void setProgressFlag() {
       progressFlag.set(true);
     }
+
     boolean resetProgressFlag() {
       return progressFlag.getAndSet(false);
     }
+
     public void setStatus(String status) {
       //Check to see if the status string 
       // is too long and just concatenate it
@@ -581,15 +575,18 @@ abstract public class Task implements Writable, Configurable {
       // indicate that progress update needs to be sent
       setProgressFlag();
     }
+
     public void setProgress(float progress) {
       taskProgress.set(progress);
       // indicate that progress update needs to be sent
       setProgressFlag();
     }
+
     public void progress() {
       // indicate that progress update needs to be sent
       setProgressFlag();
     }
+
     public Counters.Counter getCounter(String group, String name) {
       Counters.Counter counter = null;
       if (counters != null) {
@@ -597,6 +594,7 @@ abstract public class Task implements Writable, Configurable {
       }
       return counter;
     }
+
     public Counters.Counter getCounter(Enum<?> name) {
       return counters == null ? null : counters.findCounter(name);
     }
@@ -606,6 +604,7 @@ abstract public class Task implements Writable, Configurable {
       }
       setProgressFlag();
     }
+
     public void incrCounter(String group, String counter, long amount) {
       if (counters != null) {
         counters.incrCounter(group, counter, amount);
@@ -623,9 +622,11 @@ abstract public class Task implements Writable, Configurable {
       }
       setProgressFlag();
     }
+
     public void setInputSplit(InputSplit split) {
       this.split = split;
     }
+
     public InputSplit getInputSplit() throws UnsupportedOperationException {
       if (split == null) {
         throw new UnsupportedOperationException("Input only available on map");
@@ -633,6 +634,7 @@ abstract public class Task implements Writable, Configurable {
         return split;
       }
     }  
+
     /** 
      * The communication thread handles communication with the parent (Task Tracker). 
      * It sends progress updates if progress has been made or if the task needs to 
@@ -715,6 +717,7 @@ abstract public class Task implements Writable, Configurable {
         pingThread.start();
       }
     }
+
     public void stopCommunicationThread() throws InterruptedException {
       // Updating resources specified in ResourceCalculatorPlugin
       if (pingThread != null) {
@@ -837,15 +840,12 @@ abstract public class Task implements Writable, Configurable {
   @SuppressWarnings("deprecation")
   private void updateHeapUsageCounter() {
     long currentHeapUsage = Runtime.getRuntime().totalMemory();
-    counters.findCounter(Counter.COMMITTED_HEAP_BYTES)
-            .setValue(currentHeapUsage);
+    counters.findCounter(Counter.COMMITTED_HEAP_BYTES).setValue(currentHeapUsage);
   }
 
   public void done(TaskUmbilicalProtocol umbilical,
-                   TaskReporter reporter
-                   ) throws IOException, InterruptedException {
-    LOG.info("Task:" + taskId + " is done."
-             + " And is in the process of commiting");
+                   TaskReporter reporter) throws IOException, InterruptedException {
+    LOG.info("Task:" + taskId + " is done."+ " And is in the process of commiting");
     updateCounters();
 
     boolean commitRequired = isCommitRequired();
@@ -860,8 +860,7 @@ abstract public class Task implements Writable, Configurable {
         } catch (InterruptedException ie) {
           // ignore
         } catch (IOException ie) {
-          LOG.warn("Failure sending commit pending: " + 
-                    StringUtils.stringifyException(ie));
+          LOG.warn("Failure sending commit pending: " + StringUtils.stringifyException(ie));
           if (--retries == 0) {
             System.exit(67);
           }
@@ -923,9 +922,7 @@ abstract public class Task implements Writable, Configurable {
   throws IOException {
     taskStatus.setOutputSize(calculateOutputSize());
     // send a final status report
-    taskStatus.statusUpdate(taskProgress.get(),
-                            taskProgress.toString(), 
-                            counters);
+    taskStatus.statusUpdate(taskProgress.get(), taskProgress.toString(), counters);
     statusUpdate(umbilical);
   }
 
@@ -1020,14 +1017,12 @@ abstract public class Task implements Writable, Configurable {
   }
 
   protected void runTaskCleanupTask(TaskUmbilicalProtocol umbilical,
-                                TaskReporter reporter) 
-  throws IOException, InterruptedException {
+                                TaskReporter reporter) throws IOException, InterruptedException {
     taskCleanup(umbilical);
     done(umbilical, reporter);
   }
 
-  void taskCleanup(TaskUmbilicalProtocol umbilical) 
-  throws IOException {
+  void taskCleanup(TaskUmbilicalProtocol umbilical) throws IOException {
     // set phase for this task
     setPhase(TaskStatus.Phase.CLEANUP);
     getProgress().setStatus("cleanup");
@@ -1038,8 +1033,7 @@ abstract public class Task implements Writable, Configurable {
   }
 
   protected void runJobCleanupTask(TaskUmbilicalProtocol umbilical,
-                               TaskReporter reporter
-                              ) throws IOException, InterruptedException {
+                               TaskReporter reporter ) throws IOException, InterruptedException {
     // set phase for this task
     setPhase(TaskStatus.Phase.CLEANUP);
     getProgress().setStatus("cleanup");
@@ -1077,8 +1071,7 @@ abstract public class Task implements Writable, Configurable {
   }
   
   protected void runJobSetupTask(TaskUmbilicalProtocol umbilical,
-                             TaskReporter reporter
-                             ) throws IOException, InterruptedException {
+                             TaskReporter reporter) throws IOException, InterruptedException {
     // do the setup
     getProgress().setStatus("setup");
     committer.setupJob(jobContext);
@@ -1093,8 +1086,7 @@ abstract public class Task implements Writable, Configurable {
    *          the path.
    * @return a Statistics instance, or null if none is found for the scheme.
    */
-  protected static Statistics getFsStatistics(Path path, Configuration conf)
-      throws IOException {
+  protected static Statistics getFsStatistics(Path path, Configuration conf) throws IOException {
     Statistics matchedStats = null;
     path = path.getFileSystem(conf).makeQualified(path);
     for (Statistics stats : FileSystem.getAllStatistics()) {
@@ -1151,8 +1143,7 @@ abstract public class Task implements Writable, Configurable {
       this.writer = writer;
     }
     
-    public synchronized void collect(K key, V value)
-        throws IOException {
+    public synchronized void collect(K key, V value) throws IOException {
       outCounter.increment(1);
       writer.append(key, value);
       if ((outCounter.getValue() % progressBar) == 0) {
@@ -1180,8 +1171,7 @@ abstract public class Task implements Writable, Configurable {
                            RawComparator<KEY> comparator, 
                            Class<KEY> keyClass,
                            Class<VALUE> valClass, Configuration conf, 
-                           Progressable reporter)
-      throws IOException {
+                           Progressable reporter) throws IOException {
       this.in = in;
       this.comparator = comparator;
       this.reporter = reporter;
@@ -1199,7 +1189,6 @@ abstract public class Task implements Writable, Configurable {
     RawKeyValueIterator getRawIterator() { return in; }
     
     /// Iterator methods
-
     public boolean hasNext() { return hasNext; }
 
     private int ctr = 0;
@@ -1272,8 +1261,7 @@ abstract public class Task implements Writable, Configurable {
     }
   }
 
-  protected static class CombineValuesIterator<KEY,VALUE>
-      extends ValuesIterator<KEY,VALUE> {
+  protected static class CombineValuesIterator<KEY,VALUE> extends ValuesIterator<KEY,VALUE> {
 
     private final Counters.Counter combineInputCounter;
 
@@ -1351,9 +1339,7 @@ abstract public class Task implements Writable, Configurable {
     protected final JobConf job;
     protected final TaskReporter reporter;
 
-    CombinerRunner(Counters.Counter inputCounter,
-                   JobConf job,
-                   TaskReporter reporter) {
+    CombinerRunner(Counters.Counter inputCounter, JobConf job, TaskReporter reporter) {
       this.inputCounter = inputCounter;
       this.job = job;
       this.reporter = reporter;
@@ -1366,8 +1352,7 @@ abstract public class Task implements Writable, Configurable {
      */
     abstract void combine(RawKeyValueIterator iterator, 
                           OutputCollector<K,V> collector
-                         ) throws IOException, InterruptedException, 
-                                  ClassNotFoundException;
+                         ) throws IOException, InterruptedException, ClassNotFoundException;
 
     @SuppressWarnings("unchecked")
     static <K,V> 
@@ -1439,8 +1424,7 @@ abstract public class Task implements Writable, Configurable {
   }
   
   protected static class NewCombinerRunner<K, V> extends CombinerRunner<K,V> {
-    private final Class<? extends org.apache.hadoop.mapreduce.Reducer<K,V,K,V>> 
-        reducerClass;
+    private final Class<? extends org.apache.hadoop.mapreduce.Reducer<K,V,K,V>> reducerClass;
     private final org.apache.hadoop.mapreduce.TaskAttemptID taskId;
     private final RawComparator<K> comparator;
     private final Class<K> keyClass;
@@ -1486,8 +1470,7 @@ abstract public class Task implements Writable, Configurable {
     @Override
     void combine(RawKeyValueIterator iterator, 
                  OutputCollector<K,V> collector
-                 ) throws IOException, InterruptedException,
-                          ClassNotFoundException {
+                 ) throws IOException, InterruptedException, ClassNotFoundException {
       // make a reducer
       org.apache.hadoop.mapreduce.Reducer<K,V,K,V> reducer =
         (org.apache.hadoop.mapreduce.Reducer<K,V,K,V>)
