@@ -50,12 +50,9 @@ public class SequenceFileInputFormat<K, V> extends FileInputFormat<K, V> {
     return files;
   }
 
-  public RecordReader<K, V> getRecordReader(InputSplit split,
-                                      JobConf job, Reporter reporter)
+  public RecordReader<K, V> getRecordReader(InputSplit split, JobConf job, Reporter reporter)
     throws IOException {
-
     reporter.setStatus(split.toString());
-
     return new SequenceFileRecordReader<K, V>(job, (FileSplit) split);
   }
 
