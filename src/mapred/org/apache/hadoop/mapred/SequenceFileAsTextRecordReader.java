@@ -30,19 +30,15 @@ import org.apache.hadoop.io.WritableComparable;
  * method. This class to SequenceFileAsTextInputFormat class is as LineRecordReader
  * class to TextInputFormat class.
  */
-public class SequenceFileAsTextRecordReader
-  implements RecordReader<Text, Text> {
+public class SequenceFileAsTextRecordReader implements RecordReader<Text, Text> {
   
-  private final SequenceFileRecordReader<WritableComparable, Writable>
-  sequenceFileRecordReader;
+  private final SequenceFileRecordReader<WritableComparable, Writable> sequenceFileRecordReader;
 
   private WritableComparable innerKey;
   private Writable innerValue;
 
-  public SequenceFileAsTextRecordReader(Configuration conf, FileSplit split)
-    throws IOException {
-    sequenceFileRecordReader =
-      new SequenceFileRecordReader<WritableComparable, Writable>(conf, split);
+  public SequenceFileAsTextRecordReader(Configuration conf, FileSplit split) throws IOException {
+    sequenceFileRecordReader = new SequenceFileRecordReader<WritableComparable, Writable>(conf, split);
     innerKey = sequenceFileRecordReader.createKey();
     innerValue = sequenceFileRecordReader.createValue();
   }
