@@ -19,16 +19,14 @@ package org.apache.hadoop.mapred;
 
 import org.apache.hadoop.util.Progressable;
 
-public class TaskAttemptContext 
-       extends org.apache.hadoop.mapreduce.TaskAttemptContext {
+public class TaskAttemptContext extends org.apache.hadoop.mapreduce.TaskAttemptContext {
   private Progressable progress;
 
   TaskAttemptContext(JobConf conf, TaskAttemptID taskid) {
     this(conf, taskid, Reporter.NULL);
   }
   
-  TaskAttemptContext(JobConf conf, TaskAttemptID taskid,
-                     Progressable progress) {
+  TaskAttemptContext(JobConf conf, TaskAttemptID taskid, Progressable progress) {
     super(conf, taskid);
     this.progress = progress;
   }
