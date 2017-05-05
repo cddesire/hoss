@@ -59,15 +59,13 @@ public class SequenceFileAsBinaryOutputFormat
       this.value = value;
     }
 
-    public void writeUncompressedBytes(DataOutputStream outStream)
-      throws IOException {
+    public void writeUncompressedBytes(DataOutputStream outStream) throws IOException {
       outStream.write(value.getBytes(), 0, value.getLength());
     }
 
     public void writeCompressedBytes(DataOutputStream outStream)
       throws IllegalArgumentException, IOException {
-      throw
-        new UnsupportedOperationException("WritableValueBytes doesn't support " 
+      throw new UnsupportedOperationException("WritableValueBytes doesn't support "
                                           + "RECORD compression"); 
     }
     public int getSize(){
@@ -83,8 +81,7 @@ public class SequenceFileAsBinaryOutputFormat
    * @param conf the {@link JobConf} to modify
    * @param theClass the SequenceFile output key class.
    */
-  static public void setSequenceFileOutputKeyClass(JobConf conf, 
-                                                   Class<?> theClass) {
+  static public void setSequenceFileOutputKeyClass(JobConf conf, Class<?> theClass) {
     conf.setClass("mapred.seqbinary.output.key.class", theClass, Object.class);
   }
 
@@ -96,10 +93,8 @@ public class SequenceFileAsBinaryOutputFormat
    * @param conf the {@link JobConf} to modify
    * @param theClass the SequenceFile output key class.
    */
-  static public void setSequenceFileOutputValueClass(JobConf conf, 
-                                                     Class<?> theClass) {
-    conf.setClass("mapred.seqbinary.output.value.class", 
-                  theClass, Object.class);
+  static public void setSequenceFileOutputValueClass(JobConf conf, Class<?> theClass) {
+    conf.setClass("mapred.seqbinary.output.value.class", theClass, Object.class);
   }
 
   /**
@@ -120,14 +115,12 @@ public class SequenceFileAsBinaryOutputFormat
    */
   static public Class<? extends Writable> getSequenceFileOutputValueClass(JobConf conf) { 
     return conf.getClass("mapred.seqbinary.output.value.class", 
-                         conf.getOutputValueClass().asSubclass(Writable.class),
-                         Writable.class);
+                         conf.getOutputValueClass().asSubclass(Writable.class), Writable.class);
   }
   
   @Override 
   public RecordWriter <BytesWritable, BytesWritable> 
-             getRecordWriter(FileSystem ignored, JobConf job,
-                             String name, Progressable progress)
+             getRecordWriter(FileSystem ignored, JobConf job, String name, Progressable progress)
     throws IOException {
     // get the path of the temporary output file 
     Path file = FileOutputFormat.getTaskOutputPath(job, name);
@@ -140,25 +133,18 @@ public class SequenceFileAsBinaryOutputFormat
       compressionType = getOutputCompressionType(job);
 
       // find the right codec
-      Class<? extends CompressionCodec> codecClass = getOutputCompressorClass(job,
-	  DefaultCodec.class);
+      Class<? extends CompressionCodec> codecClass = getOutputCompressorClass(job, DefaultCodec.class);
       codec = ReflectionUtils.newInstance(codecClass, job);
     }
     final SequenceFile.Writer out = 
       SequenceFile.createWriter(fs, job, file,
                     getSequenceFileOutputKeyClass(job),
                     getSequenceFileOutputValueClass(job),
-                    compressionType,
-                    codec,
-                    progress);
+                    compressionType, codec, progress);
 
     return new RecordWriter<BytesWritable, BytesWritable>() {
-        
         private WritableValueBytes wvaluebytes = new WritableValueBytes();
-
-        public void write(BytesWritable bkey, BytesWritable bvalue)
-          throws IOException {
-
+        public void write(BytesWritable bkey, BytesWritable bvalue) throws IOException {
           wvaluebytes.reset(bvalue);
           out.appendRaw(bkey.getBytes(), 0, bkey.getLength(), wvaluebytes);
           wvaluebytes.reset(null);
@@ -173,13 +159,11 @@ public class SequenceFileAsBinaryOutputFormat
   }
 
   @Override 
-  public void checkOutputSpecs(FileSystem ignored, JobConf job) 
-            throws IOException {
+  public void checkOutputSpecs(FileSystem ignored, JobConf job) throws IOException {
     super.checkOutputSpecs(ignored, job);
     if (getCompressOutput(job) && 
         getOutputCompressionType(job) == CompressionType.RECORD ){
-        throw new InvalidJobConfException("SequenceFileAsBinaryOutputFormat "
-                    + "doesn't support Record Compression" );
+        throw new InvalidJobConfException("SequenceFileAsBinaryOutputFormat "+ "doesn't support Record Compression" );
     }
 
   }
