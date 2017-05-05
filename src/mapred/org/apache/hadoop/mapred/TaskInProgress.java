@@ -102,18 +102,15 @@ class TaskInProgress {
   // All attempt Ids of this TIP
   private TreeSet<TaskAttemptID> tasks = new TreeSet<TaskAttemptID>();
   private JobConf conf;
-  private Map<TaskAttemptID,List<String>> taskDiagnosticData =
-    new TreeMap<TaskAttemptID,List<String>>();
+  private Map<TaskAttemptID,List<String>> taskDiagnosticData = new TreeMap<TaskAttemptID,List<String>>();
   /**
    * Map from taskId -> TaskStatus
    */
-  private TreeMap<TaskAttemptID,TaskStatus> taskStatuses = 
-    new TreeMap<TaskAttemptID,TaskStatus>();
+  private TreeMap<TaskAttemptID,TaskStatus> taskStatuses = new TreeMap<TaskAttemptID,TaskStatus>();
 
   // Map from taskId -> TaskTracker Id, 
   // contains cleanup attempts and where they ran, if any
-  private TreeMap<TaskAttemptID, String> cleanupTasks =
-    new TreeMap<TaskAttemptID, String>();
+  private TreeMap<TaskAttemptID, String> cleanupTasks = new TreeMap<TaskAttemptID, String>();
 
   private TreeSet<String> machinesWhereFailed = new TreeSet<String>();
   private TreeSet<TaskAttemptID> tasksReportedClosed = new TreeSet<TaskAttemptID>();
@@ -132,8 +129,7 @@ class TaskInProgress {
   /**
    * Constructor for MapTask
    */
-  public TaskInProgress(JobID jobid, String jobFile, 
-                        TaskSplitMetaInfo split, 
+  public TaskInProgress(JobID jobid, String jobFile, TaskSplitMetaInfo split,
                         JobTracker jobtracker, JobConf conf, 
                         JobInProgress job, int partition,
                         int numSlotsRequired) {
@@ -152,8 +148,7 @@ class TaskInProgress {
   /**
    * Constructor for ReduceTask
    */
-  public TaskInProgress(JobID jobid, String jobFile, 
-                        int numMaps, 
+  public TaskInProgress(JobID jobid, String jobFile, int numMaps,
                         int partition, JobTracker jobtracker, JobConf conf,
                         JobInProgress job, int numSlotsRequired) {
     this.jobFile = jobFile;
@@ -201,7 +196,7 @@ class TaskInProgress {
   public boolean isJobSetupTask() {
     return jobSetup;
   }
-	  
+    
   public void setJobSetupTask() {
     jobSetup = true;
   }
@@ -232,10 +227,7 @@ class TaskInProgress {
     this.skipping = startSkipping();
   }
 
-  ////////////////////////////////////
   // Accessors, info, profiles, etc.
-  ////////////////////////////////////
-
   /**
    * Return the start time
    */
@@ -516,11 +508,7 @@ class TaskInProgress {
     return taskDiagnosticData.get(taskId);
   }
     
-  ////////////////////////////////////////////////
-  // Update methods, usually invoked by the owning
-  // job.
-  ////////////////////////////////////////////////
-  
+  // Update methods, usually invoked by the owning job.
   /**
    * Save diagnostic information for a given task.
    * 
@@ -599,7 +587,7 @@ class TaskInProgress {
       if (oldState == TaskStatus.State.FAILED ||
           oldState == TaskStatus.State.KILLED) {
         tasksToKill.put(taskid, true);
-        return false;	  
+        return false;   
       }
           
       changed = oldState != newState;
@@ -625,8 +613,7 @@ class TaskInProgress {
    * Indicate that one of the taskids in this TaskInProgress
    * has failed.
    */
-  public void incompleteSubTask(TaskAttemptID taskid, 
-                                JobStatus jobStatus) {
+  public void incompleteSubTask(TaskAttemptID taskid, JobStatus jobStatus) {
     //
     // Note the failure and its location
     //
@@ -750,8 +737,7 @@ class TaskInProgress {
     // Note the reason for the task being 'KILLED'
     addDiagnosticInfo(taskid, "Already completed TIP");
     
-    LOG.info("Already complete TIP " + getTIPId() + 
-             " has completed task " + taskid);
+    LOG.info("Already complete TIP " + getTIPId() + " has completed task " + taskid);
   }
 
   /**
@@ -905,11 +891,7 @@ class TaskInProgress {
     }
   }
 
-  /////////////////////////////////////////////////
-  // "Action" methods that actually require the TIP
-  // to do something.
-  /////////////////////////////////////////////////
-
+  // "Action" methods that actually require the TIP to do something.
   /**
    * Return whether this TIP still needs to run
    */
@@ -924,11 +906,8 @@ class TaskInProgress {
    * time.
    */
   boolean hasSpeculativeTask(long currentTime, double averageProgress) {
-    //
     // REMIND - mjc - these constants should be examined
     // in more depth eventually...
-    //
-      
     if (!skipping && activeTasks.size() <= MAX_TASK_EXECS &&
         (averageProgress - progress >= SPECULATIVE_GAP) &&
         (currentTime - startTime >= SPECULATIVE_LAG) 
@@ -979,9 +958,7 @@ class TaskInProgress {
    * Adds a previously running task to this tip. This is used in case of 
    * jobtracker restarts.
    */
-  public Task addRunningTask(TaskAttemptID taskid, 
-                             String taskTracker,
-                             boolean taskCleanup) {
+  public Task addRunningTask(TaskAttemptID taskid, String taskTracker, boolean taskCleanup) {
     // 1 slot is enough for taskCleanup task
     int numSlotsNeeded = taskCleanup ? 1 : numSlotsRequired;
     // create the task
@@ -991,11 +968,9 @@ class TaskInProgress {
         LOG.debug("attempt " + numTaskFailures + " sending skippedRecords "
           + failedRanges.getIndicesCount());
       }
-      t = new MapTask(jobFile, taskid, partition, splitInfo.getSplitIndex(),
-                      numSlotsNeeded);
+      t = new MapTask(jobFile, taskid, partition, splitInfo.getSplitIndex(), numSlotsNeeded);
     } else {
-      t = new ReduceTask(jobFile, taskid, partition, numMaps, 
-                         numSlotsNeeded);
+      t = new ReduceTask(jobFile, taskid, partition, numMaps, numSlotsNeeded);
     }
     if (jobCleanup) {
       t.setJobCleanupTask();
@@ -1184,7 +1159,6 @@ class TaskInProgress {
         //since it was the test attempt we need to set it to failed
         //as it worked only on the test range
         status.setRunState(TaskStatus.State.FAILED);
-        
       }
     }
     
