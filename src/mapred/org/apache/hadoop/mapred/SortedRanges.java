@@ -37,8 +37,7 @@ import org.apache.hadoop.io.Writable;
  */
 class SortedRanges implements Writable{
   
-  private static final Log LOG = 
-    LogFactory.getLog(SortedRanges.class);
+  private static final Log LOG = LogFactory.getLog(SortedRanges.class);
   
   private TreeSet<Range> ranges = new TreeSet<Range>();
   private long indicesCount;
@@ -65,8 +64,8 @@ class SortedRanges implements Writable{
    * @return ranges
    */
   synchronized SortedSet<Range> getRanges() {
-  	return ranges;
- 	}
+    return ranges;
+  }
   
   /**
    * Add the range indices. It is ensured that the added range 
@@ -105,8 +104,7 @@ class SortedRanges implements Writable{
     Iterator<Range> tailSetIt = ranges.tailSet(range).iterator();
     while(tailSetIt.hasNext()) {
       Range nextRange = tailSetIt.next();
-      LOG.debug("nextRange "+nextRange +"   startIndex:"+startIndex+
-          "  endIndex:"+endIndex);
+      LOG.debug("nextRange "+nextRange +"   startIndex:" + startIndex + "  endIndex:"+endIndex);
       if(endIndex>=nextRange.getStartIndex()) {
         //nextRange overlaps this range
         //remove the nextRange
@@ -267,7 +265,7 @@ class SortedRanges implements Writable{
      *         <code>false</code> otherwise.
      */
     boolean isEmpty() {
-      return length==0;
+      return length == 0;
     }
     
     public boolean equals(Object o) {
