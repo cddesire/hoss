@@ -29,7 +29,8 @@ import org.apache.hadoop.io.WritableUtils;
  * This is used to track task completion events on 
  * job tracker. 
  */
-public class TaskCompletionEvent implements Writable{
+public class TaskCompletionEvent implements Writable {
+
   static public enum Status {FAILED, KILLED, SUCCEEDED, OBSOLETE, TIPFAILED};
     
   private int eventId; 
@@ -39,8 +40,7 @@ public class TaskCompletionEvent implements Writable{
   Status status; 
   boolean isMap = false;
   private int idWithinJob;
-  public static final TaskCompletionEvent[] EMPTY_ARRAY = 
-    new TaskCompletionEvent[0];
+  public static final TaskCompletionEvent[] EMPTY_ARRAY = new TaskCompletionEvent[0];
   /**
    * Default constructor for Writable.
    *
@@ -58,12 +58,8 @@ public class TaskCompletionEvent implements Writable{
    * @param status task's status 
    * @param taskTrackerHttp task tracker's host:port for http. 
    */
-  public TaskCompletionEvent(int eventId, 
-                             TaskAttemptID taskId,
-                             int idWithinJob,
-                             boolean isMap,
-                             Status status, 
-                             String taskTrackerHttp){
+  public TaskCompletionEvent(int eventId, TaskAttemptID taskId, int idWithinJob,
+                             boolean isMap, Status status, String taskTrackerHttp){
       
     this.taskId = taskId;
     this.idWithinJob = idWithinJob;
@@ -209,9 +205,8 @@ public class TaskCompletionEvent implements Writable{
   public int idWithinJob() {
     return idWithinJob;
   }
-  //////////////////////////////////////////////
+
   // Writable
-  //////////////////////////////////////////////
   public void write(DataOutput out) throws IOException {
     taskId.write(out); 
     WritableUtils.writeVInt(out, idWithinJob);
