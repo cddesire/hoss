@@ -54,8 +54,7 @@ public class TaskGraphServlet extends HttpServlet {
 
     response.setContentType("image/svg+xml");
 
-    final JobTracker tracker = 
-      (JobTracker) getServletContext().getAttribute("job.tracker");
+    final JobTracker tracker = (JobTracker) getServletContext().getAttribute("job.tracker");
     
     String jobIdStr = request.getParameter("jobid");
     if(jobIdStr == null)
@@ -63,8 +62,7 @@ public class TaskGraphServlet extends HttpServlet {
     final JobID jobId = JobID.forName(jobIdStr);
 
     // verify if user has view access for this job
-    JobWithViewAccessCheck myJob = JSPUtil.checkAccessAndGetJob(
-        tracker, jobId, request, response);
+    JobWithViewAccessCheck myJob = JSPUtil.checkAccessAndGetJob(tracker, jobId, request, response);
     if (!myJob.isViewJobAllowed()) {
       return;// user is not authorized to view this job
     }
@@ -213,8 +211,7 @@ public class TaskGraphServlet extends HttpServlet {
     return progresses;
   }
   
-  private void printRect(PrintWriter out, int width, int height
-      , int x, int y, String color) throws IOException {
+  private void printRect(PrintWriter out, int width, int height , int x, int y, String color) throws IOException {
     if(height > 0) {
       out.print("<rect width=\"");out.print(width);
       out.print("\" height=\"");  out.print(height);
@@ -223,8 +220,8 @@ public class TaskGraphServlet extends HttpServlet {
       out.print("\" style=\"fill:"); out.print(color);out.print("\"/>\n");
     }
   }
-  private void printLine(PrintWriter out, int x1, int x2
-      , int y1, int y2, String color) throws IOException {
+
+  private void printLine(PrintWriter out, int x1, int x2 , int y1, int y2, String color) throws IOException {
     out.print("<line x1=\"");out.print(x1);
     out.print("\" x2=\"");out.print(x2);
     out.print("\" y1=\"");out.print(y1);
@@ -232,6 +229,7 @@ public class TaskGraphServlet extends HttpServlet {
     out.print("\" class=\"taskgraphline\" style=\"stroke:"); 
     out.print(color); out.print("\"/>\n"); 
   }
+  
   private void printText(PrintWriter out, int x, int y, String text
       , String anchor) throws IOException {
     out.print("<text x=\"");out.print(String.valueOf(x));
