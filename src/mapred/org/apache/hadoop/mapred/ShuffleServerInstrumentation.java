@@ -31,19 +31,14 @@ class ShuffleServerInstrumentation implements MetricsSource {
   final int ttWorkerThreads;
   final MetricsRegistry registry = new MetricsRegistry("shuffleOutput");
   private volatile int serverHandlerBusy = 0;
-  final MetricMutableCounterLong outputBytes =
-      registry.newCounter("shuffle_output_bytes", "", 0L);
-  final MetricMutableCounterInt failedOutputs =
-      registry.newCounter("shuffle_failed_outputs", "", 0);
-  final MetricMutableCounterInt successOutputs =
-      registry.newCounter("shuffle_success_outputs", "", 0);
-  final MetricMutableCounterInt exceptionsCaught =
-    registry.newCounter("shuffle_exceptions_caught", "", 0);
+  final MetricMutableCounterLong outputBytes = registry.newCounter("shuffle_output_bytes", "", 0L);
+  final MetricMutableCounterInt failedOutputs = registry.newCounter("shuffle_failed_outputs", "", 0);
+  final MetricMutableCounterInt successOutputs = registry.newCounter("shuffle_success_outputs", "", 0);
+  final MetricMutableCounterInt exceptionsCaught = registry.newCounter("shuffle_exceptions_caught", "", 0);
 
   ShuffleServerInstrumentation(TaskTracker tt) {
     ttWorkerThreads = tt.workerThreads;
-    registry.setContext("mapred")
-        .tag("sessionId", "session id", tt.getJobConf().getSessionId());
+    registry.setContext("mapred").tag("sessionId", "session id", tt.getJobConf().getSessionId());
   }
 
   //@Override
