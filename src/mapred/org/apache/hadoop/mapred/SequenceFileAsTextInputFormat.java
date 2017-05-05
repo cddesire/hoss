@@ -33,9 +33,7 @@ public class SequenceFileAsTextInputFormat
     super();
   }
 
-  public RecordReader<Text, Text> getRecordReader(InputSplit split,
-                                                  JobConf job,
-                                                  Reporter reporter)
+  public RecordReader<Text, Text> getRecordReader(InputSplit split, JobConf job, Reporter reporter)
     throws IOException {
 
     reporter.setStatus(split.toString());
