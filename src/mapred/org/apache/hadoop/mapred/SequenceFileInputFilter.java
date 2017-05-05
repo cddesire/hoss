@@ -42,8 +42,7 @@ public class SequenceFileInputFilter<K, V>
   extends SequenceFileInputFormat<K, V> {
   
   final private static String FILTER_CLASS = "sequencefile.filter.class";
-  final private static String FILTER_FREQUENCY
-    = "sequencefile.filter.frequency";
+  final private static String FILTER_FREQUENCY = "sequencefile.filter.frequency";
   final private static String FILTER_REGEX = "sequencefile.filter.regex";
     
   public SequenceFileInputFilter() {
@@ -55,12 +54,9 @@ public class SequenceFileInputFilter<K, V>
    * @param reporter reporter who sends report to task tracker
    * @return RecordReader
    */
-  public RecordReader<K, V> getRecordReader(InputSplit split,
-                                      JobConf job, Reporter reporter)
+  public RecordReader<K, V> getRecordReader(InputSplit split, JobConf job, Reporter reporter)
     throws IOException {
-        
     reporter.setStatus(split.toString());
-        
     return new FilterRecordReader<K, V>(job, (FileSplit) split);
   }
 
@@ -106,8 +102,7 @@ public class SequenceFileInputFilter<K, V>
      * @param conf where the regex is set
      * @param regex regex used as a filter
      */
-    public static void setPattern(Configuration conf, String regex)
-      throws PatternSyntaxException {
+    public static void setPattern(Configuration conf, String regex) throws PatternSyntaxException {
       try {
         Pattern.compile(regex);
       } catch (PatternSyntaxException e) {
@@ -153,8 +148,7 @@ public class SequenceFileInputFilter<K, V>
      */
     public static void setFrequency(Configuration conf, int frequency){
       if (frequency<=0)
-        throw new IllegalArgumentException(
-                                           "Negative " + FILTER_FREQUENCY + ": "+frequency);
+        throw new IllegalArgumentException("Negative " + FILTER_FREQUENCY + ": "+frequency);
       conf.setInt(FILTER_FREQUENCY, frequency);
     }
         
@@ -167,8 +161,7 @@ public class SequenceFileInputFilter<K, V>
     public void setConf(Configuration conf) {
       this.frequency = conf.getInt("sequencefile.filter.frequency", 10);
       if (this.frequency <=0) {
-        throw new RuntimeException(
-                                   "Negative "+FILTER_FREQUENCY+": "+this.frequency);
+        throw new RuntimeException("Negative "+FILTER_FREQUENCY+": "+this.frequency);
       }
       this.conf = conf;
     }
@@ -214,8 +207,7 @@ public class SequenceFileInputFilter<K, V>
      */
     public static void setFrequency(Configuration conf, int frequency){
       if (frequency<=0)
-        throw new IllegalArgumentException(
-                                           "Negative " + FILTER_FREQUENCY + ": "+frequency);
+        throw new IllegalArgumentException("Negative " + FILTER_FREQUENCY + ": "+frequency);
       conf.setInt(FILTER_FREQUENCY, frequency);
     }
         
@@ -228,8 +220,7 @@ public class SequenceFileInputFilter<K, V>
     public void setConf(Configuration conf) {
       this.frequency = conf.getInt(FILTER_FREQUENCY, 10);
       if (this.frequency <=0) {
-        throw new RuntimeException(
-                                   "Negative "+FILTER_FREQUENCY+": "+this.frequency);
+        throw new RuntimeException("Negative "+FILTER_FREQUENCY+": "+this.frequency);
       }
       this.conf = conf;
     }
@@ -277,17 +268,14 @@ public class SequenceFileInputFilter<K, V>
     }
   }
     
-  private static class FilterRecordReader<K, V>
-    extends SequenceFileRecordReader<K, V> {
+  private static class FilterRecordReader<K, V> extends SequenceFileRecordReader<K, V> {
     
     private Filter filter;
         
-    public FilterRecordReader(Configuration conf, FileSplit split)
-      throws IOException {
+    public FilterRecordReader(Configuration conf, FileSplit split) throws IOException {
       super(conf, split);
       // instantiate filter
-      filter = (Filter)ReflectionUtils.newInstance(
-                                                   conf.getClass(FILTER_CLASS, PercentFilter.class), 
+      filter = (Filter)ReflectionUtils.newInstance(conf.getClass(FILTER_CLASS, PercentFilter.class),
                                                    conf);
     }
         
