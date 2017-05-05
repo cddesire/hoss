@@ -61,27 +61,20 @@ public class SkipBadRecords {
    * Number of processed map records.
    * @see SkipBadRecords#getAutoIncrMapperProcCount(Configuration)
    */
-  public static final String COUNTER_MAP_PROCESSED_RECORDS = 
-    "MapProcessedRecords";
+  public static final String COUNTER_MAP_PROCESSED_RECORDS = "MapProcessedRecords";
   
   /**
    * Number of processed reduce groups.
    * @see SkipBadRecords#getAutoIncrReducerProcCount(Configuration)
    */
-  public static final String COUNTER_REDUCE_PROCESSED_GROUPS = 
-    "ReduceProcessedGroups";
+  public static final String COUNTER_REDUCE_PROCESSED_GROUPS = "ReduceProcessedGroups";
   
-  private static final String ATTEMPTS_TO_START_SKIPPING = 
-    "mapred.skip.attempts.to.start.skipping";
-  private static final String AUTO_INCR_MAP_PROC_COUNT = 
-    "mapred.skip.map.auto.incr.proc.count";
-  private static final String AUTO_INCR_REDUCE_PROC_COUNT = 
-    "mapred.skip.reduce.auto.incr.proc.count";
+  private static final String ATTEMPTS_TO_START_SKIPPING = "mapred.skip.attempts.to.start.skipping";
+  private static final String AUTO_INCR_MAP_PROC_COUNT = "mapred.skip.map.auto.incr.proc.count";
+  private static final String AUTO_INCR_REDUCE_PROC_COUNT = "mapred.skip.reduce.auto.incr.proc.count";
   private static final String OUT_PATH = "mapred.skip.out.dir";
-  private static final String MAPPER_MAX_SKIP_RECORDS = 
-    "mapred.skip.map.max.skip.records";
-  private static final String REDUCER_MAX_SKIP_GROUPS = 
-    "mapred.skip.reduce.max.skip.groups";
+  private static final String MAPPER_MAX_SKIP_RECORDS = "mapred.skip.map.max.skip.records";
+  private static final String REDUCER_MAX_SKIP_GROUPS = "mapred.skip.reduce.max.skip.groups";
   
   /**
    * Get the number of Task attempts AFTER which skip mode 
@@ -111,8 +104,7 @@ public class SkipBadRecords {
    * @param conf the configuration
    * @param attemptsToStartSkipping no of task attempts
    */
-  public static void setAttemptsToStartSkipping(Configuration conf, 
-      int attemptsToStartSkipping) {
+  public static void setAttemptsToStartSkipping(Configuration conf, int attemptsToStartSkipping) {
     conf.setInt(ATTEMPTS_TO_START_SKIPPING, attemptsToStartSkipping);
   }
 
@@ -147,8 +139,7 @@ public class SkipBadRecords {
    * @param autoIncr whether to auto increment 
    *        {@link SkipBadRecords#COUNTER_MAP_PROCESSED_RECORDS}.
    */
-  public static void setAutoIncrMapperProcCount(Configuration conf, 
-      boolean autoIncr) {
+  public static void setAutoIncrMapperProcCount(Configuration conf, boolean autoIncr) {
     conf.setBoolean(AUTO_INCR_MAP_PROC_COUNT, autoIncr);
   }
   
@@ -183,8 +174,7 @@ public class SkipBadRecords {
    * @param autoIncr whether to auto increment 
    *        {@link SkipBadRecords#COUNTER_REDUCE_PROCESSED_GROUPS}.
    */
-  public static void setAutoIncrReducerProcCount(Configuration conf, 
-      boolean autoIncr) {
+  public static void setAutoIncrReducerProcCount(Configuration conf, boolean autoIncr) {
     conf.setBoolean(AUTO_INCR_REDUCE_PROC_COUNT, autoIncr);
   }
   
@@ -262,8 +252,7 @@ public class SkipBadRecords {
    * @param conf the configuration
    * @param maxSkipRecs acceptable skip records.
    */
-  public static void setMapperMaxSkipRecords(Configuration conf, 
-      long maxSkipRecs) {
+  public static void setMapperMaxSkipRecords(Configuration conf, long maxSkipRecs) {
     conf.setLong(MAPPER_MAX_SKIP_RECORDS, maxSkipRecs);
   }
   
@@ -301,8 +290,7 @@ public class SkipBadRecords {
    * @param conf the configuration
    * @param maxSkipGrps acceptable skip groups.
    */
-  public static void setReducerMaxSkipGroups(Configuration conf, 
-      long maxSkipGrps) {
+  public static void setReducerMaxSkipGroups(Configuration conf, long maxSkipGrps) {
     conf.setLong(REDUCER_MAX_SKIP_GROUPS, maxSkipGrps);
   }
 }
