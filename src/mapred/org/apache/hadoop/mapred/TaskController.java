@@ -58,6 +58,7 @@ public abstract class TaskController implements Configurable {
   protected static final String COMMAND_FILE = "taskjvm.sh";
   
   protected LocalDirAllocator allocator;
+  
   protected LocalStorage localStorage;
 
   final public static FsPermission TASK_LAUNCH_SCRIPT_PERMISSION =
@@ -99,8 +100,7 @@ public abstract class TaskController implements Configurable {
   public abstract void initializeJob(String user, String jobid, 
                                      Path credentials, Path jobConf,
                                      TaskUmbilicalProtocol taskTracker,
-                                     InetSocketAddress ttAddr) 
-  throws IOException, InterruptedException;
+                                     InetSocketAddress ttAddr) throws IOException, InterruptedException;
   
   /**
    * Create all of the directories for the task and launches the child jvm.
@@ -131,8 +131,7 @@ public abstract class TaskController implements Configurable {
    * @param taskPid the pid of the task
    * @param signal the id of the signal to send
    */
-  public abstract void signalTask(String user, int taskPid, 
-                                  Signal signal) throws IOException;
+  public abstract void signalTask(String user, int taskPid, Signal signal) throws IOException;
   
   /**
    * Delete the user's files under all of the task tracker root directories.
@@ -141,8 +140,7 @@ public abstract class TaskController implements Configurable {
    *        the task tracker root directories.
    * @throws IOException
    */
-  public abstract void deleteAsUser(String user, 
-                                    String subDir) throws IOException;
+  public abstract void deleteAsUser(String user, String subDir) throws IOException;
 
   /**
    * Creates task log dir
@@ -150,9 +148,8 @@ public abstract class TaskController implements Configurable {
    * @param isCleanup If the task is cleanup task or not
    * @throws IOException
    */
-  public void createLogDir(TaskAttemptID taskID, 
-			boolean isCleanup) throws IOException {
-	  
+  public void createLogDir(TaskAttemptID taskID, boolean isCleanup) throws IOException {
+    
   }
   
   /**
@@ -161,8 +158,7 @@ public abstract class TaskController implements Configurable {
    * @param subDir the path under the userlogs directory.
    * @throws IOException
    */
-  public abstract void deleteLogAsUser(String user, 
-                                       String subDir) throws IOException;
+  public abstract void deleteLogAsUser(String user, String subDir) throws IOException;
   
   /**
    * Run the passed command as the user
@@ -170,8 +166,7 @@ public abstract class TaskController implements Configurable {
    * @param allAttempts the list of attempts that the JVM ran
    * @throws IOException
    */
-  public abstract void truncateLogsAsUser(String user, List<Task> allAttempts) 
-  throws IOException;
+  public abstract void truncateLogsAsUser(String user, List<Task> allAttempts) throws IOException;
   
   static class DeletionContext extends CleanupQueue.PathDeletionContext {
     private TaskController controller;
