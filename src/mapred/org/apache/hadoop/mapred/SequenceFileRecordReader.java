@@ -85,8 +85,7 @@ public class SequenceFileRecordReader<K, V> implements RecordReader<K, V> {
     return more;
   }
   
-  protected synchronized boolean next(K key)
-    throws IOException {
+  protected synchronized boolean next(K key) throws IOException {
     if (!more) return false;
     long pos = in.getPosition();
     boolean remaining = (in.next(key) != null);
@@ -98,8 +97,7 @@ public class SequenceFileRecordReader<K, V> implements RecordReader<K, V> {
     return more;
   }
   
-  protected synchronized void getCurrentValue(V value)
-    throws IOException {
+  protected synchronized void getCurrentValue(V value) throws IOException {
     in.getCurrentValue(value);
   }
   
