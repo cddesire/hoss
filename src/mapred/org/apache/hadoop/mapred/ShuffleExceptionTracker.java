@@ -33,8 +33,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class ShuffleExceptionTracker {
-  public static final Log LOG = LogFactory
-      .getLog(ShuffleExceptionTracker.class);
+  public static final Log LOG = LogFactory.getLog(ShuffleExceptionTracker.class);
 
   // a clear bit is success, set bit is exception occurred
   private BitSet requests;
