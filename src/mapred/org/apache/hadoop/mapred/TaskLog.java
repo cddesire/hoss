@@ -68,8 +68,7 @@ public class TaskLog {
 
   static final String USERLOGS_DIR_NAME = "userlogs";
 
-  private static final File LOG_DIR = 
-    new File(getBaseLogDir(), USERLOGS_DIR_NAME).getAbsoluteFile();
+  private static final File LOG_DIR = new File(getBaseLogDir(), USERLOGS_DIR_NAME).getAbsoluteFile();
   
   // localFS is set in (and used by) writeToIndexFile()
   static LocalFileSystem localFS = null;
@@ -108,8 +107,7 @@ public class TaskLog {
         taskID.toString() + cleanupSuffix;
     if (FileUtil.symLink(strAttemptLogDir, strLinkAttemptLogDir) != 0) {
       throw new IOException("Creation of symlink from " + 
-                            strLinkAttemptLogDir + " to " + strAttemptLogDir +
-                            " failed.");
+                            strLinkAttemptLogDir + " to " + strAttemptLogDir + " failed.");
     }
 
     //Set permissions for target attempt log dir 
@@ -125,8 +123,7 @@ public class TaskLog {
    */
   private static String getNextLocalDir(String[] localDirs) throws IOException{
     if(localDirs.length == 0) {
-      throw new IOException ("Not enough mapred.local.dirs ("
-                             + localDirs.length + ")");
+      throw new IOException ("Not enough mapred.local.dirs ("+ localDirs.length + ")");
     }
     return localDirs[Math.abs(rotor.getAndIncrement()) % localDirs.length];  
   }
@@ -153,8 +150,7 @@ public class TaskLog {
     return taskLogDirLocation.toString();
   }
   
-  public static File getTaskLogFile(TaskAttemptID taskid, boolean isCleanup,
-      LogName filter) {
+  public static File getTaskLogFile(TaskAttemptID taskid, boolean isCleanup, LogName filter) {
     return new File(getAttemptDir(taskid, isCleanup), filter.toString());
   }
 
@@ -167,8 +163,7 @@ public class TaskLog {
    * @return
    * @throws IOException
    */
-  static String getRealTaskLogFilePath(String location, LogName filter)
-      throws IOException {
+  static String getRealTaskLogFilePath(String location, LogName filter) throws IOException {
     return FileUtil.makeShellPath(new File(location, filter.toString()));
   }
 
@@ -182,8 +177,7 @@ public class TaskLog {
   static Map<LogName, LogFileDetail> getAllLogsFileDetails(
       TaskAttemptID taskid, boolean isCleanup) throws IOException {
 
-    Map<LogName, LogFileDetail> allLogsFileDetails =
-        new HashMap<LogName, LogFileDetail>();
+    Map<LogName, LogFileDetail> allLogsFileDetails = new HashMap<LogName, LogFileDetail>();
 
     File indexFile = getIndexFile(taskid, isCleanup);
     BufferedReader fis;
@@ -195,8 +189,7 @@ public class TaskLog {
 
       //Assume no task reuse is used and files exist on attemptdir
       StringBuffer input = new StringBuffer();
-      input.append(LogFileDetail.LOCATION
-                     + getAttemptDir(taskid, isCleanup) + "\n");
+      input.append(LogFileDetail.LOCATION + getAttemptDir(taskid, isCleanup) + "\n");
       for (LogName logName : LOGS_TRACKED_BY_INDEX_FILES) {
         input.append(logName + ":0 -1\n");
       }
@@ -283,50 +276,39 @@ public class TaskLog {
     return new File(getJobDir(jobid), taskid);
   }
 
-  static final List<LogName> LOGS_TRACKED_BY_INDEX_FILES =
-      Arrays.asList(LogName.STDOUT, LogName.STDERR, LogName.SYSLOG);
+  static final List<LogName> LOGS_TRACKED_BY_INDEX_FILES = Arrays.asList(LogName.STDOUT, LogName.STDERR, LogName.SYSLOG);
 
   private static TaskAttemptID currentTaskid;
 
   /**
    * Map to store previous and current lengths.
    */
-  private static Map<LogName, Long[]> logLengths =
-      new HashMap<LogName, Long[]>();
+  private static Map<LogName, Long[]> logLengths = new HashMap<LogName, Long[]>();
   static {
     for (LogName logName : LOGS_TRACKED_BY_INDEX_FILES) {
-      logLengths.put(logName, new Long[] { Long.valueOf(0L),
-          Long.valueOf(0L) });
+      logLengths.put(logName, new Long[] { Long.valueOf(0L), Long.valueOf(0L) });
     }
   }
   
   static synchronized 
-  void writeToIndexFile(String logLocation,
-                        TaskAttemptID currentTaskid, 
-                        boolean isCleanup,
+  void writeToIndexFile(String logLocation, TaskAttemptID currentTaskid, boolean isCleanup,
                         Map<LogName, Long[]> lengths) throws IOException {
     // To ensure atomicity of updates to index file, write to temporary index
     // file first and then rename.
     File tmpIndexFile = getTmpIndexFile(currentTaskid, isCleanup);
     
-    BufferedOutputStream bos = 
-      new BufferedOutputStream(
-        SecureIOUtils.createForWrite(tmpIndexFile, 0644));
+    BufferedOutputStream bos = new BufferedOutputStream(SecureIOUtils.createForWrite(tmpIndexFile, 0644));
     DataOutputStream dos = new DataOutputStream(bos);
     //the format of the index file is
     //LOG_DIR: <the dir where the task logs are really stored>
     //STDOUT: <start-offset in the stdout file> <length>
     //STDERR: <start-offset in the stderr file> <length>
     //SYSLOG: <start-offset in the syslog file> <length>    
-    dos.writeBytes(LogFileDetail.LOCATION
-        + logLocation
-        + "\n");
+    dos.writeBytes(LogFileDetail.LOCATION + logLocation + "\n");
     for (LogName logName : LOGS_TRACKED_BY_INDEX_FILES) {
       Long[] lens = lengths.get(logName);
-      dos.writeBytes(logName.toString() + ":"
-          + lens[0].toString() + " "
-          + Long.toString(lens[1].longValue() - lens[0].longValue())
-          + "\n");}
+      dos.writeBytes(logName.toString() + ":"+ lens[0].toString() + " "
+          + Long.toString(lens[1].longValue() - lens[0].longValue()) + "\n");}
     dos.close();
 
     File indexFile = getIndexFile(currentTaskid, isCleanup);
@@ -340,11 +322,8 @@ public class TaskLog {
   }
 
   @SuppressWarnings("unchecked")
-  public synchronized static void syncLogs(String logLocation, 
-                                           TaskAttemptID taskid,
-                                           boolean isCleanup,
-                                           boolean segmented) 
-  throws IOException {
+  public synchronized static void syncLogs(String logLocation, TaskAttemptID taskid,
+                                           boolean isCleanup, boolean segmented) throws IOException {
     System.out.flush();
     System.err.flush();
     Enumeration<Logger> allLoggers = LogManager.getCurrentLoggers();
@@ -518,8 +497,7 @@ public class TaskLog {
    * @param tailLength The length of the tail to be saved.
    * @return the modified command that should be run
    */
-  public static List<String> captureOutAndError(List<String> cmd, 
-                                                File stdoutFilename,
+  public static List<String> captureOutAndError(List<String> cmd, File stdoutFilename,
                                                 File stderrFilename,
                                                 long tailLength
                                                ) throws IOException {
@@ -543,8 +521,7 @@ public class TaskLog {
                                                 List<String> cmd, 
                                                 File stdoutFilename,
                                                 File stderrFilename,
-                                                long tailLength
-                                               ) throws IOException {
+                                                long tailLength ) throws IOException {
     return captureOutAndError(setup, cmd, stdoutFilename, stderrFilename,
         tailLength, false);
   }
@@ -569,8 +546,7 @@ public class TaskLog {
                                                 File stdoutFilename,
                                                 File stderrFilename,
                                                 long tailLength,
-                                                String pidFileName
-                                               ) throws IOException {
+                                                String pidFileName ) throws IOException {
     return captureOutAndError(setup, cmd, stdoutFilename, stderrFilename,
         tailLength, false, pidFileName);
   }
@@ -598,8 +574,7 @@ public class TaskLog {
       File stderrFilename,
       long tailLength,
       boolean useSetsid,
-      String pidFileName
-     ) throws IOException {
+      String pidFileName ) throws IOException {
     return captureOutAndError(setup,cmd, stdoutFilename, stderrFilename, tailLength,
         useSetsid);
   }
@@ -622,8 +597,7 @@ public class TaskLog {
       File stdoutFilename,
       File stderrFilename,
       long tailLength,
-      boolean useSetsid
-     ) throws IOException {
+      boolean useSetsid ) throws IOException {
     List<String> result = new ArrayList<String>(3);
     result.add(bashCommand);
     result.add("-c");
@@ -643,7 +617,6 @@ public class TaskLog {
       File stderrFilename,
       long tailLength,
       boolean useSetSid) throws IOException {
-    
     String stdout = FileUtil.makeShellPath(stdoutFilename);
     String stderr = FileUtil.makeShellPath(stderrFilename);
     StringBuilder mergedCmd = new StringBuilder();
@@ -700,18 +673,17 @@ public class TaskLog {
    * @return returns The quoted string. 
    * @throws IOException
    */
-  public static String addCommand(List<String> cmd, boolean isExecutable) 
-  throws IOException {
+  public static String addCommand(List<String> cmd, boolean isExecutable) throws IOException {
     StringBuffer command = new StringBuffer();
     for(String s: cmd) {
-    	command.append('\'');
+      command.append('\'');
       if (isExecutable) {
         // the executable name needs to be expressed as a shell path for the  
         // shell to find it.
-    	  command.append(FileUtil.makeShellPath(new File(s)));
+        command.append(FileUtil.makeShellPath(new File(s)));
         isExecutable = false; 
       } else {
-    	  command.append(s);
+        command.append(s);
       }
       command.append('\'');
       command.append(" ");
@@ -728,9 +700,7 @@ public class TaskLog {
    * @return the modified command that should be run
    * @throws IOException
    */
-  public static List<String> captureDebugOut(List<String> cmd, 
-                                             File debugoutFilename
-                                            ) throws IOException {
+  public static List<String> captureDebugOut(List<String> cmd, File debugoutFilename) throws IOException {
     String debugout = FileUtil.makeShellPath(debugoutFilename);
     List<String> result = new ArrayList<String>(3);
     result.add(bashCommand);
