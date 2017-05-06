@@ -35,7 +35,9 @@ import org.apache.hadoop.util.ReflectionUtils;
 public class CompositeInputSplit implements InputSplit {
 
   private int fill = 0;
+
   private long totsize = 0L;
+  
   private InputSplit[] splits;
 
   public CompositeInputSplit() { }
@@ -125,7 +127,7 @@ public class CompositeInputSplit implements InputSplit {
    * @throws IOException If the child InputSplit cannot be read, typically
    *                     for faliing access checks.
    */
-  @SuppressWarnings("unchecked")  // Generic array assignment
+  @SuppressWarnings("unchecked")  
   public void readFields(DataInput in) throws IOException {
     int card = WritableUtils.readVInt(in);
     if (splits == null || splits.length != card) {
