@@ -27,8 +27,7 @@ import org.apache.hadoop.mapred.JobConf;
 /**
  * Full inner join.
  */
-public class InnerJoinRecordReader<K extends WritableComparable>
-    extends JoinRecordReader<K> {
+public class InnerJoinRecordReader<K extends WritableComparable> extends JoinRecordReader<K> {
 
   InnerJoinRecordReader(int id, JobConf conf, int capacity,
       Class<? extends WritableComparator> cmpcl) throws IOException {

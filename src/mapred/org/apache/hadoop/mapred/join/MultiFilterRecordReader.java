@@ -36,6 +36,7 @@ import org.apache.hadoop.mapred.RecordReader;
 public abstract class MultiFilterRecordReader<K extends WritableComparable, V extends Writable> extends CompositeRecordReader<K,V,V> implements ComposableRecordReader<K,V> {
 
   private Class<? extends Writable> valueclass;
+
   private TupleWritable ivalue;
 
   public MultiFilterRecordReader(int id, JobConf conf, int capacity,
@@ -68,6 +69,7 @@ public abstract class MultiFilterRecordReader<K extends WritableComparable, V ex
       WritableUtils.cloneInto(value, emit(ivalue));
       return true;
     }
+    
     jc.clear();
     K iterkey = createKey();
     final PriorityQueue<ComposableRecordReader<K,?>> q = getRecordReaderQueue();
@@ -111,8 +113,7 @@ public abstract class MultiFilterRecordReader<K extends WritableComparable, V ex
   /**
    * Proxy the JoinCollector, but include callback to emit.
    */
-  protected class MultiFilterDelegationIterator
-      implements ResetableIterator<V> {
+  protected class MultiFilterDelegationIterator implements ResetableIterator<V> {
 
     public boolean hasNext() {
       return jc.hasNext();
