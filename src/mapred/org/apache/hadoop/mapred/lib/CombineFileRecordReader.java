@@ -57,7 +57,6 @@ public class CombineFileRecordReader<K, V> implements RecordReader<K, V> {
   protected RecordReader<K, V> curReader;
   
   public boolean next(K key, V value) throws IOException {
-
     while ((curReader == null) || !curReader.next(key, value)) {
       if (!initNextRecordReader()) {
         return false;
@@ -92,7 +91,7 @@ public class CombineFileRecordReader<K, V> implements RecordReader<K, V> {
    * return progress based on the amount of data processed so far.
    */
   public float getProgress() throws IOException {
-    return Math.min(1.0f,  progress/(float)(split.getLength()));
+    return Math.min(1.0f,  progress / (float)(split.getLength()));
   }
   
   /**
@@ -101,8 +100,7 @@ public class CombineFileRecordReader<K, V> implements RecordReader<K, V> {
    */
   public CombineFileRecordReader(JobConf job, CombineFileSplit split, 
                                  Reporter reporter,
-                                 Class<RecordReader<K, V>> rrClass)
-    throws IOException {
+                                 Class<RecordReader<K, V>> rrClass) throws IOException {
     this.split = split;
     this.jc = job;
     this.rrClass = rrClass;
@@ -125,7 +123,6 @@ public class CombineFileRecordReader<K, V> implements RecordReader<K, V> {
    * Get the record reader for the next chunk in this CombineFileSplit.
    */
   protected boolean initNextRecordReader() throws IOException {
-
     if (curReader != null) {
       curReader.close();
       curReader = null;

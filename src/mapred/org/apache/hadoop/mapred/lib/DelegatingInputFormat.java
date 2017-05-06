@@ -49,8 +49,7 @@ public class DelegatingInputFormat<K, V> implements InputFormat<K, V> {
     JobConf confCopy = new JobConf(conf);
     List<InputSplit> splits = new ArrayList<InputSplit>();
     Map<Path, InputFormat> formatMap = MultipleInputs.getInputFormatMap(conf);
-    Map<Path, Class<? extends Mapper>> mapperMap = MultipleInputs
-       .getMapperTypeMap(conf);
+    Map<Path, Class<? extends Mapper>> mapperMap = MultipleInputs.getMapperTypeMap(conf);
     Map<Class<? extends InputFormat>, List<Path>> formatPaths
         = new HashMap<Class<? extends InputFormat>, List<Path>>();
 
@@ -66,12 +65,10 @@ public class DelegatingInputFormat<K, V> implements InputFormat<K, V> {
     for (Entry<Class<? extends InputFormat>, List<Path>> formatEntry : 
         formatPaths.entrySet()) {
       Class<? extends InputFormat> formatClass = formatEntry.getKey();
-      InputFormat format = (InputFormat) ReflectionUtils.newInstance(
-         formatClass, conf);
+      InputFormat format = (InputFormat) ReflectionUtils.newInstance(formatClass, conf);
       List<Path> paths = formatEntry.getValue();
 
-      Map<Class<? extends Mapper>, List<Path>> mapperPaths
-          = new HashMap<Class<? extends Mapper>, List<Path>>();
+      Map<Class<? extends Mapper>, List<Path>> mapperPaths = new HashMap<Class<? extends Mapper>, List<Path>>();
 
       // Now, for each set of paths that have a common InputFormat, build
       // a map of Mappers to the paths they're used for
@@ -86,24 +83,19 @@ public class DelegatingInputFormat<K, V> implements InputFormat<K, V> {
 
       // Now each set of paths that has a common InputFormat and Mapper can
       // be added to the same job, and split together.
-      for (Entry<Class<? extends Mapper>, List<Path>> mapEntry : mapperPaths
-         .entrySet()) {
+      for (Entry<Class<? extends Mapper>, List<Path>> mapEntry : mapperPaths.entrySet()) {
        paths = mapEntry.getValue();
        Class<? extends Mapper> mapperClass = mapEntry.getKey();
-
        if (mapperClass == null) {
          mapperClass = conf.getMapperClass();
        }
 
-       FileInputFormat.setInputPaths(confCopy, paths.toArray(new Path[paths
-           .size()]));
-
+       FileInputFormat.setInputPaths(confCopy, paths.toArray(new Path[paths.size()]));
        // Get splits for each input path and tag with InputFormat
        // and Mapper types by wrapping in a TaggedInputSplit.
        InputSplit[] pathSplits = format.getSplits(confCopy, numSplits);
        for (InputSplit pathSplit : pathSplits) {
-         splits.add(new TaggedInputSplit(pathSplit, conf, format.getClass(),
-             mapperClass));
+         splits.add(new TaggedInputSplit(pathSplit, conf, format.getClass(), mapperClass));
        }
       }
     }
@@ -121,7 +113,6 @@ public class DelegatingInputFormat<K, V> implements InputFormat<K, V> {
     TaggedInputSplit taggedInputSplit = (TaggedInputSplit) split;
     InputFormat<K, V> inputFormat = (InputFormat<K, V>) ReflectionUtils
        .newInstance(taggedInputSplit.getInputFormatClass(), conf);
-    return inputFormat.getRecordReader(taggedInputSplit.getInputSplit(), conf,
-       reporter);
+    return inputFormat.getRecordReader(taggedInputSplit.getInputSplit(), conf, reporter);
   }
 }

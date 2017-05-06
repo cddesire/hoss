@@ -42,12 +42,10 @@ public class DelegatingMapper<K1, V1, K2, V2> implements Mapper<K1, V1, K2, V2> 
   @SuppressWarnings("unchecked")
   public void map(K1 key, V1 value, OutputCollector<K2, V2> outputCollector,
       Reporter reporter) throws IOException {
-
     if (mapper == null) {
       // Find the Mapper from the TaggedInputSplit.
       TaggedInputSplit inputSplit = (TaggedInputSplit) reporter.getInputSplit();
-      mapper = (Mapper<K1, V1, K2, V2>) ReflectionUtils.newInstance(inputSplit
-         .getMapperClass(), conf);
+      mapper = (Mapper<K1, V1, K2, V2>) ReflectionUtils.newInstance(inputSplit.getMapperClass(), conf);
     }
     mapper.map(key, value, outputCollector, reporter);
   }
