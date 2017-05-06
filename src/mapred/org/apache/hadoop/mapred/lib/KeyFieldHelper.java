@@ -57,13 +57,14 @@ class KeyFieldHelper {
   }
   
   private List<KeyDescription> allKeySpecs = new ArrayList<KeyDescription>();
+
   private byte[] keyFieldSeparator;
+  
   private boolean keySpecSeen = false;
   
   public void setKeyFieldSeparator(String keyFieldSeparator) {
     try {
-      this.keyFieldSeparator =
-        keyFieldSeparator.getBytes("UTF-8");
+      this.keyFieldSeparator = keyFieldSeparator.getBytes("UTF-8");
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException("The current system does not " +
           "support UTF-8 encoding!", e);

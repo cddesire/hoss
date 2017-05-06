@@ -43,6 +43,7 @@ import org.apache.hadoop.mapred.lib.KeyFieldHelper.KeyDescription;
 public class KeyFieldBasedPartitioner<K2, V2> implements Partitioner<K2, V2> {
 
   private static final Log LOG = LogFactory.getLog(KeyFieldBasedPartitioner.class.getName());
+
   private int numOfPartitionFields;
   
   private KeyFieldHelper keyFieldHelper = new KeyFieldHelper();
@@ -61,8 +62,8 @@ public class KeyFieldBasedPartitioner<K2, V2> implements Partitioner<K2, V2> {
     }
   }
 
-  public int getPartition(K2 key, V2 value,
-      int numReduceTasks) {
+  public int getPartition(K2 key, V2 value, int numReduceTasks) {
+
     byte[] keyBytes;
 
     List <KeyDescription> allKeySpecs = keyFieldHelper.keySpecs();
@@ -73,16 +74,14 @@ public class KeyFieldBasedPartitioner<K2, V2> implements Partitioner<K2, V2> {
     try {
       keyBytes = key.toString().getBytes("UTF-8");
     } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("The current system does not " +
-          "support UTF-8 encoding!", e);
+      throw new RuntimeException("The current system does not " + "support UTF-8 encoding!", e);
     }
     // return 0 if the key is empty
     if (keyBytes.length == 0) {
       return 0;
     }
     
-    int []lengthIndicesFirst = keyFieldHelper.getWordLengths(keyBytes, 0, 
-        keyBytes.length);
+    int []lengthIndicesFirst = keyFieldHelper.getWordLengths(keyBytes, 0, keyBytes.length);
     int currentHash = 0;
     for (KeyDescription keySpec : allKeySpecs) {
       int startChar = keyFieldHelper.getStartOffset(keyBytes, 0, keyBytes.length, 
@@ -93,15 +92,14 @@ public class KeyFieldBasedPartitioner<K2, V2> implements Partitioner<K2, V2> {
       }
       int endChar = keyFieldHelper.getEndOffset(keyBytes, 0, keyBytes.length, 
           lengthIndicesFirst, keySpec);
-      currentHash = hashCode(keyBytes, startChar, endChar, 
-          currentHash);
+      currentHash = hashCode(keyBytes, startChar, endChar, currentHash);
     }
     return getPartition(currentHash, numReduceTasks);
   }
   
   protected int hashCode(byte[] b, int start, int end, int currentHash) {
     for (int i = start; i <= end; i++) {
-      currentHash = 31*currentHash + b[i];
+      currentHash = 31 * currentHash + b[i];
     }
     return currentHash;
   }

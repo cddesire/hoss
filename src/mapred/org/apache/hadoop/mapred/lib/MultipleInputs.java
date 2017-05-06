@@ -40,16 +40,12 @@ public class MultipleInputs {
    * @param path {@link Path} to be added to the list of inputs for the job
    * @param inputFormatClass {@link InputFormat} class to use for this path
    */
-  public static void addInputPath(JobConf conf, Path path,
-      Class<? extends InputFormat> inputFormatClass) {
+  public static void addInputPath(JobConf conf, Path path, Class<? extends InputFormat> inputFormatClass) {
 
-    String inputFormatMapping = path.toString() + ";"
-       + inputFormatClass.getName();
+    String inputFormatMapping = path.toString() + ";"+ inputFormatClass.getName();
     String inputFormats = conf.get("mapred.input.dir.formats");
     conf.set("mapred.input.dir.formats",
-       inputFormats == null ? inputFormatMapping : inputFormats + ","
-           + inputFormatMapping);
-
+       inputFormats == null ? inputFormatMapping : inputFormats + "," + inputFormatMapping);
     conf.setInputFormat(DelegatingInputFormat.class);
   }
 
@@ -65,14 +61,10 @@ public class MultipleInputs {
   public static void addInputPath(JobConf conf, Path path,
       Class<? extends InputFormat> inputFormatClass,
       Class<? extends Mapper> mapperClass) {
-
     addInputPath(conf, path, inputFormatClass);
-
     String mapperMapping = path.toString() + ";" + mapperClass.getName();
     String mappers = conf.get("mapred.input.dir.mappers");
-    conf.set("mapred.input.dir.mappers", mappers == null ? mapperMapping
-       : mappers + "," + mapperMapping);
-
+    conf.set("mapred.input.dir.mappers", mappers == null ? mapperMapping : mappers + "," + mapperMapping);
     conf.setMapperClass(DelegatingMapper.class);
   }
 
@@ -91,8 +83,7 @@ public class MultipleInputs {
       String[] split = pathMapping.split(";");
       InputFormat inputFormat;
       try {
-       inputFormat = (InputFormat) ReflectionUtils.newInstance(conf
-           .getClassByName(split[1]), conf);
+       inputFormat = (InputFormat) ReflectionUtils.newInstance(conf.getClassByName(split[1]), conf);
       } catch (ClassNotFoundException e) {
        throw new RuntimeException(e);
       }

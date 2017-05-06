@@ -48,8 +48,7 @@ import org.apache.hadoop.util.Progressable;
  * output file name that depends on both the keys and the input file name,
  * 
  */
-public abstract class MultipleOutputFormat<K, V>
-extends FileOutputFormat<K, V> {
+public abstract class MultipleOutputFormat<K, V> extends FileOutputFormat<K, V> {
 
   /**
    * Create a composite record writer that can write key/value data to different
@@ -75,22 +74,17 @@ extends FileOutputFormat<K, V> {
     final Progressable myProgressable = arg3;
 
     return new RecordWriter<K, V>() {
-
       // a cache storing the record writers for different output files.
       TreeMap<String, RecordWriter<K, V>> recordWriters = new TreeMap<String, RecordWriter<K, V>>();
 
       public void write(K key, V value) throws IOException {
-
         // get the file name based on the key
         String keyBasedPath = generateFileNameForKeyValue(key, value, myName);
-
         // get the file name based on the input file name
         String finalPath = getInputFileBasedOutputFileName(myJob, keyBasedPath);
-
         // get the actual key
         K actualKey = generateActualKey(key, value);
         V actualValue = generateActualValue(key, value);
-
         RecordWriter<K, V> rw = this.recordWriters.get(finalPath);
         if (rw == null) {
           // if we don't have the record writer yet for the final path, create

@@ -46,8 +46,11 @@ import org.apache.hadoop.io.Text;
 public class KeyFieldBasedComparator<K, V> extends WritableComparator 
 implements JobConfigurable {
   private KeyFieldHelper keyFieldHelper = new KeyFieldHelper();
+
   private static final byte NEGATIVE = (byte)'-';
+
   private static final byte ZERO = (byte)'0';
+  
   private static final byte DECIMAL = (byte)'.';
   
   public void configure(JobConf job) {
@@ -62,8 +65,7 @@ implements JobConfigurable {
   }
     
 
-  public int compare(byte[] b1, int s1, int l1,
-      byte[] b2, int s2, int l2) {
+  public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
     int n1 = WritableUtils.decodeVIntSize(b1[s1]);
     int n2 = WritableUtils.decodeVIntSize(b2[s2]);
     List <KeyDescription> allKeySpecs = keyFieldHelper.keySpecs();
@@ -210,8 +212,7 @@ implements JobConfigurable {
     }
     return false;
   }
-  private int decimalCompare(byte[] a, int i, int end1, 
-                             byte[] b, int j, int end2) {
+  private int decimalCompare(byte[] a, int i, int end1, byte[] b, int j, int end2) {
     if (i > end1) {
       //if a[] has nothing remaining
       return -decimalCompare1(b, ++j, end2);
