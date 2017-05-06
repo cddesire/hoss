@@ -61,4 +61,5 @@ public interface ComposableRecordReader<K extends WritableComparable, V extends 
    * them with the JoinCollector provided.
    */
   void accept(CompositeRecordReader.JoinCollector jc, K key) throws IOException;
+  
 }

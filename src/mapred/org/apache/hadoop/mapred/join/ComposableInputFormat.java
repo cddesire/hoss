@@ -31,8 +31,7 @@ import org.apache.hadoop.mapred.Reporter;
  * Refinement of InputFormat requiring implementors to provide
  * ComposableRecordReader instead of RecordReader.
  */
-public interface ComposableInputFormat<K extends WritableComparable, V extends Writable>
-    extends InputFormat<K,V> {
+public interface ComposableInputFormat<K extends WritableComparable, V extends Writable> extends InputFormat<K,V> {
 
   ComposableRecordReader<K,V> getRecordReader(InputSplit split,
       JobConf job, Reporter reporter) throws IOException;

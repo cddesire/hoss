@@ -33,7 +33,9 @@ import org.apache.hadoop.io.WritableUtils;
 public class ArrayListBackedIterator<X extends Writable> implements ResetableIterator<X> {
 
   private Iterator<X> iter;
+
   private ArrayList<X> data;
+  
   private X hold = null;
 
   public ArrayListBackedIterator() {
