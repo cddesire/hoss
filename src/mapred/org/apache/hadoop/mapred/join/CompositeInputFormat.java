@@ -99,8 +99,7 @@ public class CompositeInputFormat<K extends WritableComparable> implements Compo
           Parser.CNode.addIdentifier(m.group(1),
               job.getClass(m.group(0), null, ComposableRecordReader.class));
         } catch (NoSuchMethodException e) {
-          throw (IOException)new IOException(
-              "Invalid define for " + m.group(1)).initCause(e);
+          throw (IOException)new IOException("Invalid define for " + m.group(1)).initCause(e);
         }
       }
     }
