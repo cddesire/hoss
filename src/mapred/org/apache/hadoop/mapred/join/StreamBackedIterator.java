@@ -32,9 +32,11 @@ import org.apache.hadoop.io.Writable;
 public class StreamBackedIterator<X extends Writable> implements ResetableIterator<X> {
 
   private static class ReplayableByteInputStream extends ByteArrayInputStream {
+    
     public ReplayableByteInputStream(byte[] arr) {
       super(arr);
     }
+
     public void resetStream() {
       mark = 0;
       reset();

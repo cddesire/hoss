@@ -18,7 +18,6 @@
 package org.apache.hadoop.mapred.join;
 
 import java.io.IOException;
-
 import org.apache.hadoop.io.Writable;
 
 /**

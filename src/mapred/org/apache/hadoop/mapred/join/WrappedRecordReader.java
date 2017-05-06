@@ -32,16 +32,19 @@ import org.apache.hadoop.mapred.RecordReader;
  * provided RecordReader and keeps a store of values matching a key when
  * this source is participating in a join.
  */
-public class WrappedRecordReader<K extends WritableComparable,
-                          U extends Writable>
+public class WrappedRecordReader<K extends WritableComparable, U extends Writable>
     implements ComposableRecordReader<K,U> {
 
   private boolean empty = false;
+
   private RecordReader<K,U> rr;
+
   private int id;  // index at which values will be inserted in collector
 
   private K khead; // key at the top of this RR
+
   private U vhead; // value assoc with khead
+  
   private WritableComparator cmp;
 
   private ResetableIterator<U> vjoin;
@@ -49,16 +52,13 @@ public class WrappedRecordReader<K extends WritableComparable,
   /**
    * For a given RecordReader rr, occupy position id in collector.
    */
-  WrappedRecordReader(int id, RecordReader<K,U> rr,
-      Class<? extends WritableComparator> cmpcl) throws IOException {
+  WrappedRecordReader(int id, RecordReader<K,U> rr, Class<? extends WritableComparator> cmpcl) throws IOException {
     this.id = id;
     this.rr = rr;
     khead = rr.createKey();
     vhead = rr.createValue();
     try {
-      cmp = (null == cmpcl)
-        ? WritableComparator.get(khead.getClass())
-        : cmpcl.newInstance();
+      cmp = (null == cmpcl) ? WritableComparator.get(khead.getClass()) : cmpcl.newInstance();
     } catch (InstantiationException e) {
       throw (IOException)new IOException().initCause(e);
     } catch (IllegalAccessException e) {
@@ -68,7 +68,6 @@ public class WrappedRecordReader<K extends WritableComparable,
     next();
   }
 
-  /** {@inheritDoc} */
   public int id() {
     return id;
   }
@@ -119,10 +118,8 @@ public class WrappedRecordReader<K extends WritableComparable,
    * provided (ie register a stream of values from this source matching K
    * with a collector).
    */
-                                 // JoinCollector comes from parent, which has
-  @SuppressWarnings("unchecked") // no static type for the slot this sits in
-  public void accept(CompositeRecordReader.JoinCollector i, K key)
-      throws IOException {
+  @SuppressWarnings("unchecked") 
+  public void accept(CompositeRecordReader.JoinCollector i, K key) throws IOException {
     vjoin.clear();
     if (0 == cmp.compare(key, khead)) {
       do {
@@ -194,8 +191,7 @@ public class WrappedRecordReader<K extends WritableComparable,
    */
   @SuppressWarnings("unchecked") // Explicit type check prior to cast
   public boolean equals(Object other) {
-    return other instanceof ComposableRecordReader
-        && 0 == compareTo((ComposableRecordReader)other);
+    return other instanceof ComposableRecordReader && 0 == compareTo((ComposableRecordReader)other);
   }
 
   public int hashCode() {

@@ -43,6 +43,7 @@ import org.apache.hadoop.io.WritableUtils;
 public class TupleWritable implements Writable, Iterable<Writable> {
 
   private long written;
+  
   private Writable[] values;
 
   /**

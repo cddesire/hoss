@@ -93,31 +93,40 @@ public class Parser {
   }
 
   public static class NumToken extends Token {
+
     private double num;
+    
     public NumToken(double num) {
       super(TType.NUM);
       this.num = num;
     }
+
     public double getNum() { return num; }
   }
 
   public static class NodeToken extends Token {
+    
     private Node node;
+
     NodeToken(Node node) {
       super(TType.CIF);
       this.node = node;
     }
+    
     public Node getNode() {
       return node;
     }
   }
 
   public static class StrToken extends Token {
+    
     private String str;
+    
     public StrToken(TType type, String str) {
       super(type);
       this.str = str;
     }
+    
     public String getStr() {
       return str;
     }
