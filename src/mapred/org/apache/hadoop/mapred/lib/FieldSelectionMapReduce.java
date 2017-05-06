@@ -91,22 +91,14 @@ public class FieldSelectionMapReduce<K, V>
   private String specToString() {
     StringBuffer sb = new StringBuffer();
     sb.append("fieldSeparator: ").append(fieldSeparator).append("\n");
-
-    sb.append("mapOutputKeyValueSpec: ").append(mapOutputKeyValueSpec).append(
-        "\n");
-    sb.append("reduceOutputKeyValueSpec: ").append(reduceOutputKeyValueSpec)
-        .append("\n");
-
-    sb.append("allMapValueFieldsFrom: ").append(allMapValueFieldsFrom).append(
-        "\n");
-
-    sb.append("allReduceValueFieldsFrom: ").append(allReduceValueFieldsFrom)
-        .append("\n");
+    sb.append("mapOutputKeyValueSpec: ").append(mapOutputKeyValueSpec).append("\n");
+    sb.append("reduceOutputKeyValueSpec: ").append(reduceOutputKeyValueSpec).append("\n");
+    sb.append("allMapValueFieldsFrom: ").append(allMapValueFieldsFrom).append("\n");
+    sb.append("allReduceValueFieldsFrom: ").append(allReduceValueFieldsFrom).append("\n");
 
     int i = 0;
 
-    sb.append("mapOutputKeyFieldList.length: ").append(
-        mapOutputKeyFieldList.length).append("\n");
+    sb.append("mapOutputKeyFieldList.length: ").append(mapOutputKeyFieldList.length).append("\n");
     for (i = 0; i < mapOutputKeyFieldList.length; i++) {
       sb.append("\t").append(mapOutputKeyFieldList[i]).append("\n");
     }
@@ -121,8 +113,7 @@ public class FieldSelectionMapReduce<K, V>
     for (i = 0; i < reduceOutputKeyFieldList.length; i++) {
       sb.append("\t").append(reduceOutputKeyFieldList[i]).append("\n");
     }
-    sb.append("reduceOutputValueFieldList.length: ").append(
-        reduceOutputValueFieldList.length).append("\n");
+    sb.append("reduceOutputValueFieldList.length: ").append(reduceOutputValueFieldList.length).append("\n");
     for (i = 0; i < reduceOutputValueFieldList.length; i++) {
       sb.append("\t").append(reduceOutputValueFieldList[i]).append("\n");
     }
@@ -151,8 +142,7 @@ public class FieldSelectionMapReduce<K, V>
         fields[inputKeyFields.length + i] = inputValFields[i];
       }
     }
-    String newKey = selectFields(fields, mapOutputKeyFieldList, -1,
-        fieldSeparator);
+    String newKey = selectFields(fields, mapOutputKeyFieldList, -1, fieldSeparator);
     String newVal = selectFields(fields, mapOutputValueFieldList,
         allMapValueFieldsFrom, fieldSeparator);
 
@@ -179,8 +169,7 @@ public class FieldSelectionMapReduce<K, V>
    * @param fieldList an array of field numbers extracted from the specs.
    * @return number n if some field spec is in the form of "n-", -1 otherwise.
    */
-  private int extractFields(String[] fieldListSpec,
-                            ArrayList<Integer> fieldList) {
+  private int extractFields(String[] fieldListSpec, ArrayList<Integer> fieldList) {
     int allFieldsFrom = -1;
     int i = 0;
     int j = 0;
@@ -262,12 +251,10 @@ public class FieldSelectionMapReduce<K, V>
 
   public void configure(JobConf job) {
     this.fieldSeparator = job.get("mapred.data.field.separator", "\t");
-    this.mapOutputKeyValueSpec = job.get("map.output.key.value.fields.spec",
-        "0-:");
+    this.mapOutputKeyValueSpec = job.get("map.output.key.value.fields.spec", "0-:");
     this.ignoreInputKey = TextInputFormat.class.getCanonicalName().equals(
         job.getInputFormat().getClass().getCanonicalName());
-    this.reduceOutputKeyValueSpec = job.get(
-        "reduce.output.key.value.fields.spec", "0-:");
+    this.reduceOutputKeyValueSpec = job.get("reduce.output.key.value.fields.spec", "0-:");
     parseOutputKeyValueSpec();
     LOG.info(specToString());
   }
@@ -277,8 +264,7 @@ public class FieldSelectionMapReduce<K, V>
 
   }
 
-  private static String selectFields(String[] fields, int[] fieldList,
-      int allFieldsFrom, String separator) {
+  private static String selectFields(String[] fields, int[] fieldList, int allFieldsFrom, String separator) {
     String retv = null;
     int i = 0;
     StringBuffer sb = null;
@@ -311,9 +297,7 @@ public class FieldSelectionMapReduce<K, V>
   }
 
   public void reduce(Text key, Iterator<Text> values,
-                     OutputCollector<Text, Text> output, Reporter reporter)
-    throws IOException {
-
+                     OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
     String keyStr = key.toString() + this.fieldSeparator;
     while (values.hasNext()) {
       String valStr = values.next().toString();

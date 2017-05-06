@@ -40,34 +40,40 @@ import java.util.Map;
  * {@link ChainMapper} and the {@link ChainReducer} classes.
  */
 class Chain {
+
   private static final String CHAIN_MAPPER = "chain.mapper";
+
   private static final String CHAIN_REDUCER = "chain.reducer";
 
   private static final String CHAIN_MAPPER_SIZE = ".size";
+
   private static final String CHAIN_MAPPER_CLASS = ".mapper.class.";
+
   private static final String CHAIN_MAPPER_CONFIG = ".mapper.config.";
+
   private static final String CHAIN_REDUCER_CLASS = ".reducer.class";
+
   private static final String CHAIN_REDUCER_CONFIG = ".reducer.config";
 
   private static final String MAPPER_BY_VALUE = "chain.mapper.byValue";
+
   private static final String REDUCER_BY_VALUE = "chain.reducer.byValue";
 
-  private static final String MAPPER_INPUT_KEY_CLASS =
-    "chain.mapper.input.key.class";
-  private static final String MAPPER_INPUT_VALUE_CLASS =
-    "chain.mapper.input.value.class";
-  private static final String MAPPER_OUTPUT_KEY_CLASS =
-    "chain.mapper.output.key.class";
-  private static final String MAPPER_OUTPUT_VALUE_CLASS =
-    "chain.mapper.output.value.class";
-  private static final String REDUCER_INPUT_KEY_CLASS =
-    "chain.reducer.input.key.class";
-  private static final String REDUCER_INPUT_VALUE_CLASS =
-    "chain.reducer.input.value.class";
-  private static final String REDUCER_OUTPUT_KEY_CLASS =
-    "chain.reducer.output.key.class";
-  private static final String REDUCER_OUTPUT_VALUE_CLASS =
-    "chain.reducer.output.value.class";
+  private static final String MAPPER_INPUT_KEY_CLASS = "chain.mapper.input.key.class";
+
+  private static final String MAPPER_INPUT_VALUE_CLASS = "chain.mapper.input.value.class";
+
+  private static final String MAPPER_OUTPUT_KEY_CLASS = "chain.mapper.output.key.class";
+  
+  private static final String MAPPER_OUTPUT_VALUE_CLASS = "chain.mapper.output.value.class";
+  
+  private static final String REDUCER_INPUT_KEY_CLASS = "chain.reducer.input.key.class";
+  
+  private static final String REDUCER_INPUT_VALUE_CLASS = "chain.reducer.input.value.class";
+  
+  private static final String REDUCER_OUTPUT_KEY_CLASS = "chain.reducer.output.key.class";
+  
+  private static final String REDUCER_OUTPUT_VALUE_CLASS = "chain.reducer.output.value.class";
 
   private boolean isMap;
 
@@ -78,10 +84,8 @@ class Chain {
 
   // to cache the key/value output class serializations for each chain element
   // to avoid everytime lookup.
-  private List<Serialization> mappersKeySerialization =
-    new ArrayList<Serialization>();
-  private List<Serialization> mappersValueSerialization =
-    new ArrayList<Serialization>();
+  private List<Serialization> mappersKeySerialization = new ArrayList<Serialization>();
+  private List<Serialization> mappersValueSerialization = new ArrayList<Serialization>();
   private Serialization reducerKeySerialization;
   private Serialization reducerValueSerialization;
 
@@ -122,8 +126,7 @@ class Chain {
   private static JobConf getChainElementConf(JobConf jobConf, String confKey) {
     JobConf conf;
     try {
-      Stringifier<JobConf> stringifier =
-        new DefaultStringifier<JobConf>(jobConf, JobConf.class);
+      Stringifier<JobConf> stringifier = new DefaultStringifier<JobConf>(jobConf, JobConf.class);
       conf = stringifier.fromString(jobConf.get(confKey, null));
     } catch (IOException ioex) {
       throw new RuntimeException(ioex);
@@ -170,11 +173,9 @@ class Chain {
 
     // if a reducer chain check the Reducer has been already set
     if (!isMap) {
-      if (jobConf.getClass(prefix + CHAIN_REDUCER_CLASS,
-                           Reducer.class) == null) {
+      if (jobConf.getClass(prefix + CHAIN_REDUCER_CLASS, Reducer.class) == null) {
         throw new IllegalStateException(
-          "A Mapper can be added to the chain only after the Reducer has " +
-          "been set");
+          "A Mapper can be added to the chain only after the Reducer has " + "been set");
       }
     }
     int index = jobConf.getInt(prefix + CHAIN_MAPPER_SIZE, 0);
@@ -226,18 +227,14 @@ class Chain {
     // and if it works by value or by reference
     mapperConf.setBoolean(MAPPER_BY_VALUE, byValue);
     mapperConf.setClass(MAPPER_INPUT_KEY_CLASS, inputKeyClass, Object.class);
-    mapperConf.setClass(MAPPER_INPUT_VALUE_CLASS, inputValueClass,
-                        Object.class);
+    mapperConf.setClass(MAPPER_INPUT_VALUE_CLASS, inputValueClass, Object.class);
     mapperConf.setClass(MAPPER_OUTPUT_KEY_CLASS, outputKeyClass, Object.class);
-    mapperConf.setClass(MAPPER_OUTPUT_VALUE_CLASS, outputValueClass,
-                        Object.class);
+    mapperConf.setClass(MAPPER_OUTPUT_VALUE_CLASS, outputValueClass, Object.class);
 
     // serialize the private mapper jobconf in the chain jobconf.
-    Stringifier<JobConf> stringifier =
-      new DefaultStringifier<JobConf>(jobConf, JobConf.class);
+    Stringifier<JobConf> stringifier = new DefaultStringifier<JobConf>(jobConf, JobConf.class);
     try {
-      jobConf.set(prefix + CHAIN_MAPPER_CONFIG + index,
-                  stringifier.toString(new JobConf(mapperConf)));
+      jobConf.set(prefix + CHAIN_MAPPER_CONFIG + index, stringifier.toString(new JobConf(mapperConf)));
     }
     catch (IOException ioEx) {
       throw new RuntimeException(ioEx);
@@ -273,7 +270,6 @@ class Chain {
                           Class<? extends V2> outputValueClass,
                           boolean byValue, JobConf reducerConf) {
     String prefix = getPrefix(false);
-
     if (jobConf.getClass(prefix + CHAIN_REDUCER_CLASS, null) != null) {
       throw new IllegalStateException("Reducer has been already set");
     }
@@ -292,19 +288,14 @@ class Chain {
     // and if it works by value or by reference
     reducerConf.setBoolean(MAPPER_BY_VALUE, byValue);
     reducerConf.setClass(REDUCER_INPUT_KEY_CLASS, inputKeyClass, Object.class);
-    reducerConf.setClass(REDUCER_INPUT_VALUE_CLASS, inputValueClass,
-                         Object.class);
-    reducerConf.setClass(REDUCER_OUTPUT_KEY_CLASS, outputKeyClass,
-                         Object.class);
-    reducerConf.setClass(REDUCER_OUTPUT_VALUE_CLASS, outputValueClass,
-                         Object.class);
+    reducerConf.setClass(REDUCER_INPUT_VALUE_CLASS, inputValueClass, Object.class);
+    reducerConf.setClass(REDUCER_OUTPUT_KEY_CLASS, outputKeyClass, Object.class);
+    reducerConf.setClass(REDUCER_OUTPUT_VALUE_CLASS, outputValueClass, Object.class);
 
     // serialize the private mapper jobconf in the chain jobconf.
-    Stringifier<JobConf> stringifier =
-      new DefaultStringifier<JobConf>(jobConf, JobConf.class);
+    Stringifier<JobConf> stringifier = new DefaultStringifier<JobConf>(jobConf, JobConf.class);
     try {
-      jobConf.set(prefix + CHAIN_REDUCER_CONFIG,
-                  stringifier.toString(new JobConf(reducerConf)));
+      jobConf.set(prefix + CHAIN_REDUCER_CONFIG, stringifier.toString(new JobConf(reducerConf)));
     }
     catch (IOException ioEx) {
       throw new RuntimeException(ioEx);
@@ -319,14 +310,12 @@ class Chain {
   public void configure(JobConf jobConf) {
     String prefix = getPrefix(isMap);
     chainJobConf = jobConf;
-    SerializationFactory serializationFactory =
-      new SerializationFactory(chainJobConf);
+    SerializationFactory serializationFactory = new SerializationFactory(chainJobConf);
     int index = jobConf.getInt(prefix + CHAIN_MAPPER_SIZE, 0);
     for (int i = 0; i < index; i++) {
       Class<? extends Mapper> klass =
         jobConf.getClass(prefix + CHAIN_MAPPER_CLASS + i, null, Mapper.class);
-      JobConf mConf =
-        getChainElementConf(jobConf, prefix + CHAIN_MAPPER_CONFIG + i);
+      JobConf mConf = getChainElementConf(jobConf, prefix + CHAIN_MAPPER_CONFIG + i);
       Mapper mapper = ReflectionUtils.newInstance(klass, mConf);
       mappers.add(mapper);
 
@@ -343,8 +332,7 @@ class Chain {
     Class<? extends Reducer> klass =
       jobConf.getClass(prefix + CHAIN_REDUCER_CLASS, null, Reducer.class);
     if (klass != null) {
-      JobConf rConf =
-        getChainElementConf(jobConf, prefix + CHAIN_REDUCER_CONFIG);
+      JobConf rConf = getChainElementConf(jobConf, prefix + CHAIN_REDUCER_CONFIG);
       reducer = ReflectionUtils.newInstance(klass, rConf);
       if (rConf.getBoolean(REDUCER_BY_VALUE, true)) {
         reducerKeySerialization = serializationFactory
@@ -398,8 +386,7 @@ class Chain {
                                             OutputCollector output,
                                             Reporter reporter) {
     Serialization keySerialization = mappersKeySerialization.get(mapperIndex);
-    Serialization valueSerialization =
-      mappersValueSerialization.get(mapperIndex);
+    Serialization valueSerialization = mappersValueSerialization.get(mapperIndex);
     return new ChainOutputCollector(mapperIndex, keySerialization,
                                     valueSerialization, output, reporter);
   }
@@ -414,8 +401,7 @@ class Chain {
   @SuppressWarnings({"unchecked"})
   public OutputCollector getReducerCollector(OutputCollector output,
                                              Reporter reporter) {
-    return new ChainOutputCollector(reducerKeySerialization,
-                                    reducerValueSerialization, output,
+    return new ChainOutputCollector(reducerKeySerialization, reducerValueSerialization, output,
                                     reporter);
   }
 
@@ -517,10 +503,8 @@ class Chain {
 
     private <E> E makeCopyForPassByValue(Serialization<E> serialization,
                                           E obj) throws IOException {
-      Serializer<E> ser =
-        serialization.getSerializer(GenericsUtil.getClass(obj));
-      Deserializer<E> deser =
-        serialization.getDeserializer(GenericsUtil.getClass(obj));
+      Serializer<E> ser = serialization.getSerializer(GenericsUtil.getClass(obj));
+      Deserializer<E> deser = serialization.getDeserializer(GenericsUtil.getClass(obj));
 
       DataOutputBuffer dof = threadLocalDataOutputBuffer.get();
 
@@ -528,10 +512,8 @@ class Chain {
       ser.open(dof);
       ser.serialize(obj);
       ser.close();
-      obj = ReflectionUtils.newInstance(GenericsUtil.getClass(obj),
-                                        getChainJobConf());
-      ByteArrayInputStream bais =
-        new ByteArrayInputStream(dof.getData(), 0, dof.getLength());
+      obj = ReflectionUtils.newInstance(GenericsUtil.getClass(obj), getChainJobConf());
+      ByteArrayInputStream bais = new ByteArrayInputStream(dof.getData(), 0, dof.getLength());
       deser.open(bais);
       deser.deserialize(obj);
       deser.close();
