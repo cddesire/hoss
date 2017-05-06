@@ -57,6 +57,7 @@ public class CombineFileSplit implements InputSplit {
    * default constructor
    */
   public CombineFileSplit() {}
+  
   public CombineFileSplit(JobConf job, Path[] files, long[] start, 
                           long[] lengths, String[] locations) {
     initSplit(job, files, start, lengths, locations);
@@ -185,8 +186,7 @@ public class CombineFileSplit implements InputSplit {
       if (i == 0 ) {
         sb.append("Paths:");
       }
-      sb.append(paths[i].toUri().getPath() + ":" + startoffset[i] +
-                "+" + lengths[i]);
+      sb.append(paths[i].toUri().getPath() + ":" + startoffset[i] + "+" + lengths[i]);
       if (i < paths.length -1) {
         sb.append(",");
       }

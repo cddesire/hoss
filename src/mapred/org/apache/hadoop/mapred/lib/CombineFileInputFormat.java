@@ -61,12 +61,13 @@ import org.apache.hadoop.mapred.RecordReader;
  * to construct <code>RecordReader</code>'s for <code>CombineFileSplit</code>'s.
  * @see CombineFileSplit
  */
-public abstract class CombineFileInputFormat<K, V>
-  extends FileInputFormat<K, V> {
+public abstract class CombineFileInputFormat<K, V> extends FileInputFormat<K, V> {
 
   // ability to limit the size of a single split
   private long maxSplitSize = 0;
+
   private long minSplitSizeNode = 0;
+  
   private long minSplitSizeRack = 0;
 
   // A pool of input paths filters. A split cannot have blocks from files
@@ -74,8 +75,7 @@ public abstract class CombineFileInputFormat<K, V>
   private ArrayList<MultiPathFilter> pools = new  ArrayList<MultiPathFilter>();
 
   // mapping from a rack name to the set of Nodes in the rack 
-  private static HashMap<String, Set<String>> rackToNodes = 
-                            new HashMap<String, Set<String>>();
+  private static HashMap<String, Set<String>> rackToNodes = new HashMap<String, Set<String>>();
   /**
    * Specify the maximum size (in bytes) of each split. Each split is
    * approximately equal to the specified size.
@@ -130,8 +130,7 @@ public abstract class CombineFileInputFormat<K, V>
   /**
    * default constructor
    */
-  public CombineFileInputFormat() {
-  }
+  public CombineFileInputFormat() {}
 
   @Override
   public InputSplit[] getSplits(JobConf job, int numSplits) 
@@ -160,18 +159,15 @@ public abstract class CombineFileInputFormat<K, V>
     }
     if (minSizeNode != 0 && maxSize != 0 && minSizeNode > maxSize) {
       throw new IOException("Minimum split size pernode " + minSizeNode +
-                            " cannot be larger than maximum split size " +
-                            maxSize);
+                            " cannot be larger than maximum split size " + maxSize);
     }
     if (minSizeRack != 0 && maxSize != 0 && minSizeRack > maxSize) {
       throw new IOException("Minimum split size per rack" + minSizeRack +
-                            " cannot be larger than maximum split size " +
-                            maxSize);
+                            " cannot be larger than maximum split size " + maxSize);
     }
     if (minSizeRack != 0 && minSizeNode > minSizeRack) {
       throw new IOException("Minimum split size per node" + minSizeNode +
-                            " cannot be smaller than minimum split size per rack " +
-                            minSizeRack);
+                            " cannot be smaller than minimum split size per rack " + minSizeRack);
     }
 
     // all the files in input set
@@ -227,23 +223,16 @@ public abstract class CombineFileInputFormat<K, V>
    */
   private void getMoreSplits(JobConf job, Path[] paths, 
                              long maxSize, long minSizeNode, long minSizeRack,
-                             List<CombineFileSplit> splits)
-    throws IOException {
-
+                             List<CombineFileSplit> splits) throws IOException {
     // all blocks for all the files in input set
     OneFileInfo[] files;
-  
     // mapping from a rack name to the list of blocks it has
-    HashMap<String, List<OneBlockInfo>> rackToBlocks = 
-                              new HashMap<String, List<OneBlockInfo>>();
+    HashMap<String, List<OneBlockInfo>> rackToBlocks = new HashMap<String, List<OneBlockInfo>>();
 
     // mapping from a block to the nodes on which it has replicas
-    HashMap<OneBlockInfo, String[]> blockToNodes = 
-                              new HashMap<OneBlockInfo, String[]>();
-
+    HashMap<OneBlockInfo, String[]> blockToNodes = new HashMap<OneBlockInfo, String[]>();
     // mapping from a node to the list of blocks that it contains
-    HashMap<String, List<OneBlockInfo>> nodeToBlocks = 
-                              new HashMap<String, List<OneBlockInfo>>();
+    HashMap<String, List<OneBlockInfo>> nodeToBlocks = new HashMap<String, List<OneBlockInfo>>();
     
     files = new OneFileInfo[paths.length];
     if (paths.length == 0) {
@@ -253,8 +242,7 @@ public abstract class CombineFileInputFormat<K, V>
     // populate all the blocks for all files
     long totLength = 0;
     for (int i = 0; i < paths.length; i++) {
-      files[i] = new OneFileInfo(paths[i], job, 
-                                 rackToBlocks, blockToNodes, nodeToBlocks);
+      files[i] = new OneFileInfo(paths[i], job, rackToBlocks, blockToNodes, nodeToBlocks);
       totLength += files[i].getLength();
     }
 
@@ -265,8 +253,7 @@ public abstract class CombineFileInputFormat<K, V>
     // process all nodes and create splits that are local
     // to a node. 
     for (Iterator<Map.Entry<String, 
-         List<OneBlockInfo>>> iter = nodeToBlocks.entrySet().iterator(); 
-         iter.hasNext();) {
+         List<OneBlockInfo>>> iter = nodeToBlocks.entrySet().iterator(); iter.hasNext();) {
 
       Map.Entry<String, List<OneBlockInfo>> one = iter.next();
       nodes.add(one.getKey());
@@ -316,7 +303,6 @@ public abstract class CombineFileInputFormat<K, V>
 
     // Process all racks over and over again until there is no more work to do.
     while (blockToNodes.size() > 0) {
-
       // Create one split for this rack before moving over to the next rack. 
       // Come back to this rack after creating a single split for each of the 
       // remaining racks.
@@ -415,10 +401,8 @@ public abstract class CombineFileInputFormat<K, V>
    * Create a single split from the list of blocks specified in validBlocks
    * Add this new split into splitList.
    */
-  private void addCreatedSplit(JobConf job,
-                               List<CombineFileSplit> splitList, 
-                               List<String> locations, 
-                               ArrayList<OneBlockInfo> validBlocks) {
+  private void addCreatedSplit(JobConf job, List<CombineFileSplit> splitList,
+                               List<String> locations, ArrayList<OneBlockInfo> validBlocks) {
     // create an input split
     Path[] fl = new Path[validBlocks.size()];
     long[] offset = new long[validBlocks.size()];
@@ -438,8 +422,7 @@ public abstract class CombineFileInputFormat<K, V>
   /**
    * This is not implemented yet. 
    */
-  public abstract RecordReader<K, V> getRecordReader(InputSplit split,
-                                      JobConf job, Reporter reporter)
+  public abstract RecordReader<K, V> getRecordReader(InputSplit split, JobConf job, Reporter reporter)
     throws IOException;
 
   /**
@@ -452,15 +435,13 @@ public abstract class CombineFileInputFormat<K, V>
     OneFileInfo(Path path, JobConf job,
                 HashMap<String, List<OneBlockInfo>> rackToBlocks,
                 HashMap<OneBlockInfo, String[]> blockToNodes,
-                HashMap<String, List<OneBlockInfo>> nodeToBlocks)
-                throws IOException {
+                HashMap<String, List<OneBlockInfo>> nodeToBlocks) throws IOException {
       this.fileSize = 0;
 
       // get block locations from file system
       FileSystem fs = path.getFileSystem(job);
       FileStatus stat = fs.getFileStatus(path);
-      BlockLocation[] locations = fs.getFileBlockLocations(stat, 0, 
-                                                           stat.getLen());
+      BlockLocation[] locations = fs.getFileBlockLocations(stat, 0, stat.getLen());
       // create a list of all block and their locations
       if (locations == null) {
         blocks = new OneBlockInfo[0];
@@ -525,22 +506,19 @@ public abstract class CombineFileInputFormat<K, V>
     String[] hosts;              // nodes on whch this block resides
     String[] racks;              // network topology of hosts
 
-    OneBlockInfo(Path path, long offset, long len, 
-                 String[] hosts, String[] topologyPaths) {
+    OneBlockInfo(Path path, long offset, long len, String[] hosts, String[] topologyPaths) {
       this.onepath = path;
       this.offset = offset;
       this.hosts = hosts;
       this.length = len;
-      assert (hosts.length == topologyPaths.length ||
-              topologyPaths.length == 0);
+      assert (hosts.length == topologyPaths.length || topologyPaths.length == 0);
 
       // if the file ystem does not have any rack information, then
       // use dummy rack location.
       if (topologyPaths.length == 0) {
         topologyPaths = new String[hosts.length];
         for (int i = 0; i < topologyPaths.length; i++) {
-          topologyPaths[i] = (new NodeBase(hosts[i], NetworkTopology.DEFAULT_RACK)).
-                                          toString();
+          topologyPaths[i] = (new NodeBase(hosts[i], NetworkTopology.DEFAULT_RACK)). toString();
         }
       }
 
