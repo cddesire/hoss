@@ -19,7 +19,6 @@
 package org.apache.hadoop.mapred.join;
 
 import java.io.IOException;
-
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapred.JobConf;
