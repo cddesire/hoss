@@ -101,6 +101,7 @@ public class InputSampler<K,V> implements Tool {
   public static class SplitSampler<K,V> implements Sampler<K,V> {
 
     private final int numSamples;
+
     private final int maxSplitsSampled;
 
     /**
@@ -161,7 +162,9 @@ public class InputSampler<K,V> implements Tool {
    */
   public static class RandomSampler<K,V> implements Sampler<K,V> {
     private double freq;
+
     private final int numSamples;
+
     private final int maxSplitsSampled;
 
     /**
@@ -249,7 +252,9 @@ public class InputSampler<K,V> implements Tool {
    * Useful for sorted data.
    */
   public static class IntervalSampler<K,V> implements Sampler<K,V> {
+
     private final double freq;
+
     private final int maxSplitsSampled;
 
     /**
@@ -308,7 +313,7 @@ public class InputSampler<K,V> implements Tool {
    * Queries the sampler for a sample keyset, sorts by the output key
    * comparator, selects the keys for each rank, and writes to the destination
    * returned from {@link
-     org.apache.hadoop.mapred.lib.TotalOrderPartitioner#getPartitionFile}.
+   *  org.apache.hadoop.mapred.lib.TotalOrderPartitioner#getPartitionFile}.
    */
   @SuppressWarnings("unchecked") // getInputFormat, getOutputKeyComparator
   public static <K,V> void writePartitionFile(JobConf job,

@@ -48,11 +48,9 @@ import java.util.concurrent.*;
  * value is 10 threads.
  * <p>
  */
-public class MultithreadedMapRunner<K1, V1, K2, V2>
-    implements MapRunnable<K1, V1, K2, V2> {
+public class MultithreadedMapRunner<K1, V1, K2, V2> implements MapRunnable<K1, V1, K2, V2> {
 
-  private static final Log LOG =
-    LogFactory.getLog(MultithreadedMapRunner.class.getName());
+  private static final Log LOG = LogFactory.getLog(MultithreadedMapRunner.class.getName());
 
   private JobConf job;
   private Mapper<K1, V1, K2, V2> mapper;
@@ -63,26 +61,21 @@ public class MultithreadedMapRunner<K1, V1, K2, V2>
 
   @SuppressWarnings("unchecked")
   public void configure(JobConf jobConf) {
-    int numberOfThreads =
-      jobConf.getInt("mapred.map.multithreadedrunner.threads", 10);
+    int numberOfThreads = jobConf.getInt("mapred.map.multithreadedrunner.threads", 10);
     if (LOG.isDebugEnabled()) {
-      LOG.debug("Configuring jobConf " + jobConf.getJobName() +
-                " to use " + numberOfThreads + " threads");
+      LOG.debug("Configuring jobConf " + jobConf.getJobName() + " to use " + numberOfThreads + " threads");
     }
 
     this.job = jobConf;
     //increment processed counter only if skipping feature is enabled
     this.incrProcCount = SkipBadRecords.getMapperMaxSkipRecords(job)>0 && 
       SkipBadRecords.getAutoIncrMapperProcCount(job);
-    this.mapper = ReflectionUtils.newInstance(jobConf.getMapperClass(),
-        jobConf);
+    this.mapper = ReflectionUtils.newInstance(jobConf.getMapperClass(), jobConf);
 
     // Creating a threadpool of the configured size to execute the Mapper
     // map method in parallel.
     executorService = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 
-                                             0L, TimeUnit.MILLISECONDS,
-                                             new BlockingArrayQueue
-                                               (numberOfThreads));
+                                             0L, TimeUnit.MILLISECONDS, new BlockingArrayQueue(numberOfThreads));
   }
 
   /**
@@ -92,6 +85,7 @@ public class MultithreadedMapRunner<K1, V1, K2, V2>
   private static class BlockingArrayQueue extends ArrayBlockingQueue<Runnable> {
  
     private static final long serialVersionUID = 1L;
+
     public BlockingArrayQueue(int capacity) {
       super(capacity);
     }
@@ -117,7 +111,6 @@ public class MultithreadedMapRunner<K1, V1, K2, V2>
     if (ioException != null) {
       throw ioException;
     }
-
     // Checking if a Mapper.map within a Runnable has generated a
     // RuntimeException. If so we rethrow it to force an abort of the Map
     // operation thus keeping the semantics of the default
@@ -127,8 +120,7 @@ public class MultithreadedMapRunner<K1, V1, K2, V2>
     }
   }
 
-  public void run(RecordReader<K1, V1> input, OutputCollector<K2, V2> output,
-                  Reporter reporter)
+  public void run(RecordReader<K1, V1> input, OutputCollector<K2, V2> output, Reporter reporter)
     throws IOException {
     try {
       // allocate key & value instances these objects will not be reused
@@ -137,20 +129,15 @@ public class MultithreadedMapRunner<K1, V1, K2, V2>
       V1 value = input.createValue();
 
       while (input.next(key, value)) {
-
-        executorService.execute(new MapperInvokeRunable(key, value, output,
-                                reporter));
-
+        executorService.execute(new MapperInvokeRunable(key, value, output, reporter));
         checkForExceptionsFromProcessingThreads();
-
         // Allocate new key & value instances as mapper is running in parallel
         key = input.createKey();
         value = input.createValue();
       }
 
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Finished dispatching all Mappper.map calls, job "
-                  + job.getJobName());
+        LOG.debug("Finished dispatching all Mappper.map calls, job "+ job.getJobName());
       }
 
       // Graceful shutdown of the Threadpool, it will let all scheduled
@@ -158,14 +145,11 @@ public class MultithreadedMapRunner<K1, V1, K2, V2>
       executorService.shutdown();
 
       try {
-
         // Now waiting for all Runnables to end.
         while (!executorService.awaitTermination(100, TimeUnit.MILLISECONDS)) {
           if (LOG.isDebugEnabled()) {
-            LOG.debug("Awaiting all running Mappper.map calls to finish, job "
-                      + job.getJobName());
+            LOG.debug("Awaiting all running Mappper.map calls to finish, job "+ job.getJobName());
           }
-
           // NOTE: while Mapper.map dispatching has concluded there are still
           // map calls in progress and exceptions would be thrown.
           checkForExceptionsFromProcessingThreads();
@@ -176,7 +160,6 @@ public class MultithreadedMapRunner<K1, V1, K2, V2>
         // call for awaitTermination() returing true. And edge case but it
         // could happen.
         checkForExceptionsFromProcessingThreads();
-
       } catch (IOException ioEx) {
         // Forcing a shutdown of all thread of the threadpool and rethrowing
         // the IOException
@@ -185,7 +168,6 @@ public class MultithreadedMapRunner<K1, V1, K2, V2>
       } catch (InterruptedException iEx) {
         throw new RuntimeException(iEx);
       }
-
     } finally {
       mapper.close();
     }
@@ -210,9 +192,7 @@ public class MultithreadedMapRunner<K1, V1, K2, V2>
      * @param output
      * @param reporter
      */
-    public MapperInvokeRunable(K1 key, V1 value,
-                               OutputCollector<K2, V2> output,
-                               Reporter reporter) {
+    public MapperInvokeRunable(K1 key, V1 value, OutputCollector<K2, V2> output, Reporter reporter) {
       this.key = key;
       this.value = value;
       this.output = output;
