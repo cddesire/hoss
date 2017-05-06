@@ -32,10 +32,10 @@ import org.apache.hadoop.mapred.Reporter;
 
 
 /** A {@link Mapper} that extracts text matching a regular expression. */
-public class RegexMapper<K> extends MapReduceBase
-    implements Mapper<K, Text, Text, LongWritable> {
+public class RegexMapper<K> extends MapReduceBase implements Mapper<K, Text, Text, LongWritable> {
 
   private Pattern pattern;
+  
   private int group;
 
   public void configure(JobConf job) {
@@ -45,8 +45,7 @@ public class RegexMapper<K> extends MapReduceBase
 
   public void map(K key, Text value,
                   OutputCollector<Text, LongWritable> output,
-                  Reporter reporter)
-    throws IOException {
+                  Reporter reporter) throws IOException {
     String text = value.toString();
     Matcher matcher = pattern.matcher(text);
     while (matcher.find()) {

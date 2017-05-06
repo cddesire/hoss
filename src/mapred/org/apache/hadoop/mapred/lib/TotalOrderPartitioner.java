@@ -55,7 +55,7 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
    * the partition keyset using the {@link org.apache.hadoop.io.RawComparator}
    * defined for this job. The input file must be sorted with the same
    * comparator and contain {@link
-     org.apache.hadoop.mapred.JobConf#getNumReduceTasks} - 1 keys.
+   *  org.apache.hadoop.mapred.JobConf#getNumReduceTasks} - 1 keys.
    */
   @SuppressWarnings("unchecked") // keytype from conf not static
   public void configure(JobConf job) {
@@ -71,15 +71,13 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
       if (splitPoints.length != job.getNumReduceTasks() - 1) {
         throw new IOException("Wrong number of partitions in keyset");
       }
-      RawComparator<K> comparator =
-        (RawComparator<K>) job.getOutputKeyComparator();
+      RawComparator<K> comparator = (RawComparator<K>) job.getOutputKeyComparator();
       for (int i = 0; i < splitPoints.length - 1; ++i) {
         if (comparator.compare(splitPoints[i], splitPoints[i+1]) >= 0) {
           throw new IOException("Split points are out of order");
         }
       }
-      boolean natOrder =
-        job.getBoolean("total.order.partitioner.natural.order", true);
+      boolean natOrder = job.getBoolean("total.order.partitioner.natural.order", true);
       if (natOrder && BinaryComparable.class.isAssignableFrom(keyClass)) {
         partitions = buildTrie((BinaryComparable[])splitPoints, 0,
             splitPoints.length, new byte[0],
@@ -147,12 +145,16 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
    * search the partition keyset with a binary search.
    */
   class BinarySearchNode implements Node<K> {
+
     private final K[] splitPoints;
+    
     private final RawComparator<K> comparator;
+    
     BinarySearchNode(K[] splitPoints, RawComparator<K> comparator) {
       this.splitPoints = splitPoints;
       this.comparator = comparator;
     }
+
     public int findPartition(K key) {
       final int pos = Arrays.binarySearch(splitPoints, key, comparator) + 1;
       return (pos < 0) ? -pos : pos;
@@ -164,11 +166,13 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
    * character.
    */
   class InnerTrieNode extends TrieNode {
+
     private TrieNode[] child = new TrieNode[256];
 
     InnerTrieNode(int level) {
       super(level);
     }
+
     public int findPartition(BinaryComparable key) {
       int level = getLevel();
       if (key.getLength() <= level) {
@@ -182,15 +186,20 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
    * A leaf trie node that scans for the key between lower..upper.
    */
   class LeafTrieNode extends TrieNode {
+
     final int lower;
+    
     final int upper;
+    
     final BinaryComparable[] splitPoints;
+    
     LeafTrieNode(int level, BinaryComparable[] splitPoints, int lower, int upper) {
       super(level);
       this.lower = lower;
       this.upper = upper;
       this.splitPoints = splitPoints;
     }
+    
     public int findPartition(BinaryComparable key) {
       final int pos = Arrays.binarySearch(splitPoints, lower, upper, key) + 1;
       return (pos < 0) ? -pos : pos;

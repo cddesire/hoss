@@ -56,15 +56,12 @@ import org.apache.hadoop.util.LineReader;
  * The location hints will span the whole mapred cluster.
  */
 
-public class NLineInputFormat extends FileInputFormat<LongWritable, Text> 
-                              implements JobConfigurable { 
+public class NLineInputFormat extends FileInputFormat<LongWritable, Text> implements JobConfigurable {
+  
   private int N = 1;
 
-  public RecordReader<LongWritable, Text> getRecordReader(
-                                            InputSplit genericSplit,
-                                            JobConf job,
-                                            Reporter reporter) 
-  throws IOException {
+  public RecordReader<LongWritable, Text> getRecordReader(InputSplit genericSplit, JobConf job,
+                                            Reporter reporter) throws IOException {
     reporter.setStatus(genericSplit.toString());
     return new LineRecordReader(job, (FileSplit) genericSplit);
   }
@@ -75,8 +72,7 @@ public class NLineInputFormat extends FileInputFormat<LongWritable, Text>
    * 
    * @see org.apache.hadoop.mapred.FileInputFormat#getSplits(JobConf, int)
    */
-  public InputSplit[] getSplits(JobConf job, int numSplits)
-  throws IOException {
+  public InputSplit[] getSplits(JobConf job, int numSplits) throws IOException {
     ArrayList<FileSplit> splits = new ArrayList<FileSplit>();
     for (FileStatus status : listStatus(job)) {
       Path fileName = status.getPath();
