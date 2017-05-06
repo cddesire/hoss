@@ -28,8 +28,7 @@ import org.apache.hadoop.mapred.Partitioner;
  * 
  * @see org.apache.hadoop.mapreduce.lib.partition.BinaryPartitioner
  */
-public class BinaryPartitioner<V>  
-  extends org.apache.hadoop.mapreduce.lib.partition.BinaryPartitioner<V>
+public class BinaryPartitioner<V> extends org.apache.hadoop.mapreduce.lib.partition.BinaryPartitioner<V>
   implements Partitioner<BinaryComparable, V> {
   
   public void configure(JobConf job) {

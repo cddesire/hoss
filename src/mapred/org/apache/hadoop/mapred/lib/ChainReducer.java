@@ -204,8 +204,7 @@ public class ChainReducer implements Reducer {
                      Reporter reporter) throws IOException {
     Reducer reducer = chain.getReducer();
     if (reducer != null) {
-      reducer.reduce(key, values, chain.getReducerCollector(output, reporter),
-                     reporter);
+      reducer.reduce(key, values, chain.getReducerCollector(output, reporter), reporter);
     }
   }
 

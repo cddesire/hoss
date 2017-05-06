@@ -160,8 +160,7 @@ public class ChainMapper implements Mapper {
                   Reporter reporter) throws IOException {
     Mapper mapper = chain.getFirstMap();
     if (mapper != null) {
-      mapper.map(key, value, chain.getMapperCollector(0, output, reporter),
-                 reporter);
+      mapper.map(key, value, chain.getMapperCollector(0, output, reporter), reporter);
     }
   }
 
