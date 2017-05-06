@@ -43,7 +43,9 @@ public abstract class CompositeRecordReader<
 
 
   private int id;
+
   private Configuration conf;
+
   private final ResetableIterator<X> EMPTY = new ResetableIterator.EMPTY<X>();
 
   private WritableComparator cmp;
@@ -51,6 +53,7 @@ public abstract class CompositeRecordReader<
   private PriorityQueue<ComposableRecordReader<K,?>> q;
 
   protected final JoinCollector jc;
+
   protected final ComposableRecordReader<K,? extends V>[] kids;
 
   protected abstract boolean combine(Object[] srcs, TupleWritable value);
@@ -86,16 +89,10 @@ public abstract class CompositeRecordReader<
     return id;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public Configuration getConf() {
     return conf;
   }
@@ -127,8 +124,7 @@ public abstract class CompositeRecordReader<
       cmp = WritableComparator.get(rr.createKey().getClass());
       q = new PriorityQueue<ComposableRecordReader<K,?>>(3,
           new Comparator<ComposableRecordReader<K,?>>() {
-            public int compare(ComposableRecordReader<K,?> o1,
-                               ComposableRecordReader<K,?> o2) {
+            public int compare(ComposableRecordReader<K,?> o1, ComposableRecordReader<K,?> o2) {
               return cmp.compare(o1.key(), o2.key());
             }
           });
@@ -145,9 +141,13 @@ public abstract class CompositeRecordReader<
    * product of the associated values until exhausted.
    */
   class JoinCollector {
+
     private K key;
+
     private ResetableIterator<X>[] iters;
+
     private int pos = -1;
+    
     private boolean first = true;
 
     /**
@@ -165,8 +165,7 @@ public abstract class CompositeRecordReader<
     /**
      * Register a given iterator at position id.
      */
-    public void add(int id, ResetableIterator<X> i)
-        throws IOException {
+    public void add(int id, ResetableIterator<X> i) throws IOException {
       iters[id] = i;
     }
 
