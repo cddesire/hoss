@@ -24,53 +24,47 @@ import org.apache.hadoop.mapred.TaskTracker.TaskInProgress;
 /** Runs a reduce task. */
 class ReduceTaskRunner extends TaskRunner {
 
-  public ReduceTaskRunner(TaskInProgress task, TaskTracker tracker, 
-                          JobConf conf, TaskTracker.RunningJob rjob
-                          ) throws IOException {
-    
-    super(task, tracker, conf, rjob);
-  }
+	public ReduceTaskRunner(TaskInProgress task, TaskTracker tracker,
+	                        JobConf conf, TaskTracker.RunningJob rjob) throws IOException {
+		super(task, tracker, conf, rjob);
+	}
 
-  /** Assemble all of the map output files */
-  public boolean prepare() throws IOException {
-    if (!super.prepare()) {
-      return false;
-    }
-    
-    // cleanup from failures
-    mapOutputFile.removeAll();
-    return true;
-  }
-  
-  
-  /** Delete all of the temporary map output files. */
-  public void close() throws IOException {
-    LOG.info(getTask()+" done; removing files.");
-    getTask().getProgress().setStatus("closed");
-    mapOutputFile.removeAll();
-  }
-  
-  @Override
-  public String getChildJavaOpts(JobConf jobConf, String defaultValue) {
-    String user = 
-      jobConf.get(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS, 
-        super.getChildJavaOpts(jobConf, 
-            JobConf.DEFAULT_MAPRED_TASK_JAVA_OPTS));
-    String admin = jobConf.get(TaskRunner.MAPRED_REDUCE_ADMIN_JAVA_OPTS,
-        TaskRunner.DEFAULT_MAPRED_ADMIN_JAVA_OPTS);
-    return user + " " + admin;
-  }
+	/** Assemble all of the map output files */
+	public boolean prepare() throws IOException {
+		if (!super.prepare()) {
+			return false;
+		}
 
-  @Override
-  public int getChildUlimit(JobConf jobConf) {
-    return jobConf.getInt(JobConf.MAPRED_REDUCE_TASK_ULIMIT, 
-                          super.getChildUlimit(jobConf));
-  }
+		// cleanup from failures
+		mapOutputFile.removeAll();
+		return true;
+	}
 
-  @Override
-  public String getChildEnv(JobConf jobConf) {
-    return jobConf.get(JobConf.MAPRED_REDUCE_TASK_ENV, 
-                       super.getChildEnv(jobConf));
-  }
+
+	/** Delete all of the temporary map output files. */
+	public void close() throws IOException {
+		LOG.info(getTask() + " done; removing files.");
+		getTask().getProgress().setStatus("closed");
+		mapOutputFile.removeAll();
+	}
+
+	@Override
+	public String getChildJavaOpts(JobConf jobConf, String defaultValue) {
+		String user = jobConf.get(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS,
+		                          super.getChildJavaOpts(jobConf, JobConf.DEFAULT_MAPRED_TASK_JAVA_OPTS));
+		String admin = jobConf.get(TaskRunner.MAPRED_REDUCE_ADMIN_JAVA_OPTS,
+		                           TaskRunner.DEFAULT_MAPRED_ADMIN_JAVA_OPTS);
+		return user + " " + admin;
+	}
+
+	@Override
+	public int getChildUlimit(JobConf jobConf) {
+		return jobConf.getInt(JobConf.MAPRED_REDUCE_TASK_ULIMIT, super.getChildUlimit(jobConf));
+	}
+
+	@Override
+	public String getChildEnv(JobConf jobConf) {
+		return jobConf.get(JobConf.MAPRED_REDUCE_TASK_ENV, super.getChildEnv(jobConf));
+	}
 
 }
