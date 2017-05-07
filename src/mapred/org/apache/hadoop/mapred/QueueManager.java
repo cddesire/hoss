@@ -248,8 +248,7 @@ class QueueManager {
     // we use the older values configured for them.
     queues.clear();
     queues.putAll(newQueues);
-    LOG.info("Queues acls, state and configs refreshed: " + 
-        queues.size() + " queues present now.");
+    LOG.info("Queues acls, state and configs refreshed: " + queues.size() + " queues present now.");
   }
 
   private void checkQueuesForDeletion(Map<String, Queue> currentQueues,
@@ -361,8 +360,7 @@ class QueueManager {
         queueAclsInfolist.add(queueAclsInfo);
       }
     }
-    return
-      queueAclsInfolist.toArray(new QueueAclsInfo[queueAclsInfolist.size()]);
+    return queueAclsInfolist.toArray(new QueueAclsInfo[queueAclsInfolist.size()]);
   }
 
   /**
@@ -376,8 +374,7 @@ class QueueManager {
     if (aclsEnabled) {
       Queue q = queues.get(queueName);
       if (q == null) {
-        throw new IllegalArgumentException(
-            "There is no queue named " + queueName);
+        throw new IllegalArgumentException("There is no queue named " + queueName);
       }
       Map<String, AccessControlList> acls = q.getAcls();
       if (acls == null) {
