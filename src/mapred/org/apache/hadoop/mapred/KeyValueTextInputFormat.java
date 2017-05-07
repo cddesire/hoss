@@ -31,8 +31,7 @@ import org.apache.hadoop.io.compress.CompressionCodecFactory;
  * is divided into key and value parts by a separator byte. If no such a byte
  * exists, the key will be the entire line and value will be empty.
  */
-public class KeyValueTextInputFormat extends FileInputFormat<Text, Text>
-  implements JobConfigurable {
+public class KeyValueTextInputFormat extends FileInputFormat<Text, Text> implements JobConfigurable {
 
   private CompressionCodecFactory compressionCodecs = null;
   
@@ -44,11 +43,8 @@ public class KeyValueTextInputFormat extends FileInputFormat<Text, Text>
     return compressionCodecs.getCodec(file) == null;
   }
   
-  public RecordReader<Text, Text> getRecordReader(InputSplit genericSplit,
-                                                  JobConf job,
-                                                  Reporter reporter)
-    throws IOException {
-    
+  public RecordReader<Text, Text> getRecordReader(InputSplit genericSplit, JobConf job,
+                                                  Reporter reporter) throws IOException {
     reporter.setStatus(genericSplit.toString());
     return new KeyValueLineRecordReader(job, (FileSplit) genericSplit);
   }
