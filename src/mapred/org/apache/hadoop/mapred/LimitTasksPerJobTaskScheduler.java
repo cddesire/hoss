@@ -36,11 +36,9 @@ import org.apache.hadoop.mapreduce.server.jobtracker.TaskTracker;
  */
 class LimitTasksPerJobTaskScheduler extends JobQueueTaskScheduler {
   
-  private static final Log LOG = LogFactory.getLog(
-    "org.apache.hadoop.mapred.TaskLimitedJobQueueTaskScheduler");
+  private static final Log LOG = LogFactory.getLog("org.apache.hadoop.mapred.TaskLimitedJobQueueTaskScheduler");
   
-  public static final String MAX_TASKS_PER_JOB_PROPERTY = 
-    "mapred.jobtracker.taskScheduler.maxRunningTasksPerJob";
+  public static final String MAX_TASKS_PER_JOB_PROPERTY = "mapred.jobtracker.taskScheduler.maxRunningTasksPerJob";
   
   private long maxTasksPerJob;
   
@@ -70,13 +68,10 @@ class LimitTasksPerJobTaskScheduler extends JobQueueTaskScheduler {
   }
 
   @Override
-  public synchronized List<Task> assignTasks(TaskTracker taskTracker)
-      throws IOException {
+  public synchronized List<Task> assignTasks(TaskTracker taskTracker) throws IOException {
     TaskTrackerStatus taskTrackerStatus = taskTracker.getStatus();
-    final int numTaskTrackers =
-        taskTrackerManager.getClusterStatus().getTaskTrackers();
-    Collection<JobInProgress> jobQueue =
-      jobQueueJobInProgressListener.getJobQueue();
+    final int numTaskTrackers = taskTrackerManager.getClusterStatus().getTaskTrackers();
+    Collection<JobInProgress> jobQueue = jobQueueJobInProgressListener.getJobQueue();
     Task task;
 
     /* Stats about the current taskTracker */
@@ -89,12 +84,9 @@ class LimitTasksPerJobTaskScheduler extends JobQueueTaskScheduler {
      * Statistics about the whole cluster. Most are approximate because of
      * concurrency
      */
-    final int[] maxMapAndReduceLoad = getMaxMapAndReduceLoad(
-        maximumMapTasksNumber, maximumReduceTasksNumber);
+    final int[] maxMapAndReduceLoad = getMaxMapAndReduceLoad(maximumMapTasksNumber, maximumReduceTasksNumber);
     final int maximumMapLoad = maxMapAndReduceLoad[0];
     final int maximumReduceLoad = maxMapAndReduceLoad[1];
-
-    
     final int beginAtStep;
     /*
      * When step == 0, this loop starts as many map tasks it can wrt
@@ -168,18 +160,15 @@ class LimitTasksPerJobTaskScheduler extends JobQueueTaskScheduler {
    * host
    * @return An array of the two maximums: map then reduce.
    */
-  protected synchronized int[] getMaxMapAndReduceLoad(int localMaxMapLoad,
-      int localMaxReduceLoad) {
+  protected synchronized int[] getMaxMapAndReduceLoad(int localMaxMapLoad, int localMaxReduceLoad) {
     // Approximate because of concurrency
-    final int numTaskTrackers =
-      taskTrackerManager.getClusterStatus().getTaskTrackers();
+    final int numTaskTrackers = taskTrackerManager.getClusterStatus().getTaskTrackers();
     /* Hold the result */
     int maxMapLoad = 0;
     int maxReduceLoad = 0;
     int neededMaps = 0;
     int neededReduces = 0;
-    Collection<JobInProgress> jobQueue =
-      jobQueueJobInProgressListener.getJobQueue();
+    Collection<JobInProgress> jobQueue = jobQueueJobInProgressListener.getJobQueue();
     synchronized (jobQueue) {
       for (JobInProgress job : jobQueue) {
         if (job.getStatus().getRunState() == JobStatus.RUNNING) {
@@ -189,10 +178,8 @@ class LimitTasksPerJobTaskScheduler extends JobQueueTaskScheduler {
       }
     }
     if (numTaskTrackers > 0) {
-      maxMapLoad = Math.min(localMaxMapLoad, (int) Math
-          .ceil((double) neededMaps / numTaskTrackers));
-      maxReduceLoad = Math.min(localMaxReduceLoad, (int) Math
-          .ceil((double) neededReduces / numTaskTrackers));
+      maxMapLoad = Math.min(localMaxMapLoad, (int) Math.ceil((double) neededMaps / numTaskTrackers));
+      maxReduceLoad = Math.min(localMaxReduceLoad, (int) Math.ceil((double) neededReduces / numTaskTrackers));
     }
     return new int[] { maxMapLoad, maxReduceLoad };
   }

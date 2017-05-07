@@ -36,8 +36,7 @@ import org.apache.commons.logging.Log;
  * Treats keys as offset in file and value as line. 
  */
 public class LineRecordReader implements RecordReader<LongWritable, Text> {
-  private static final Log LOG
-    = LogFactory.getLog(LineRecordReader.class.getName());
+  private static final Log LOG = LogFactory.getLog(LineRecordReader.class.getName());
 
   private CompressionCodecFactory compressionCodecs = null;
   private long start;
@@ -63,8 +62,7 @@ public class LineRecordReader implements RecordReader<LongWritable, Text> {
     }
   }
 
-  public LineRecordReader(Configuration job, 
-                          FileSplit split) throws IOException {
+  public LineRecordReader(Configuration job, FileSplit split) throws IOException {
     this.maxLineLength = job.getInt("mapred.linerecordreader.maxlength",
                                     Integer.MAX_VALUE);
     start = split.getStart();
@@ -95,8 +93,7 @@ public class LineRecordReader implements RecordReader<LongWritable, Text> {
     this.pos = start;
   }
   
-  public LineRecordReader(InputStream in, long offset, long endOffset,
-                          int maxLineLength) {
+  public LineRecordReader(InputStream in, long offset, long endOffset, int maxLineLength) {
     this.maxLineLength = maxLineLength;
     this.in = new LineReader(in);
     this.start = offset;
@@ -104,11 +101,8 @@ public class LineRecordReader implements RecordReader<LongWritable, Text> {
     this.end = endOffset;    
   }
 
-  public LineRecordReader(InputStream in, long offset, long endOffset, 
-                          Configuration job) 
-    throws IOException{
-    this.maxLineLength = job.getInt("mapred.linerecordreader.maxlength",
-                                    Integer.MAX_VALUE);
+  public LineRecordReader(InputStream in, long offset, long endOffset, Configuration job) throws IOException{
+    this.maxLineLength = job.getInt("mapred.linerecordreader.maxlength", Integer.MAX_VALUE);
     this.in = new LineReader(in, job);
     this.start = offset;
     this.pos = offset;
@@ -130,9 +124,7 @@ public class LineRecordReader implements RecordReader<LongWritable, Text> {
     while (pos < end) {
       key.set(pos);
 
-      int newSize = in.readLine(value, maxLineLength,
-                                Math.max((int)Math.min(Integer.MAX_VALUE, end-pos),
-                                         maxLineLength));
+      int newSize = in.readLine(value, maxLineLength, Math.max((int)Math.min(Integer.MAX_VALUE, end-pos), maxLineLength));
       if (newSize == 0) {
         return false;
       }
@@ -140,7 +132,6 @@ public class LineRecordReader implements RecordReader<LongWritable, Text> {
       if (newSize < maxLineLength) {
         return true;
       }
-
       // line too long. try again
       LOG.info("Skipped line of size " + newSize + " at pos " + (pos - newSize));
     }
