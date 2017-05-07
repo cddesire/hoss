@@ -38,8 +38,8 @@ import org.apache.hadoop.util.ReflectionUtils;
  * Partitioner effecting a total order by reading split points from
  * an externally generated source.
  */
-public class TotalOrderPartitioner<K extends WritableComparable,V>
-    implements Partitioner<K,V> {
+public class TotalOrderPartitioner<K extends WritableComparable, V>
+  implements Partitioner<K, V> {
 
   private Node partitions;
   public static final String DEFAULT_PATH = "_partition.lst";
@@ -63,8 +63,8 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
       String parts = getPartitionFile(job);
       final Path partFile = new Path(parts);
       final FileSystem fs = (DEFAULT_PATH.equals(parts))
-        ? FileSystem.getLocal(job)     // assume in DistributedCache
-        : partFile.getFileSystem(job);
+                            ? FileSystem.getLocal(job)     // assume in DistributedCache
+                            : partFile.getFileSystem(job);
 
       Class<K> keyClass = (Class<K>)job.getMapOutputKeyClass();
       K[] splitPoints = readPartitions(fs, partFile, keyClass, job);
@@ -73,15 +73,15 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
       }
       RawComparator<K> comparator = (RawComparator<K>) job.getOutputKeyComparator();
       for (int i = 0; i < splitPoints.length - 1; ++i) {
-        if (comparator.compare(splitPoints[i], splitPoints[i+1]) >= 0) {
+        if (comparator.compare(splitPoints[i], splitPoints[i + 1]) >= 0) {
           throw new IOException("Split points are out of order");
         }
       }
       boolean natOrder = job.getBoolean("total.order.partitioner.natural.order", true);
       if (natOrder && BinaryComparable.class.isAssignableFrom(keyClass)) {
         partitions = buildTrie((BinaryComparable[])splitPoints, 0,
-            splitPoints.length, new byte[0],
-            job.getInt("total.order.partitioner.max.trie.depth", 2));
+                               splitPoints.length, new byte[0],
+                               job.getInt("total.order.partitioner.max.trie.depth", 2));
       } else {
         partitions = new BinarySearchNode(splitPoints, comparator);
       }
@@ -90,7 +90,7 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
     }
   }
 
-                                 // by construction, we know if our keytype
+  // by construction, we know if our keytype
   @SuppressWarnings("unchecked") // is memcmp-able and uses the trie
   public int getPartition(K key, V value, int numPartitions) {
     return partitions.findPartition(key);
@@ -147,9 +147,9 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
   class BinarySearchNode implements Node<K> {
 
     private final K[] splitPoints;
-    
+
     private final RawComparator<K> comparator;
-    
+
     BinarySearchNode(K[] splitPoints, RawComparator<K> comparator) {
       this.splitPoints = splitPoints;
       this.comparator = comparator;
@@ -188,18 +188,18 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
   class LeafTrieNode extends TrieNode {
 
     final int lower;
-    
+
     final int upper;
-    
+
     final BinaryComparable[] splitPoints;
-    
+
     LeafTrieNode(int level, BinaryComparable[] splitPoints, int lower, int upper) {
       super(level);
       this.lower = lower;
       this.upper = upper;
       this.splitPoints = splitPoints;
     }
-    
+
     public int findPartition(BinaryComparable key) {
       final int pos = Arrays.binarySearch(splitPoints, lower, upper, key) + 1;
       return (pos < 0) ? -pos : pos;
@@ -215,10 +215,10 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
    * @param job The job config
    * @throws IOException
    */
-                                 // matching key types enforced by passing in
+  // matching key types enforced by passing in
   @SuppressWarnings("unchecked") // map output key class
   private K[] readPartitions(FileSystem fs, Path p, Class<K> keyClass,
-      JobConf job) throws IOException {
+                             JobConf job) throws IOException {
     SequenceFile.Reader reader = new SequenceFile.Reader(fs, p, job);
     ArrayList<K> parts = new ArrayList<K>();
     K key = (K) ReflectionUtils.newInstance(keyClass, job);
@@ -242,7 +242,7 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
    * @return the trie node that will divide the splits correctly
    */
   private TrieNode buildTrie(BinaryComparable[] splits, int lower,
-      int upper, byte[] prefix, int maxDepth) {
+                             int upper, byte[] prefix, int maxDepth) {
     final int depth = prefix.length;
     if (depth >= maxDepth || lower == upper) {
       return new LeafTrieNode(depth, splits, lower, upper);
@@ -251,7 +251,7 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
     byte[] trial = Arrays.copyOf(prefix, prefix.length + 1);
     // append an extra byte on to the prefix
     int currentBound = lower;
-    for(int ch = 0; ch < 255; ++ch) {
+    for (int ch = 0; ch < 255; ++ch) {
       trial[depth] = (byte) (ch + 1);
       lower = currentBound;
       while (currentBound < upper) {
@@ -262,7 +262,7 @@ public class TotalOrderPartitioner<K extends WritableComparable,V>
       }
       trial[depth] = (byte) ch;
       result.child[0xFF & ch] = buildTrie(splits, lower, currentBound, trial,
-                                   maxDepth);
+                                          maxDepth);
     }
     // pick up the rest
     trial[depth] = 127;

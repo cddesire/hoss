@@ -33,51 +33,44 @@ import java.io.InputStream;
 
 public class RawHistoryFileServlet extends HttpServlet {
 
-  private ServletContext servletContext;
+	private ServletContext servletContext;
 
-  @Override
-  public void init(ServletConfig servletConfig) throws ServletException {
-    super.init(servletConfig);
-    servletContext = servletConfig.getServletContext();
-  }
+	@Override
+	public void init(ServletConfig servletConfig) throws ServletException {
+		super.init(servletConfig);
+		servletContext = servletConfig.getServletContext();
+	}
 
-  @Override
-  protected void doGet(HttpServletRequest request,
-                       HttpServletResponse response)
-      throws ServletException, IOException {
+	@Override
+	protected void doGet(HttpServletRequest request,
+	                     HttpServletResponse response) throws ServletException, IOException {
 
-    String logFile = request.getParameter("logFile");
+		String logFile = request.getParameter("logFile");
+		if (logFile == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid log file name");
+			return;
+		}
+		FileSystem fs = (FileSystem) servletContext.getAttribute("fileSys");
+		JobConf jobConf = (JobConf) servletContext.getAttribute("jobConf");
+		ACLsManager aclsManager = (ACLsManager) servletContext.getAttribute("aclManager");
+		Path logFilePath = new Path(logFile);
+		JobHistory.JobInfo job = null;
+		try {
+			job = JSPUtil.checkAccessAndGetJobInfo(request, response, jobConf, aclsManager, fs, logFilePath);
+		} catch (InterruptedException e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Request interrupted");
+		}
 
-    if (logFile == null) {
-      response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-              "Invalid log file name");
-      return;
-    }
+		if (job == null) {
+			response.sendError(HttpServletResponse.SC_MOVED_PERMANENTLY, "Job details doesn't exist");
+			return;
+		}
 
-    FileSystem fs = (FileSystem) servletContext.getAttribute("fileSys");
-    JobConf jobConf = (JobConf) servletContext.getAttribute("jobConf");
-    ACLsManager aclsManager = (ACLsManager) servletContext.getAttribute("aclManager");
-    Path logFilePath = new Path(logFile);
-    JobHistory.JobInfo job = null;
-    try {
-      job = JSPUtil.checkAccessAndGetJobInfo(request,
-        response, jobConf, aclsManager, fs, logFilePath);
-    } catch (InterruptedException e) {
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-          "Request interrupted");
-    }
-
-    if (job == null) {
-      response.sendError(HttpServletResponse.SC_MOVED_PERMANENTLY,
-                "Job details doesn't exist");
-      return;
-    }
-
-    InputStream in = fs.open(logFilePath);
-    try {
-      IOUtils.copyBytes(in, response.getOutputStream(), 8192, false);
-    } finally {
-      in.close();
-    }
-  }
+		InputStream in = fs.open(logFilePath);
+		try {
+			IOUtils.copyBytes(in, response.getOutputStream(), 8192, false);
+		} finally {
+			in.close();
+		}
+	}
 }
