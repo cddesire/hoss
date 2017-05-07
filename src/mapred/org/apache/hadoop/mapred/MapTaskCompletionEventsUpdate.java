@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package org.apache.hadoop.mapred;
+package org.apache.hadoop.mapred;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -25,7 +25,7 @@ import org.apache.hadoop.io.Writable;
 
 /**
  * A class that represents the communication between the tasktracker and child
- * tasks w.r.t the map task completion events. It also indicates whether the 
+ * tasks w.r.t the map task completion events. It also indicates whether the
  * child task should reset its events index.
  */
 public class MapTaskCompletionEventsUpdate implements Writable {
@@ -34,8 +34,7 @@ public class MapTaskCompletionEventsUpdate implements Writable {
 
   public MapTaskCompletionEventsUpdate() { }
 
-  public MapTaskCompletionEventsUpdate(TaskCompletionEvent[] events,
-      boolean reset) {
+  public MapTaskCompletionEventsUpdate(TaskCompletionEvent[] events, boolean reset) {
     this.events = events;
     this.reset = reset;
   }

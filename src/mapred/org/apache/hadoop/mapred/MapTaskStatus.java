@@ -24,8 +24,8 @@ class MapTaskStatus extends TaskStatus {
   public MapTaskStatus() {}
 
   public MapTaskStatus(TaskAttemptID taskid, float progress, int numSlots,
-          State runState, String diagnosticInfo, String stateString,
-          String taskTracker, Phase phase, Counters counters) {
+                       State runState, String diagnosticInfo, String stateString,
+                       String taskTracker, Phase phase, Counters counters) {
     super(taskid, progress, numSlots, runState, diagnosticInfo, stateString,
           taskTracker, phase, counters);
   }
