@@ -22,27 +22,25 @@ import java.io.IOException;
 
 /**
  * Expert: Generic interface for {@link Mapper}s.
- * 
- * <p>Custom implementations of <code>MapRunnable</code> can exert greater 
+ *
+ * <p>Custom implementations of <code>MapRunnable</code> can exert greater
  * control on map processing e.g. multi-threaded, asynchronous mappers etc.</p>
- * 
+ *
  * @see Mapper
  */
-public interface MapRunnable<K1, V1, K2, V2>
-    extends JobConfigurable {
-  
-  /** 
+public interface MapRunnable<K1, V1, K2, V2> extends JobConfigurable {
+
+  /**
    * Start mapping input <tt>&lt;key, value&gt;</tt> pairs.
-   *  
-   * <p>Mapping of input records to output records is complete when this method 
+   *
+   * <p>Mapping of input records to output records is complete when this method
    * returns.</p>
-   * 
+   *
    * @param input the {@link RecordReader} to read the input records.
    * @param output the {@link OutputCollector} to collect the outputrecords.
    * @param reporter {@link Reporter} to report progress, status-updates etc.
    * @throws IOException
    */
   void run(RecordReader<K1, V1> input, OutputCollector<K2, V2> output,
-           Reporter reporter)
-    throws IOException;
+           Reporter reporter) throws IOException;
 }
