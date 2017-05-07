@@ -40,50 +40,49 @@ import org.apache.hadoop.util.Shell.ShellCommandExecutor;
 import org.apache.hadoop.util.StringUtils;
 
 /**
- * A {@link TaskController} that runs the task JVMs as the user 
+ * A {@link TaskController} that runs the task JVMs as the user
  * who submits the job.
- * 
+ *
  * This class executes a setuid executable to implement methods
- * of the {@link TaskController}, including launching the task 
+ * of the {@link TaskController}, including launching the task
  * JVM and killing it when needed, and also initializing and
- * finalizing the task environment. 
+ * finalizing the task environment.
  * <p> The setuid executable is launched using the command line:</p>
  * <p>task-controller user-name good-local-dirs command command-args,
  * where</p>
  * <p>user-name is the name of the owner who submits the job</p>
  * <p>good-local-dirs is comma separated list of good mapred local dirs</p>
- * <p>command is one of the cardinal value of the 
+ * <p>command is one of the cardinal value of the
  * {@link LinuxTaskController.TaskControllerCommands} enumeration</p>
  * <p>command-args depends on the command being launched.</p>
- * 
- * In addition to running and killing tasks, the class also 
- * sets up appropriate access for the directories and files 
- * that will be used by the tasks. 
+ *
+ * In addition to running and killing tasks, the class also
+ * sets up appropriate access for the directories and files
+ * that will be used by the tasks.
  */
 class LinuxTaskController extends TaskController {
 
-  private static final Log LOG = 
-            LogFactory.getLog(LinuxTaskController.class);
-  
+  private static final Log LOG = LogFactory.getLog(LinuxTaskController.class);
+
   // Path to the setuid executable.
   private String taskControllerExe;
   private static final String TASK_CONTROLLER_EXEC_KEY =
     "mapreduce.tasktracker.task-controller.exe";
-  
+
   @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
     File hadoopBin = new File(System.getenv("HADOOP_HOME"), "bin");
-    String defaultTaskController = 
-        new File(hadoopBin, "task-controller").getAbsolutePath();
-    taskControllerExe = conf.get(TASK_CONTROLLER_EXEC_KEY, 
-                                 defaultTaskController);       
+    String defaultTaskController =
+      new File(hadoopBin, "task-controller").getAbsolutePath();
+    taskControllerExe = conf.get(TASK_CONTROLLER_EXEC_KEY,
+                                 defaultTaskController);
   }
 
   public LinuxTaskController() {
     super();
   }
-  
+
   /**
    * List of commands that the setuid script will execute.
    */
@@ -124,14 +123,12 @@ class LinuxTaskController extends TaskController {
   }
 
   @Override
-  public void setup(LocalDirAllocator allocator, LocalStorage localStorage)
-      throws IOException {
+  public void setup(LocalDirAllocator allocator, LocalStorage localStorage) throws IOException {
 
     // Check the permissions of the task-controller binary by running it plainly.
     // If permissions are correct, it returns an error code 1, else it returns
     // 24 or something else if some other bugs are also present.
-    String[] taskControllerCmd =
-        new String[] { taskControllerExe };
+    String[] taskControllerCmd = new String[] { taskControllerExe };
     ShellCommandExecutor shExec = new ShellCommandExecutor(taskControllerCmd);
     try {
       shExec.execute();
@@ -141,7 +138,7 @@ class LinuxTaskController extends TaskController {
         LOG.warn("Exit code from checking binary permissions is : " + exitCode);
         logOutput(shExec.getOutput());
         throw new IOException("Task controller setup failed because of invalid"
-          + "permissions/ownership with exit code " + exitCode, e);
+                              + "permissions/ownership with exit code " + exitCode, e);
       }
     }
     this.allocator = allocator;
@@ -151,10 +148,9 @@ class LinuxTaskController extends TaskController {
   @Override
   public void initializeJob(String user, String jobid, Path credentials,
                             Path jobConf, TaskUmbilicalProtocol taskTracker,
-                            InetSocketAddress ttAddr
-                            ) throws IOException {
+                            InetSocketAddress ttAddr) throws IOException {
     List<String> command = new ArrayList<String>(
-      Arrays.asList(taskControllerExe, 
+      Arrays.asList(taskControllerExe,
                     user,
                     localStorage.getDirsString(),
                     Integer.toString(Commands.INITIALIZE_JOB.getValue()),
@@ -189,46 +185,35 @@ class LinuxTaskController extends TaskController {
     } catch (ExitCodeException e) {
       int exitCode = shExec.getExitCode();
       logOutput(shExec.getOutput());
-      throw new IOException("Job initialization failed (" + exitCode + 
-          ") with output: " + shExec.getOutput(), e);
+      throw new IOException("Job initialization failed (" + exitCode +
+                            ") with output: " + shExec.getOutput(), e);
     }
   }
 
   @Override
-  public int launchTask(String user, 
-                                  String jobId,
-                                  String attemptId,
-                                  List<String> setup,
-                                  List<String> jvmArguments,
-                                  File currentWorkDirectory,
-                                  String stdout,
-                                  String stderr) throws IOException {
+  public int launchTask(String user, String jobId, String attemptId, List<String> setup,
+                        List<String> jvmArguments, File currentWorkDirectory,
+                        String stdout, String stderr) throws IOException {
 
     ShellCommandExecutor shExec = null;
     try {
       FileSystem rawFs = FileSystem.getLocal(getConf()).getRaw();
       long logSize = 0; //TODO MAPREDUCE-1100
       // get the JVM command line.
-      String cmdLine = 
-        TaskLog.buildCommandLine(setup, jvmArguments,
-            new File(stdout), new File(stderr), logSize, true);
+      String cmdLine = TaskLog.buildCommandLine(setup, jvmArguments,
+                                 new File(stdout), new File(stderr), logSize, true);
 
       // write the command to a file in the
       // task specific cache directory
       Path p = new Path(allocator.getLocalPathForWrite(
-          TaskTracker.getPrivateDirTaskScriptLocation(user, jobId, attemptId),
-          getConf()), COMMAND_FILE);
-      String commandFile = writeCommand(cmdLine, rawFs, p); 
+                          TaskTracker.getPrivateDirTaskScriptLocation(user, jobId, attemptId),
+                          getConf()), COMMAND_FILE);
+      String commandFile = writeCommand(cmdLine, rawFs, p);
 
-      String[] command = 
-        new String[]{taskControllerExe, 
-          user,
-          localStorage.getDirsString(),
-          Integer.toString(Commands.LAUNCH_TASK_JVM.getValue()),
-          jobId,
-          attemptId,
-          currentWorkDirectory.toString(),
-          commandFile};
+      String[] command = new String[] {taskControllerExe,
+                      user, localStorage.getDirsString(),
+                      Integer.toString(Commands.LAUNCH_TASK_JVM.getValue()),
+                      jobId, attemptId, currentWorkDirectory.toString(), commandFile };
       shExec = new ShellCommandExecutor(command);
 
       if (LOG.isDebugEnabled()) {
@@ -246,7 +231,7 @@ class LinuxTaskController extends TaskController {
       // task-controller output
       if (exitCode != 143 && exitCode != 137) {
         LOG.warn("Exception thrown while launching task JVM : "
-            + StringUtils.stringifyException(e));
+                 + StringUtils.stringifyException(e));
         LOG.info("Output from LinuxTaskController's launchTaskJVM follows:");
         logOutput(shExec.getOutput());
       }
@@ -261,12 +246,10 @@ class LinuxTaskController extends TaskController {
 
   @Override
   public void deleteAsUser(String user, String subDir) throws IOException {
-    String[] command = 
-      new String[]{taskControllerExe, 
-                   user,
-                   localStorage.getDirsString(),
-                   Integer.toString(Commands.DELETE_AS_USER.getValue()),
-                   subDir};
+    String[] command = new String[] {taskControllerExe,
+                    user, localStorage.getDirsString(),
+                    Integer.toString(Commands.DELETE_AS_USER.getValue()),
+                    subDir };
     ShellCommandExecutor shExec = new ShellCommandExecutor(command);
     if (LOG.isDebugEnabled()) {
       LOG.debug("deleteAsUser: " + Arrays.toString(command));
@@ -276,12 +259,10 @@ class LinuxTaskController extends TaskController {
 
   @Override
   public void deleteLogAsUser(String user, String subDir) throws IOException {
-    String[] command = 
-      new String[]{taskControllerExe, 
-                   user,
-                   localStorage.getDirsString(),
-                   Integer.toString(Commands.DELETE_LOG_AS_USER.getValue()),
-                   subDir};
+    String[] command = new String[] {taskControllerExe,
+                    user, localStorage.getDirsString(),
+                    Integer.toString(Commands.DELETE_LOG_AS_USER.getValue()),
+                    subDir };
     ShellCommandExecutor shExec = new ShellCommandExecutor(command);
     if (LOG.isDebugEnabled()) {
       LOG.debug("deleteLogAsUser: " + Arrays.toString(command));
@@ -290,15 +271,11 @@ class LinuxTaskController extends TaskController {
   }
 
   @Override
-  public void signalTask(String user, int taskPid, 
+  public void signalTask(String user, int taskPid,
                          Signal signal) throws IOException {
-    String[] command = 
-      new String[]{taskControllerExe, 
-                   user,
-                   localStorage.getDirsString(),
-                   Integer.toString(Commands.SIGNAL_TASK.getValue()),
-                   Integer.toString(taskPid),
-                   Integer.toString(signal.getValue())};
+    String[] command = new String[] {taskControllerExe, user, localStorage.getDirsString(),
+                    Integer.toString(Commands.SIGNAL_TASK.getValue()),
+                    Integer.toString(taskPid), Integer.toString(signal.getValue()) };
     ShellCommandExecutor shExec = new ShellCommandExecutor(command);
     if (LOG.isDebugEnabled()) {
       LOG.debug("signalTask: " + Arrays.toString(command));
@@ -319,21 +296,21 @@ class LinuxTaskController extends TaskController {
   public String getRunAsUser(JobConf conf) {
     return conf.getUser();
   }
-  
+
   @Override
   public void truncateLogsAsUser(String user, List<Task> allAttempts)
-    throws IOException {
-    
+  throws IOException {
+
     Task firstTask = allAttempts.get(0);
     String taskid = firstTask.getTaskID().toString();
-    
+
     LocalDirAllocator ldirAlloc =
-        new LocalDirAllocator(JobConf.MAPRED_LOCAL_DIR_PROPERTY);
+      new LocalDirAllocator(JobConf.MAPRED_LOCAL_DIR_PROPERTY);
     String taskRanFile = TaskTracker.TT_LOG_TMP_DIR + Path.SEPARATOR + taskid;
     Configuration conf = getConf();
-    
+
     //write the serialized task information to a file to pass to the truncater
-    Path taskRanFilePath = 
+    Path taskRanFilePath =
       ldirAlloc.getLocalPathForWrite(taskRanFile, conf);
     LocalFileSystem lfs = FileSystem.getLocal(conf);
     FSDataOutputStream out = lfs.create(taskRanFilePath);
@@ -343,21 +320,21 @@ class LinuxTaskController extends TaskController {
       t.write(out);
     }
     out.close();
-    lfs.setPermission(taskRanFilePath, 
+    lfs.setPermission(taskRanFilePath,
                       FsPermission.createImmutable((short)0755));
-    
+
     List<String> command = new ArrayList<String>();
     File jvm =                                  // use same jvm as parent
       new File(new File(System.getProperty("java.home"), "bin"), "java");
     command.add(jvm.toString());
-    command.add("-Djava.library.path=" + 
+    command.add("-Djava.library.path=" +
                 System.getProperty("java.library.path"));
     command.add("-Dhadoop.log.dir=" + TaskLog.getBaseLogDir());
     command.add("-Dhadoop.root.logger=INFO,console");
     command.add("-classpath");
     command.add(System.getProperty("java.class.path"));
     // main of TaskLogsTruncater
-    command.add(TaskLogsTruncater.class.getName()); 
+    command.add(TaskLogsTruncater.class.getName());
     command.add(taskRanFilePath.toString());
 
     String[] taskControllerCmd = new String[4 + command.size()];
@@ -365,7 +342,7 @@ class LinuxTaskController extends TaskController {
     taskControllerCmd[1] = user;
     taskControllerCmd[2] = localStorage.getDirsString();
     taskControllerCmd[3] = Integer.toString(
-        Commands.RUN_COMMAND_AS_USER.getValue());
+                             Commands.RUN_COMMAND_AS_USER.getValue());
     int i = 4;
     for (String cmdArg : command) {
       taskControllerCmd[i++] = cmdArg;
@@ -376,14 +353,14 @@ class LinuxTaskController extends TaskController {
       }
     }
     ShellCommandExecutor shExec = new ShellCommandExecutor(taskControllerCmd);
-    
+
     try {
       shExec.execute();
     } catch (Exception e) {
       LOG.warn("Exit code from " + taskControllerExe.toString() + " is : "
-          + shExec.getExitCode() + " for truncateLogs");
+               + shExec.getExitCode() + " for truncateLogs");
       LOG.warn("Exception thrown by " + taskControllerExe.toString() + " : "
-          + StringUtils.stringifyException(e));
+               + StringUtils.stringifyException(e));
       LOG.info("Output from LinuxTaskController's "
                + taskControllerExe.toString() + " follows:");
       logOutput(shExec.getOutput());
