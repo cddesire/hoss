@@ -35,10 +35,9 @@ interface MRConstants {
    */
   public static final long DEFAULT_DISK_HEALTH_CHECK_INTERVAL = 60 * 1000;
 
-  //
   // Result codes
-  //
   public static int SUCCESS = 0;
+
   public static int FILE_NOT_FOUND = -1;
   
   /**

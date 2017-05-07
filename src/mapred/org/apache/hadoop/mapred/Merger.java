@@ -44,8 +44,7 @@ class Merger {
   private static final Log LOG = LogFactory.getLog(Merger.class);
 
   // Local directories
-  private static LocalDirAllocator lDirAlloc = 
-    new LocalDirAllocator("mapred.local.dir");
+  private static LocalDirAllocator lDirAlloc = new LocalDirAllocator("mapred.local.dir");
 
   public static <K extends Object, V extends Object>
   RawKeyValueIterator merge(Configuration conf, FileSystem fs,
@@ -55,10 +54,8 @@ class Merger {
                             int mergeFactor, Path tmpDir,
                             RawComparator<K> comparator, Progressable reporter,
                             Counters.Counter readsCounter,
-                            Counters.Counter writesCounter)
-  throws IOException {
-    return 
-      new MergeQueue<K, V>(conf, fs, inputs, deleteInputs, codec, comparator, 
+                            Counters.Counter writesCounter) throws IOException {
+    return new MergeQueue<K, V>(conf, fs, inputs, deleteInputs, codec, comparator,
                            reporter).merge(keyClass, valueClass,
                                            mergeFactor, tmpDir,
                                            readsCounter, writesCounter);
@@ -72,8 +69,7 @@ class Merger {
                                    int mergeFactor, Path tmpDir,
                                    RawComparator<K> comparator, Progressable reporter,
                                    Counters.Counter readsCounter,
-                                   Counters.Counter writesCounter)
-      throws IOException {
+                                   Counters.Counter writesCounter) throws IOException {
     return new MergeQueue<K, V>(conf, fs, segments, comparator, reporter,
         false, codec).merge(keyClass, valueClass,
             mergeFactor, tmpDir,
@@ -88,8 +84,7 @@ class Merger {
                             int mergeFactor, Path tmpDir,
                             RawComparator<K> comparator, Progressable reporter,
                             Counters.Counter readsCounter,
-                            Counters.Counter writesCounter)
-      throws IOException {
+                            Counters.Counter writesCounter) throws IOException {
     return merge(conf, fs, keyClass, valueClass, segments, mergeFactor, tmpDir,
                  comparator, reporter, false, readsCounter, writesCounter);
   }
@@ -102,8 +97,7 @@ class Merger {
                             RawComparator<K> comparator, Progressable reporter,
                             boolean sortSegments,
                             Counters.Counter readsCounter,
-                            Counters.Counter writesCounter)
-      throws IOException {
+                            Counters.Counter writesCounter) throws IOException {
     return new MergeQueue<K, V>(conf, fs, segments, comparator, reporter,
                            sortSegments).merge(keyClass, valueClass,
                                                mergeFactor, tmpDir,
@@ -118,8 +112,7 @@ class Merger {
                             RawComparator<K> comparator, Progressable reporter,
                             boolean sortSegments,
                             Counters.Counter readsCounter,
-                            Counters.Counter writesCounter)
-      throws IOException {
+                            Counters.Counter writesCounter) throws IOException {
     return new MergeQueue<K, V>(conf, fs, segments, comparator, reporter,
                            sortSegments).merge(keyClass, valueClass,
                                                mergeFactor, inMemSegments,
@@ -137,8 +130,7 @@ class Merger {
                           RawComparator<K> comparator, Progressable reporter,
                           boolean sortSegments,
                           Counters.Counter readsCounter,
-                          Counters.Counter writesCounter)
-    throws IOException {
+                          Counters.Counter writesCounter) throws IOException {
   return new MergeQueue<K, V>(conf, fs, segments, comparator, reporter,
                          sortSegments, codec).merge(keyClass, valueClass,
                                              mergeFactor, inMemSegments,
@@ -148,14 +140,11 @@ class Merger {
 
   public static <K extends Object, V extends Object>
   void writeFile(RawKeyValueIterator records, Writer<K, V> writer, 
-                 Progressable progressable, Configuration conf) 
-  throws IOException {
-    long progressBar = conf.getLong("mapred.merge.recordsBeforeProgress",
-        10000);
+                 Progressable progressable, Configuration conf) throws IOException {
+    long progressBar = conf.getLong("mapred.merge.recordsBeforeProgress", 10000);
     long recordCtr = 0;
     while(records.next()) {
       writer.append(records.getKey(), records.getValue());
-      
       if (((recordCtr++) % progressBar) == 0) {
         progressable.progress();
       }
@@ -188,7 +177,6 @@ class Merger {
       this.file = file;
       this.codec = codec;
       this.preserve = preserve;
-
       this.segmentOffset = segmentOffset;
       this.segmentLength = segmentLength;
     }
@@ -196,7 +184,6 @@ class Merger {
     public Segment(Reader<K, V> reader, boolean preserve) {
       this.reader = reader;
       this.preserve = preserve;
-      
       this.segmentLength = reader.getLength();
     }
 
@@ -209,6 +196,7 @@ class Merger {
     }
     
     DataInputBuffer getKey() { return key; }
+    
     DataInputBuffer getValue() { return value; }
 
     long getLength() { 
@@ -253,8 +241,7 @@ class Merger {
     DataInputBuffer value;
     
     Segment<K, V> minSegment;
-    Comparator<Segment<K, V>> segmentComparator =   
-      new Comparator<Segment<K, V>>() {
+    Comparator<Segment<K, V>> segmentComparator = new Comparator<Segment<K, V>>() {
       public int compare(Segment<K, V> o1, Segment<K, V> o2) {
         if (o1.getLength() == o2.getLength()) {
           return 0;
@@ -268,8 +255,7 @@ class Merger {
     public MergeQueue(Configuration conf, FileSystem fs, 
                       Path[] inputs, boolean deleteInputs, 
                       CompressionCodec codec, RawComparator<K> comparator,
-                      Progressable reporter) 
-    throws IOException {
+                      Progressable reporter) throws IOException {
       this.conf = conf;
       this.fs = fs;
       this.codec = codec;
@@ -285,8 +271,7 @@ class Merger {
     }
     
     public MergeQueue(Configuration conf, FileSystem fs,
-        List<Segment<K, V>> segments, RawComparator<K> comparator,
-        Progressable reporter) {
+        List<Segment<K, V>> segments, RawComparator<K> comparator, Progressable reporter) {
       this(conf, fs, segments, comparator, reporter, false);
     }
 
@@ -376,8 +361,7 @@ class Merger {
     public RawKeyValueIterator merge(Class<K> keyClass, Class<V> valueClass,
                                      int factor, Path tmpDir,
                                      Counters.Counter readsCounter,
-                                     Counters.Counter writesCounter)
-        throws IOException {
+                                     Counters.Counter writesCounter) throws IOException {
       return merge(keyClass, valueClass, factor, 0, tmpDir,
                    readsCounter, writesCounter);
     }
@@ -385,8 +369,7 @@ class Merger {
     RawKeyValueIterator merge(Class<K> keyClass, Class<V> valueClass,
                                      int factor, int inMem, Path tmpDir,
                                      Counters.Counter readsCounter,
-                                     Counters.Counter writesCounter)
-        throws IOException {
+                                     Counters.Counter writesCounter) throws IOException {
       LOG.info("Merging " + segments.size() + " sorted segments");
       
       //create the MergeStreams from the sorted map created in the constructor
@@ -482,19 +465,15 @@ class Merger {
           //available under the space constraints
           long approxOutputSize = 0; 
           for (Segment<K, V> s : segmentsToMerge) {
-            approxOutputSize += s.getLength() + 
-                                ChecksumFileSystem.getApproxChkSumLength(
-                                s.getLength());
+            approxOutputSize += s.getLength() + ChecksumFileSystem.getApproxChkSumLength(s.getLength());
           }
           Path tmpFilename = 
             new Path(tmpDir, "intermediate").suffix("." + passNo);
 
-          Path outputFile =  lDirAlloc.getLocalPathForWrite(
-                                              tmpFilename.toString(),
+          Path outputFile =  lDirAlloc.getLocalPathForWrite(tmpFilename.toString(),
                                               approxOutputSize, conf);
 
-          Writer<K, V> writer = 
-            new Writer<K, V>(conf, fs, outputFile, keyClass, valueClass, codec,
+          Writer<K, V> writer = new Writer<K, V>(conf, fs, outputFile, keyClass, valueClass, codec,
                              writesCounter);
           writeFile(this, writer, reporter, conf);
           writer.close();

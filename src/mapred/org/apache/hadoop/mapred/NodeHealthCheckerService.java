@@ -34,7 +34,7 @@ import org.apache.hadoop.util.Shell.ExitCodeException;
 import org.apache.hadoop.util.Shell.ShellCommandExecutor;
 
 /**
- * 
+ *
  * The class which provides functionality of checking the health of the node and
  * reporting back to the service for which the health checker has been asked to
  * report.
@@ -85,8 +85,8 @@ class NodeHealthCheckerService {
   private long lastReportedTime;
 
   private TimerTask timer;
-  
-  
+
+
   private enum HealthCheckerExitStatus {
     SUCCESS,
     TIMED_OUT,
@@ -95,11 +95,10 @@ class NodeHealthCheckerService {
     FAILED
   }
 
-
   /**
    * Class which is used by the {@link Timer} class to periodically execute the
    * node health script.
-   * 
+   *
    */
   private class NodeHealthMonitorExecutor extends TimerTask {
 
@@ -111,8 +110,7 @@ class NodeHealthCheckerService {
       if (args != null) {
         execScript.addAll(Arrays.asList(args));
       }
-      shexec = new ShellCommandExecutor((String[]) execScript
-          .toArray(new String[execScript.size()]), null, null, scriptTimeout);
+      shexec = new ShellCommandExecutor((String[]) execScript .toArray(new String[execScript.size()]), null, null, scriptTimeout);
     }
 
     @Override
@@ -144,10 +142,10 @@ class NodeHealthCheckerService {
     /**
      * Method which is used to parse output from the node health monitor and
      * send to the report address.
-     * 
+     *
      * The timed out script or script which causes IOException output is
      * ignored.
-     * 
+     *
      * The node is marked unhealthy if
      * <ol>
      * <li>The node health script times out</li>
@@ -157,7 +155,7 @@ class NodeHealthCheckerService {
      * If the script throws {@link IOException} or {@link ExitCodeException} the
      * output is ignored and node is left remaining healthy, as script might
      * have syntax error.
-     * 
+     *
      * @param status
      */
     void reportHealthStatus(HealthCheckerExitStatus status) {
@@ -183,7 +181,7 @@ class NodeHealthCheckerService {
 
     /**
      * Method to check if the output string has line which begins with ERROR.
-     * 
+     *
      * @param output
      *          string
      * @return true if output string has error pattern in it.
@@ -203,7 +201,7 @@ class NodeHealthCheckerService {
     this.conf = conf;
     this.lastReportedTime = System.currentTimeMillis();
     this.isHealthy = true;
-    this.healthReport = "";    
+    this.healthReport = "";
     initialize(conf);
   }
 
@@ -212,18 +210,16 @@ class NodeHealthCheckerService {
    */
   private void initialize(Configuration conf) {
     this.nodeHealthScript = conf.get(HEALTH_CHECK_SCRIPT_PROPERTY);
-    this.intervalTime = conf.getLong(HEALTH_CHECK_INTERVAL_PROPERTY,
-        DEFAULT_HEALTH_CHECK_INTERVAL);
+    this.intervalTime = conf.getLong(HEALTH_CHECK_INTERVAL_PROPERTY, DEFAULT_HEALTH_CHECK_INTERVAL);
     this.scriptTimeout = conf.getLong(HEALTH_CHECK_FAILURE_INTERVAL_PROPERTY,
-        DEFAULT_HEALTH_SCRIPT_FAILURE_INTERVAL);
-    String[] args = conf.getStrings(HEALTH_CHECK_SCRIPT_ARGUMENTS_PROPERTY,
-        new String[] {});
+                                      DEFAULT_HEALTH_SCRIPT_FAILURE_INTERVAL);
+    String[] args = conf.getStrings(HEALTH_CHECK_SCRIPT_ARGUMENTS_PROPERTY, new String[] {});
     timer = new NodeHealthMonitorExecutor(args);
   }
 
   /**
    * Method used to start the Node health monitoring.
-   * 
+   *
    */
   void start() {
     // if health script path is not configured don't start the thread.
@@ -239,7 +235,7 @@ class NodeHealthCheckerService {
 
   /**
    * Method used to terminate the node health monitoring service.
-   * 
+   *
    */
   void stop() {
     if (!shouldRun(conf)) {
@@ -256,7 +252,7 @@ class NodeHealthCheckerService {
 
   /**
    * Gets the if the node is healthy or not
-   * 
+   *
    * @return true if node is healthy
    */
   private boolean isHealthy() {
@@ -265,7 +261,7 @@ class NodeHealthCheckerService {
 
   /**
    * Sets if the node is healhty or not.
-   * 
+   *
    * @param isHealthy
    *          if or not node is healthy
    */
@@ -276,7 +272,7 @@ class NodeHealthCheckerService {
   /**
    * Returns output from health script. if node is healthy then an empty string
    * is returned.
-   * 
+   *
    * @return output from health script
    */
   private String getHealthReport() {
@@ -285,16 +281,16 @@ class NodeHealthCheckerService {
 
   /**
    * Sets the health report from the node health script.
-   * 
+   *
    * @param healthReport
    */
   private synchronized void setHealthReport(String healthReport) {
     this.healthReport = healthReport;
   }
-  
+
   /**
    * Returns time stamp when node health script was last run.
-   * 
+   *
    * @return timestamp when node health script was last run
    */
   private long getLastReportedTime() {
@@ -303,7 +299,7 @@ class NodeHealthCheckerService {
 
   /**
    * Sets the last run time of the node health script.
-   * 
+   *
    * @param lastReportedTime
    */
   private synchronized void setLastReportedTime(long lastReportedTime) {
@@ -313,12 +309,12 @@ class NodeHealthCheckerService {
   /**
    * Method used to determine if or not node health monitoring service should be
    * started or not. Returns true if following conditions are met:
-   * 
+   *
    * <ol>
    * <li>Path to Node health check script is not empty</li>
    * <li>Node health check script file exists</li>
    * </ol>
-   * 
+   *
    * @param conf
    * @return true if node health monitoring service can be started.
    */
@@ -335,16 +331,15 @@ class NodeHealthCheckerService {
     this.setHealthy(isHealthy);
     this.setHealthReport(output);
   }
-  
-  private synchronized void setHealthStatus(boolean isHealthy, String output,
-      long time) {
+
+  private synchronized void setHealthStatus(boolean isHealthy, String output, long time) {
     this.setHealthStatus(isHealthy, output);
     this.setLastReportedTime(time);
   }
-  
+
   /**
    * Method to populate the fields for the {@link TaskTrackerHealthStatus}
-   * 
+   *
    * @param healthStatus
    */
   synchronized void setHealthStatus(TaskTrackerHealthStatus healthStatus) {
@@ -352,11 +347,11 @@ class NodeHealthCheckerService {
     healthStatus.setHealthReport(this.getHealthReport());
     healthStatus.setLastReported(this.getLastReportedTime());
   }
-  
+
   /**
-   * Test method to directly access the timer which node 
+   * Test method to directly access the timer which node
    * health checker would use.
-   * 
+   *
    *
    * @return Timer task
    */

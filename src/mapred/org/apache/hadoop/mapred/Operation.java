@@ -33,10 +33,10 @@ public enum Operation {
   KILL_TASK(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
   SET_JOB_PRIORITY(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
   SUBMIT_JOB(QueueACL.SUBMIT_JOB, null);
-  
+
   public QueueACL qACLNeeded;
   public JobACL jobACLNeeded;
-  
+
   Operation(QueueACL qACL, JobACL jobACL) {
     this.qACLNeeded = qACL;
     this.jobACLNeeded = jobACL;
