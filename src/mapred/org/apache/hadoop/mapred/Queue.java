@@ -70,8 +70,7 @@ class Queue {
    * @param acls ACLs for the queue
    * @param state state of the queue
    */
-  Queue(String name, Map<String, AccessControlList> acls, QueueState state,
-        QueueMetrics metrics) {
+  Queue(String name, Map<String, AccessControlList> acls, QueueState state, QueueMetrics metrics) {
 	  this.name = name;
 	  this.acls = acls;
 	  this.state = state;

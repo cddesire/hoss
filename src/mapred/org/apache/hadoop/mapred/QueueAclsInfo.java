@@ -37,9 +37,7 @@ public class QueueAclsInfo implements Writable {
    * Default constructor for QueueAclsInfo.
    * 
    */
-  public QueueAclsInfo() {
-    
-  }
+  public QueueAclsInfo() {}
 
   /**
    * Construct a new QueueAclsInfo object using the queue name and the

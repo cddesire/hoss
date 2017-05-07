@@ -78,7 +78,6 @@ class QueueManager {
     //       users in UI
     // TODO: Add ACL for CHANGE_ACL when we have an admin tool for 
     //       configuring queues.
-    
     private final String aclName;
     
     QueueACL(String aclName) {
@@ -100,10 +99,8 @@ class QueueManager {
   public QueueManager(Configuration conf) {
     checkDeprecation(conf);
     conf.addResource(QUEUE_ACLS_FILE_NAME);
-    
     // Get configured ACLs and state for each queue
     aclsEnabled = conf.getBoolean("mapred.acls.enabled", false);
-
     queues.putAll(parseQueues(conf)); 
   }
   
@@ -161,8 +158,7 @@ class QueueManager {
    * 
    * @return true if the operation is allowed, false otherwise.
    */
-  public synchronized boolean hasAccess(String queueName, QueueACL qACL,
-      UserGroupInformation ugi) {
+  public synchronized boolean hasAccess(String queueName, QueueACL qACL, UserGroupInformation ugi) {
     if (!aclsEnabled) {
       return true;
     }
@@ -173,13 +169,10 @@ class QueueManager {
     }
     
     if (LOG.isDebugEnabled()) {
-      LOG.debug("checking access for : " +
-          toFullPropertyName(queueName, qACL.getAclName()));
+      LOG.debug("checking access for : " + toFullPropertyName(queueName, qACL.getAclName()));
     }
 
-    AccessControlList acl =
-      q.getAcls().get(toFullPropertyName(queueName, qACL.getAclName()));
-
+    AccessControlList acl = q.getAcls().get(toFullPropertyName(queueName, qACL.getAclName()));
     // Check if user is part of the ACL
     return acl != null && acl.isUserAllowed(ugi);
   }
@@ -205,8 +198,7 @@ class QueueManager {
    * @param queueName queue for which the scheduling information is to be set. 
    * @param queueInfo scheduling information for this queue.
    */
-  public synchronized void setSchedulerInfo(String queueName, 
-                                              Object queueInfo) {
+  public synchronized void setSchedulerInfo(String queueName, Object queueInfo) {
     Queue q = queues.get(queueName);
     if (q != null) {
       q.setSchedulingInfo(queueInfo);
@@ -223,9 +215,7 @@ class QueueManager {
    */
   public synchronized Object getSchedulerInfo(String queueName) {
     Queue q = queues.get(queueName);
-    return (q != null)
-      ? q.getSchedulingInfo()
-      : null;
+    return (q != null) ? q.getSchedulingInfo() : null;
   }
   
   /**
@@ -258,16 +248,14 @@ class QueueManager {
     // we use the older values configured for them.
     queues.clear();
     queues.putAll(newQueues);
-    LOG.info("Queues acls, state and configs refreshed: " + 
-        queues.size() + " queues present now.");
+    LOG.info("Queues acls, state and configs refreshed: " + queues.size() + " queues present now.");
   }
 
   private void checkQueuesForDeletion(Map<String, Queue> currentQueues,
       Map<String, Queue> newQueues) {
     for (String queue : currentQueues.keySet()) {
       if (!newQueues.containsKey(queue)) {
-        throw new IllegalArgumentException("Couldn't find queue '" + queue + 
-            "' during refresh!");
+        throw new IllegalArgumentException("Couldn't find queue '" + queue + "' during refresh!");
       }
     }
     
@@ -302,10 +290,8 @@ class QueueManager {
   }
 
   /** Parse ACLs for the queue from the configuration. */
-  HashMap<String, AccessControlList> getQueueAcls(
-      String name, Configuration conf) {
-    HashMap<String,AccessControlList> map =
-      new HashMap<String,AccessControlList>();
+  HashMap<String, AccessControlList> getQueueAcls(String name, Configuration conf) {
+    HashMap<String,AccessControlList> map = new HashMap<String,AccessControlList>();
     for (QueueACL oper : QueueACL.values()) {
       String aclKey = toFullPropertyName(name, oper.getAclName());
       map.put(aclKey, new AccessControlList(conf.get(aclKey, "*")));
@@ -315,8 +301,7 @@ class QueueManager {
 
   /** Parse state of the queue from the configuration. */
   Queue.QueueState getQueueState(String name, Configuration conf) {
-    return conf.getEnum(
-        toFullPropertyName(name, QueueManager.QUEUE_STATE_SUFFIX),
+    return conf.getEnum(toFullPropertyName(name, QueueManager.QUEUE_STATE_SUFFIX),
         Queue.QueueState.RUNNING);
   }
 
@@ -352,8 +337,7 @@ class QueueManager {
    * @return QueueAclsInfo[]
    * @throws java.io.IOException
    */
-  synchronized QueueAclsInfo[] getQueueAcls(UserGroupInformation ugi)
-      throws IOException {
+  synchronized QueueAclsInfo[] getQueueAcls(UserGroupInformation ugi) throws IOException {
     //List of all QueueAclsInfo objects , this list is returned
     ArrayList<QueueAclsInfo> queueAclsInfolist = new ArrayList<QueueAclsInfo>();
     QueueACL[] acls = QueueACL.values();
@@ -376,8 +360,7 @@ class QueueManager {
         queueAclsInfolist.add(queueAclsInfo);
       }
     }
-    return
-      queueAclsInfolist.toArray(new QueueAclsInfo[queueAclsInfolist.size()]);
+    return queueAclsInfolist.toArray(new QueueAclsInfo[queueAclsInfolist.size()]);
   }
 
   /**
@@ -391,8 +374,7 @@ class QueueManager {
     if (aclsEnabled) {
       Queue q = queues.get(queueName);
       if (q == null) {
-        throw new IllegalArgumentException(
-            "There is no queue named " + queueName);
+        throw new IllegalArgumentException("There is no queue named " + queueName);
       }
       Map<String, AccessControlList> acls = q.getAcls();
       if (acls == null) {
