@@ -39,54 +39,56 @@ import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 @SuppressWarnings("deprecation")
 class QueueMetrics implements MetricsSource {
 
-  private static final Log LOG =
-    LogFactory.getLog(QueueMetrics.class);
+  private static final Log LOG = LogFactory.getLog(QueueMetrics.class);
 
-  public static final String BUCKET_PROPERTY = 
-    "mapred.queue.metrics.runtime.buckets";
+  public static final String BUCKET_PROPERTY = "mapred.queue.metrics.runtime.buckets";
+
   private static final String DEFAULT_BUCKETS = "60,300,1440";
 
   final MetricsRegistry registry = new MetricsRegistry("Queue");
-  final MetricMutableCounterInt mapsLaunched =
-      registry.newCounter("maps_launched", "", 0);
-  final MetricMutableCounterInt mapsCompleted =
-      registry.newCounter("maps_completed", "", 0);
-  final MetricMutableCounterInt mapsFailed =
-      registry.newCounter("maps_failed", "", 0);
-  final MetricMutableCounterInt redsLaunched =
-      registry.newCounter("reduces_launched", "", 0);
-  final MetricMutableCounterInt redsCompleted =
-      registry.newCounter("reduces_completed", "", 0);
-  final MetricMutableCounterInt redsFailed =
-      registry.newCounter("reduces_failed", "", 0);
-  final MetricMutableCounterInt jobsSubmitted =
-      registry.newCounter("jobs_submitted", "", 0);
-  final MetricMutableCounterInt jobsCompleted =
-      registry.newCounter("jobs_completed", "", 0);
-  final MetricMutableGaugeInt waitingMaps =
-      registry.newGauge("waiting_maps", "", 0);
-  final MetricMutableGaugeInt waitingReds =
-      registry.newGauge("waiting_reduces", "", 0);
-  final MetricMutableGaugeInt reservedMapSlots =
-      registry.newGauge("reserved_map_slots", "", 0);
-  final MetricMutableGaugeInt reservedRedSlots =
-      registry.newGauge("reserved_reduce_slots", "", 0);
-  final MetricMutableCounterInt jobsFailed =
-      registry.newCounter("jobs_failed", "", 0);
-  final MetricMutableCounterInt jobsKilled =
-      registry.newCounter("jobs_killed", "", 0);
-  final MetricMutableGaugeInt jobsPreparing =
-      registry.newGauge("jobs_preparing", "", 0);
-  final MetricMutableGaugeInt jobsRunning =
-      registry.newGauge("jobs_running", "", 0);
-  final MetricMutableCounterInt mapsKilled =
-      registry.newCounter("maps_killed", "", 0);
-  final MetricMutableCounterInt redsKilled =
-      registry.newCounter("reduces_killed", "", 0);
+  
+  final MetricMutableCounterInt mapsLaunched = registry.newCounter("maps_launched", "", 0);
+  
+  final MetricMutableCounterInt mapsCompleted = registry.newCounter("maps_completed", "", 0);
+  
+  final MetricMutableCounterInt mapsFailed = registry.newCounter("maps_failed", "", 0);
+  
+  final MetricMutableCounterInt redsLaunched = registry.newCounter("reduces_launched", "", 0);
+  
+  final MetricMutableCounterInt redsCompleted = registry.newCounter("reduces_completed", "", 0);
+  
+  final MetricMutableCounterInt redsFailed = registry.newCounter("reduces_failed", "", 0);
+  
+  final MetricMutableCounterInt jobsSubmitted = registry.newCounter("jobs_submitted", "", 0);
+  
+  final MetricMutableCounterInt jobsCompleted = registry.newCounter("jobs_completed", "", 0);
+  
+  final MetricMutableGaugeInt waitingMaps = registry.newGauge("waiting_maps", "", 0);
+  
+  final MetricMutableGaugeInt waitingReds = registry.newGauge("waiting_reduces", "", 0);
+  
+  final MetricMutableGaugeInt reservedMapSlots = registry.newGauge("reserved_map_slots", "", 0);
+  
+  final MetricMutableGaugeInt reservedRedSlots = registry.newGauge("reserved_reduce_slots", "", 0);
+  
+  final MetricMutableCounterInt jobsFailed = registry.newCounter("jobs_failed", "", 0);
+  
+  final MetricMutableCounterInt jobsKilled = registry.newCounter("jobs_killed", "", 0);
+  
+  final MetricMutableGaugeInt jobsPreparing = registry.newGauge("jobs_preparing", "", 0);
+  
+  final MetricMutableGaugeInt jobsRunning = registry.newGauge("jobs_running", "", 0);
+  
+  final MetricMutableCounterInt mapsKilled = registry.newCounter("maps_killed", "", 0);
+  
+  final MetricMutableCounterInt redsKilled = registry.newCounter("reduces_killed", "", 0);
+  
   final MetricMutableGaugeInt[] runningTime;
+  
   TimeBucketMetrics<JobID> runBuckets;
 
   final String sessionId;
+  
   private String queueName;
 
   public QueueMetrics(String queueName, Configuration conf) {
@@ -103,21 +105,19 @@ class QueueMetrics implements MetricsSource {
 
   private static ArrayList<Integer> parseInts(String value) {
     ArrayList<Integer> result = new ArrayList<Integer>();
-    for(String word: value.split(",")) {
+    for (String word : value.split(",")) {
       result.add(Integer.parseInt(word.trim()));
     }
     return result;
   }
 
   private MetricMutableGaugeInt[] buildBuckets(Configuration conf) {
-    ArrayList<Integer> buckets = 
-      parseInts(conf.get(BUCKET_PROPERTY, DEFAULT_BUCKETS));
-    MetricMutableGaugeInt[] result = 
-      new MetricMutableGaugeInt[buckets.size() + 1];
+    ArrayList<Integer> buckets = parseInts(conf.get(BUCKET_PROPERTY, DEFAULT_BUCKETS));
+    MetricMutableGaugeInt[] result = new MetricMutableGaugeInt[buckets.size() + 1];
     result[0] = registry.newGauge("running_0", "", 0);
     long[] cuts = new long[buckets.size()];
-    for(int i=0; i < buckets.size(); ++i) {
-      result[i+1] = registry.newGauge("running_" + buckets.get(i), "", 0);
+    for (int i = 0; i < buckets.size(); ++i) {
+      result[i + 1] = registry.newGauge("running_" + buckets.get(i), "", 0);
       cuts[i] = buckets.get(i) * 1000 * 60; // covert from min to ms
     }
     this.runBuckets = new TimeBucketMetrics<JobID>(cuts);
@@ -126,8 +126,8 @@ class QueueMetrics implements MetricsSource {
 
   private void updateRunningTime() {
     int[] counts = runBuckets.getBucketCounts(System.currentTimeMillis());
-    for(int i=0; i < counts.length; ++i) {
-      runningTime[i].set(counts[i]); 
+    for (int i = 0; i < counts.length; ++i) {
+      runningTime[i].set(counts[i]);
     }
   }
 
@@ -184,7 +184,7 @@ class QueueMetrics implements MetricsSource {
     waitingReds.incr(task);
   }
 
-  public void decWaitingReduces(JobID id, int task){
+  public void decWaitingReduces(JobID id, int task) {
     waitingReds.decr(task);
   }
 
@@ -242,8 +242,7 @@ class QueueMetrics implements MetricsSource {
     return create(queueName, conf, DefaultMetricsSystem.INSTANCE);
   }
 
-  static QueueMetrics create(String queueName, Configuration conf,
-                                     MetricsSystem ms) {
+  static QueueMetrics create(String queueName, Configuration conf, MetricsSystem ms) {
     return ms.register("QueueMetrics,q=" + queueName, "Queue metrics",
                        new QueueMetrics(queueName, conf));
   }
