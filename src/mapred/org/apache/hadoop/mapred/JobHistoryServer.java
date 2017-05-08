@@ -57,19 +57,15 @@ import java.security.PrivilegedExceptionAction;
 public class JobHistoryServer {
   private static final Log LOG = LogFactory.getLog(JobHistoryServer.class);
 
-  static{
+  static {
     Configuration.addDefaultResource("mapred-default.xml");
     Configuration.addDefaultResource("mapred-site.xml");
   }
 
-  private static final String JH_USER_NAME =
-      "mapreduce.jobhistory.kerberos.principal";
-  private static final String JH_KEYTAB_FILE =
-      "mapreduce.jobhistory.keytab.file";
-  public static final String MAPRED_HISTORY_SERVER_HTTP_ADDRESS =
-      "mapreduce.history.server.http.address";
-  public static final String MAPRED_HISTORY_SERVER_EMBEDDED =
-      "mapreduce.history.server.embedded";
+  private static final String JH_USER_NAME = "mapreduce.jobhistory.kerberos.principal";
+  private static final String JH_KEYTAB_FILE = "mapreduce.jobhistory.keytab.file";
+  public static final String MAPRED_HISTORY_SERVER_HTTP_ADDRESS = "mapreduce.history.server.http.address";
+  public static final String MAPRED_HISTORY_SERVER_EMBEDDED = "mapreduce.history.server.embedded";
 
   private HttpServer historyServer;
   private JobConf conf;
@@ -87,8 +83,7 @@ public class JobHistoryServer {
   public JobHistoryServer(JobConf conf) throws IOException {
 
     if (isEmbedded(conf)) {
-      throw new IllegalStateException("History server is configured to run " +
-          "within JobTracker. Aborting..");
+      throw new IllegalStateException("History server is configured to run " + "within JobTracker. Aborting..");
     }
 
     historyInfoAddr = getBindAddress(conf);
@@ -107,9 +102,7 @@ public class JobHistoryServer {
    * @param httpServer - Http Server instance
    * @throws IOException - any exception starting history server
    */
-  public JobHistoryServer(JobConf conf,
-                          ACLsManager aclsManager,
-                          HttpServer httpServer) throws IOException {
+  public JobHistoryServer(JobConf conf, ACLsManager aclsManager, HttpServer httpServer) throws IOException {
     historyInfoAddr = getBindAddress(conf);
     this.historyServer = httpServer;
     initializeWebServer(conf, aclsManager);
@@ -118,20 +111,15 @@ public class JobHistoryServer {
   private void login(JobConf conf) throws IOException {
     UserGroupInformation.setConfiguration(conf);
     InetSocketAddress infoSocAddr = NetUtils.createSocketAddr(historyInfoAddr);
-
     SecurityUtil.login(conf, JH_KEYTAB_FILE, JH_USER_NAME, infoSocAddr.getHostName());
     LOG.info("History server login successful");
   }
 
-  private ACLsManager initializeACLsManager(JobConf conf)
-      throws IOException {
+  private ACLsManager initializeACLsManager(JobConf conf) throws IOException {
     LOG.info("Initializing ACLs Manager");
-
     Configuration queuesConf = new Configuration(conf);
     QueueManager queueManager = new QueueManager(queuesConf);
-
-    return new ACLsManager(conf,
-        new JobACLsManager(conf), queueManager);
+    return new ACLsManager(conf, new JobACLsManager(conf), queueManager);
   }
 
   /**
@@ -143,19 +131,16 @@ public class JobHistoryServer {
    * @param aclsManager - ACLs Manager for validating user request
    * @throws IOException - Any exception while starting web server
    */
-  private void initializeWebServer(final JobConf conf,
-                                            ACLsManager aclsManager)
-      throws IOException {
-
+  private void initializeWebServer(final JobConf conf, ACLsManager aclsManager) throws IOException {
     this.conf = conf;
-
     FileSystem fs;
     try {
       fs = aclsManager.getMROwner().
-        doAs(new PrivilegedExceptionAction<FileSystem>() {
+      doAs(new PrivilegedExceptionAction<FileSystem>() {
         public FileSystem run() throws IOException {
           return FileSystem.get(conf);
-      }});
+        }
+      });
     } catch (InterruptedException e) {
       throw new IOException("Operation interrupted", e);
     }
@@ -163,9 +148,8 @@ public class JobHistoryServer {
     if (!isEmbedded(conf)) {
       JobHistory.initDone(conf, fs, false);
     }
-    final String historyLogDir =
-      JobHistory.getCompletedJobHistoryLocation().toString();
-    FileSystem historyFS = new Path(historyLogDir).getFileSystem(conf);    
+    final String historyLogDir = JobHistory.getCompletedJobHistoryLocation().toString();
+    FileSystem historyFS = new Path(historyLogDir).getFileSystem(conf);
 
     historyServer.setAttribute("historyLogDir", historyLogDir);
     historyServer.setAttribute("fileSys", historyFS);
@@ -173,26 +157,23 @@ public class JobHistoryServer {
     historyServer.setAttribute("aclManager", aclsManager);
 
     historyServer.addServlet("historyfile", "/historyfile",
-        RawHistoryFileServlet.class);
+                             RawHistoryFileServlet.class);
   }
 
-  private HttpServer initializeWebContainer(JobConf conf,
-                                      ACLsManager aclsManager)
-      throws IOException {
+  private HttpServer initializeWebContainer(JobConf conf, ACLsManager aclsManager) throws IOException {
     InetSocketAddress infoSocAddr = NetUtils.createSocketAddr(historyInfoAddr);
     int tmpInfoPort = infoSocAddr.getPort();
     return new HttpServer("history", infoSocAddr.getHostName(),
-        tmpInfoPort, tmpInfoPort == 0, conf, aclsManager.getAdminsAcl());
+                          tmpInfoPort, tmpInfoPort == 0, conf, aclsManager.getAdminsAcl());
   }
 
   public void start() throws IOException {
     if (!isEmbedded(conf)) {
       historyServer.start();
     }
-
     InetSocketAddress infoSocAddr = NetUtils.createSocketAddr(historyInfoAddr);
     conf.set(MAPRED_HISTORY_SERVER_HTTP_ADDRESS, infoSocAddr.getHostName() +
-        ":" + historyServer.getPort());
+             ":" + historyServer.getPort());
     LOG.info("Started job history server at: " + getAddress(conf));
   }
 
@@ -218,7 +199,6 @@ public class JobHistoryServer {
    */
   public static void main(String[] args) {
     StringUtils.startupShutdownMessage(JobHistoryServer.class, args, LOG);
-
     try {
       JobHistoryServer server = new JobHistoryServer(new JobConf());
       server.start();

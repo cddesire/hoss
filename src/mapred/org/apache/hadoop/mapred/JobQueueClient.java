@@ -26,33 +26,32 @@ import org.apache.hadoop.util.ToolRunner;
 /**
  * <code>JobQueueClient</code> is interface provided to the user in order
  * to get JobQueue related information from the {@link JobTracker}
- * 
- * It provides the facility to list the JobQueues present and ability to 
- * view the list of jobs within a specific JobQueue 
- * 
+ *
+ * It provides the facility to list the JobQueues present and ability to
+ * view the list of jobs within a specific JobQueue
+ *
 **/
 
 class JobQueueClient extends Configured implements  Tool {
-  
+
   JobClient jc;
-  
-  public JobQueueClient() {
-  }
-  
+
+  public JobQueueClient() {}
+
   public JobQueueClient(JobConf conf) throws IOException {
     setConf(conf);
   }
-  
+
   private void init(JobConf conf) throws IOException {
     setConf(conf);
     jc = new JobClient(conf);
   }
-  
+
   @Override
   public int run(String[] argv) throws Exception {
     int exitcode = -1;
-    
-    if(argv.length < 1){
+
+    if (argv.length < 1) {
       displayUsage("");
       return exitcode;
     }
@@ -61,25 +60,25 @@ class JobQueueClient extends Configured implements  Tool {
     boolean displayQueueInfoWithJobs = false;
     boolean displayQueueInfoWithoutJobs = false;
     boolean displayQueueAclsInfoForCurrentUser = false;
-    
-    if("-list".equals(cmd)){
+
+    if ("-list".equals(cmd)) {
       displayQueueList = true;
-    }else if("-showacls".equals(cmd)) {
+    } else if ("-showacls".equals(cmd)) {
       displayQueueAclsInfoForCurrentUser = true;
-    }else if("-info".equals(cmd)){
-      if(argv.length == 2 && !(argv[1].equals("-showJobs"))) {
+    } else if ("-info".equals(cmd)) {
+      if (argv.length == 2 && !(argv[1].equals("-showJobs"))) {
         displayQueueInfoWithoutJobs = true;
-      } else if(argv.length == 3){
-        if(argv[2].equals("-showJobs")){
+      } else if (argv.length == 3) {
+        if (argv[2].equals("-showJobs")) {
           displayQueueInfoWithJobs = true;
-        }else {
+        } else {
           displayUsage(cmd);
           return exitcode;
         }
-      }else {
+      } else {
         displayUsage(cmd);
         return exitcode;
-      }      
+      }
     } else {
       displayUsage(cmd);
       return exitcode;
@@ -89,34 +88,34 @@ class JobQueueClient extends Configured implements  Tool {
     if (displayQueueList) {
       displayQueueList();
       exitcode = 0;
-    } else if (displayQueueInfoWithoutJobs){
-      displayQueueInfo(argv[1],false);
+    } else if (displayQueueInfoWithoutJobs) {
+      displayQueueInfo(argv[1], false);
       exitcode = 0;
     } else if (displayQueueInfoWithJobs) {
-      displayQueueInfo(argv[1],true);
+      displayQueueInfo(argv[1], true);
       exitcode = 0;
-    }else if (displayQueueAclsInfoForCurrentUser) {
+    } else if (displayQueueAclsInfoForCurrentUser) {
       this.displayQueueAclsInfoForCurrentUser();
       exitcode = 0;
     }
-    
+
     return exitcode;
   }
-  
+
   /**
-   * Method used to display information pertaining to a Single JobQueue 
-   * registered with the {@link QueueManager}. Display of the Jobs is 
-   * determine by the boolean 
-   * 
+   * Method used to display information pertaining to a Single JobQueue
+   * registered with the {@link QueueManager}. Display of the Jobs is
+   * determine by the boolean
+   *
    * @throws IOException
    */
 
   private void displayQueueInfo(String queue, boolean showJobs)
-      throws IOException {
+  throws IOException {
     JobQueueInfo jobQueueInfo = jc.getQueueInfo(queue);
     if (jobQueueInfo == null) {
       System.out.println("Queue Name : " + queue +
-          " has no scheduling information");
+                         " has no scheduling information");
     } else {
       printJobQueueInfo(jobQueueInfo);
     }
@@ -145,7 +144,7 @@ class JobQueueClient extends Configured implements  Tool {
   /**
    * Method used to display the list of the JobQueues registered
    * with the {@link QueueManager}
-   * 
+   *
    * @throws IOException
    */
   private void displayQueueList() throws IOException {
@@ -160,7 +159,7 @@ class JobQueueClient extends Configured implements  Tool {
     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
     if (queueAclsInfoList.length > 0) {
       System.out.println("Queue acls for user :  "
-              + ugi.getShortUserName());
+                         + ugi.getShortUserName());
       System.out.println("\nQueue  Operations");
       System.out.println("=====================");
       for (QueueAclsInfo queueInfo : queueAclsInfoList) {
@@ -177,16 +176,16 @@ class JobQueueClient extends Configured implements  Tool {
       }
     } else {
       System.out.println("User " +
-              ugi.getShortUserName() +
-              " does not have access to any queue. \n");
+                         ugi.getShortUserName() +
+                         " does not have access to any queue. \n");
     }
   }
-  
+
   private void displayUsage(String cmd) {
     String prefix = "Usage: JobQueueClient ";
-    if ("-queueinfo".equals(cmd)){
+    if ("-queueinfo".equals(cmd)) {
       System.err.println(prefix + "[" + cmd + "<job-queue-name> [-showJobs]]");
-    }else {
+    } else {
       System.err.printf(prefix + "<command> <args>\n");
       System.err.printf("\t[-list]\n");
       System.err.printf("\t[-info <job-queue-name> [-showJobs]]\n");
@@ -199,5 +198,5 @@ class JobQueueClient extends Configured implements  Tool {
     int res = ToolRunner.run(new JobQueueClient(), argv);
     System.exit(res);
   }
-  
+
 }

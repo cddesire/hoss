@@ -70,12 +70,9 @@ public class JobLocalizer {
 
   static final Log LOG = LogFactory.getLog(JobLocalizer.class);
 
-  private static final FsPermission urwx =
-    FsPermission.createImmutable((short) 0700);
-  private static final FsPermission urwx_gx =
-    FsPermission.createImmutable((short) 0710);
-  private static final FsPermission urw_gr =
-    FsPermission.createImmutable((short) 0640);
+  private static final FsPermission urwx = FsPermission.createImmutable((short) 0700);
+  private static final FsPermission urwx_gx = FsPermission.createImmutable((short) 0710);
+  private static final FsPermission urw_gr = FsPermission.createImmutable((short) 0640);
 
   private final String user;
   private final String jobid;
@@ -92,14 +89,11 @@ public class JobLocalizer {
   private final String JOBTOKEN;
   private static final String JOB_LOCAL_CTXT = "mapred.job.local.dir";
 
-  public JobLocalizer(JobConf ttConf, String user, String jobid)
-      throws IOException {
-    this(ttConf, user, jobid,
-        ttConf.getStrings(JobConf.MAPRED_LOCAL_DIR_PROPERTY));
+  public JobLocalizer(JobConf ttConf, String user, String jobid) throws IOException {
+    this(ttConf, user, jobid, ttConf.getStrings(JobConf.MAPRED_LOCAL_DIR_PROPERTY));
   }
 
-  public JobLocalizer(JobConf ttConf, String user, String jobid,
-      String... localDirs) throws IOException {
+  public JobLocalizer(JobConf ttConf, String user, String jobid, String... localDirs) throws IOException {
     if (null == user) {
       throw new IOException("Cannot initialize for null user");
     }
@@ -122,8 +116,7 @@ public class JobLocalizer {
     JOBTOKEN = JOBDIR + "/" + TaskTracker.JOB_TOKEN_FILE;
   }
 
-  private static List<Path> createPaths(String user, final String[] str)
-      throws IOException {
+  private static List<Path> createPaths(String user, final String[] str) throws IOException {
     if (null == str || 0 == str.length) {
       throw new IOException("mapred.local.dir contains no entries");
     }
@@ -149,7 +142,7 @@ public class JobLocalizer {
     }
     if (!userDirStatus) {
       throw new IOException("Not able to initialize user directories "
-          + "in any of the configured local directories for user " + user);
+                            + "in any of the configured local directories for user " + user);
     }
   }
 
@@ -189,13 +182,12 @@ public class JobLocalizer {
     }
     if (!jobCacheDirStatus) {
       throw new IOException("Not able to initialize job-cache directories "
-          + "in any of the configured local directories for user " + user);
+                            + "in any of the configured local directories for user " + user);
     }
     if (!distributedCacheDirStatus) {
       throw new IOException(
-          "Not able to initialize distributed-cache directories "
-              + "in any of the configured local directories for user "
-              + user);
+        "Not able to initialize distributed-cache directories "
+        + "in any of the configured local directories for user " + user);
     }
   }
 
@@ -227,8 +219,8 @@ public class JobLocalizer {
     }
     if (!initJobDirStatus) {
       throw new IOException("Not able to initialize job directories "
-          + "in any of the configured local directories for job "
-          + jobid.toString());
+                            + "in any of the configured local directories for job "
+                            + jobid.toString());
     }
   }
 
@@ -238,8 +230,7 @@ public class JobLocalizer {
   public void initializeJobLogDir() throws IOException {
     Path jobUserLogDir = new Path(TaskLog.getJobDir(jobid).toURI().toString());
     if (!lfs.mkdirs(jobUserLogDir, urwx_gx)) {
-      throw new IOException(
-          "Could not create job user log directory: " + jobUserLogDir);
+      throw new IOException("Could not create job user log directory: " + jobUserLogDir);
     }
   }
 
@@ -275,7 +266,7 @@ public class JobLocalizer {
       // Also un-jar the job.jar files. We un-jar it so that classes inside
       // sub-directories, for e.g., lib/, classes/ are available on class-path
       RunJar.unJar(new File(localJarFile.toString()),
-          new File(localJarFile.getParent().toString()));
+                   new File(localJarFile.getParent().toString()));
       FileUtil.chmod(localJarFile.getParent().toString(), "ugo+rx", true);
     }
   }
@@ -286,9 +277,8 @@ public class JobLocalizer {
    * the same so that LocalFileSystem will use the java File methods to
    * set permission.
    */
-  private static final FsPermission privateCachePerms =
-    FsPermission.createImmutable((short) 0755);
-  
+  private static final FsPermission privateCachePerms = FsPermission.createImmutable((short) 0755);
+
   /**
    * Given a list of objects, download each one.
    * @param conf the job's configuration
@@ -301,12 +291,12 @@ public class JobLocalizer {
    * @return for archives, return the list of each of the sizes.
    */
   private static long[] downloadPrivateCacheObjects(Configuration conf,
-                                             URI[] sources,
-                                             Path[] dests,
-                                             long[] times,
-                                             boolean[] isPublic,
-                                             boolean isArchive
-                                             ) throws IOException {
+      URI[] sources,
+      Path[] dests,
+      long[] times,
+      boolean[] isPublic,
+      boolean isArchive
+                                                   ) throws IOException {
     if (null == sources && null == dests && null == times && null == isPublic) {
       return null;
     }
@@ -318,16 +308,16 @@ public class JobLocalizer {
                             ", " + times.length + ", " + isPublic.length);
     }
     long[] result = new long[sources.length];
-    for(int i=0; i < sources.length; i++) {
+    for (int i = 0; i < sources.length; i++) {
       // public objects are already downloaded by the Task Tracker, we
       // only need to handle the private ones here
       if (!isPublic[i]) {
-        result[i] = 
-          TrackerDistributedCacheManager.downloadCacheObject(conf, sources[i], 
-                                                             dests[i], 
-                                                             times[i], 
-                                                             isArchive, 
-                                                             privateCachePerms);
+        result[i] =
+          TrackerDistributedCacheManager.downloadCacheObject(conf, sources[i],
+              dests[i],
+              times[i],
+              isArchive,
+              privateCachePerms);
       }
     }
     return result;
@@ -341,20 +331,20 @@ public class JobLocalizer {
    */
   public static long[] downloadPrivateCache(Configuration conf) throws IOException {
     long[] fileSizes = downloadPrivateCacheObjects(conf,
-                                DistributedCache.getCacheFiles(conf),
-                                DistributedCache.getLocalCacheFiles(conf),
-                                DistributedCache.getFileTimestamps(conf),
-                                TrackerDistributedCacheManager.
-                                  getFileVisibilities(conf),
-                                false);
+                       DistributedCache.getCacheFiles(conf),
+                       DistributedCache.getLocalCacheFiles(conf),
+                       DistributedCache.getFileTimestamps(conf),
+                       TrackerDistributedCacheManager.
+                       getFileVisibilities(conf),
+                       false);
 
     long[] archiveSizes = downloadPrivateCacheObjects(conf,
-                                  DistributedCache.getCacheArchives(conf),
-                                  DistributedCache.getLocalCacheArchives(conf),
-                                  DistributedCache.getArchiveTimestamps(conf),
-                                  TrackerDistributedCacheManager.
-                                    getArchiveVisibilities(conf),
-                                  true);
+                          DistributedCache.getCacheArchives(conf),
+                          DistributedCache.getLocalCacheArchives(conf),
+                          DistributedCache.getArchiveTimestamps(conf),
+                          TrackerDistributedCacheManager.
+                          getArchiveVisibilities(conf),
+                          true);
 
     // The order here matters - it has to match order of cache files
     // in TaskDistributedCacheManager.
@@ -362,16 +352,16 @@ public class JobLocalizer {
   }
 
   public void localizeJobFiles(JobID jobid, JobConf jConf,
-      Path localJobTokenFile, TaskUmbilicalProtocol taskTracker)
-      throws IOException, InterruptedException {
+                               Path localJobTokenFile, TaskUmbilicalProtocol taskTracker)
+  throws IOException, InterruptedException {
     localizeJobFiles(jobid, jConf,
-        lDirAlloc.getLocalPathForWrite(JOBCONF, ttConf), localJobTokenFile,
-        taskTracker);
+                     lDirAlloc.getLocalPathForWrite(JOBCONF, ttConf), localJobTokenFile,
+                     taskTracker);
   }
 
   public void localizeJobFiles(final JobID jobid, JobConf jConf,
-      Path localJobFile, Path localJobTokenFile,
-      final TaskUmbilicalProtocol taskTracker) 
+                               Path localJobFile, Path localJobTokenFile,
+                               final TaskUmbilicalProtocol taskTracker)
   throws IOException, InterruptedException {
     // Download the job.jar for this job from the system FS
     localizeJobJarFile(jConf);
@@ -380,8 +370,8 @@ public class JobLocalizer {
 
     //update the config some more
     jConf.set(TokenCache.JOB_TOKENS_FILENAME, localJobTokenFile.toString());
-    jConf.set(JobConf.MAPRED_LOCAL_DIR_PROPERTY, 
-        ttConf.get(JobConf.MAPRED_LOCAL_DIR_PROPERTY));
+    jConf.set(JobConf.MAPRED_LOCAL_DIR_PROPERTY,
+              ttConf.get(JobConf.MAPRED_LOCAL_DIR_PROPERTY));
     TaskTracker.resetNumTasksPerJvm(jConf);
 
     //setup the distributed cache
@@ -391,15 +381,15 @@ public class JobLocalizer {
       //calls the localizeJobFiles method in the context of the TaskTracker
       //process. The JVM authorization check would fail without this
       //doAs. In the LinuxTC case, this doesn't harm.
-      UserGroupInformation ugi = 
+      UserGroupInformation ugi =
         UserGroupInformation.createRemoteUser(jobid.toString());
-      ugi.doAs(new PrivilegedExceptionAction<Object>() { 
+      ugi.doAs(new PrivilegedExceptionAction<Object>() {
         public Object run() throws IOException {
           taskTracker.updatePrivateDistributedCacheSizes(jobid, sizes);
           return null;
         }
       });
-      
+
     }
 
     // Create job-acls.xml file in job userlog dir and write the needed
@@ -434,7 +424,7 @@ public class JobLocalizer {
 
     // set the queue admins acl in aclConf
     String qACLName = QueueManager.toFullPropertyName(queue,
-        QueueACL.ADMINISTER_JOBS.getAclName());
+                      QueueACL.ADMINISTER_JOBS.getAclName());
     String queueAdminsACL = conf.get(qACLName, " ");
     aclConf.set(qACLName, queueAdminsACL);
 
@@ -457,7 +447,7 @@ public class JobLocalizer {
     final Path workDir = lDirAlloc.getLocalPathForWrite(WORKDIR, ttConf);
     if (!lfs.mkdirs(workDir)) {
       throw new IOException("Mkdirs failed to create "
-          + workDir.toString());
+                            + workDir.toString());
     }
     jConf.set(TaskTracker.JOB_LOCAL_DIR, workDir.toUri().getPath());
   }
@@ -467,8 +457,8 @@ public class JobLocalizer {
   }
 
   public int runSetup(String user, String jobid, Path localJobTokenFile,
-                      TaskUmbilicalProtocol taskTracker) throws IOException, 
-                      InterruptedException {
+                      TaskUmbilicalProtocol taskTracker) throws IOException,
+    InterruptedException {
     // load user credentials, configuration
     // ASSUME
     // let $x = $mapred.local.dir
@@ -480,14 +470,14 @@ public class JobLocalizer {
     final JobConf cfgJob = new JobConf(localJobFile);
     createWorkDir(cfgJob);
     localizeJobFiles(JobID.forName(jobid), cfgJob, localJobFile,
-        localJobTokenFile, taskTracker);
+                     localJobTokenFile, taskTracker);
 
     // $mapred.local.dir/taskTracker/$user/distcache
     return 0;
   }
 
   public static void main(String[] argv)
-      throws IOException, InterruptedException {
+  throws IOException, InterruptedException {
     // $logdir
     // let $x = $root/tasktracker for some $mapred.local.dir
     //   create $x/$user/jobcache/$jobid/work
@@ -497,7 +487,7 @@ public class JobLocalizer {
     //   write  $x/$user/jobcache/$jobid/job.xml
     final String user = argv[0];
     final String jobid = argv[1];
-    final InetSocketAddress ttAddr = 
+    final InetSocketAddress ttAddr =
       new InetSocketAddress(argv[2], Integer.parseInt(argv[3]));
     final String uid = UserGroupInformation.getCurrentUser().getShortUserName();
     if (!user.equals(uid)) {
@@ -510,47 +500,46 @@ public class JobLocalizer {
       new JobLocalizer(conf, user, jobid);
     final Path jobTokenFile = localizer.findCredentials();
     final Credentials creds = TokenCache.loadTokens(
-        jobTokenFile.toUri().toString(), conf);
+                                jobTokenFile.toUri().toString(), conf);
     LOG.debug("Loaded tokens from " + jobTokenFile);
     UserGroupInformation ugi = UserGroupInformation.createRemoteUser(user);
     for (Token<? extends TokenIdentifier> token : creds.getAllTokens()) {
       ugi.addToken(token);
     }
-    
+
     UserGroupInformation ugiJob = UserGroupInformation.createRemoteUser(jobid);
     Token<JobTokenIdentifier> jt = TokenCache.getJobToken(creds);
     SecurityUtil.setTokenService(jt, ttAddr);
     ugiJob.addToken(jt);
 
-    final TaskUmbilicalProtocol taskTracker = 
-      ugiJob.doAs(new PrivilegedExceptionAction<TaskUmbilicalProtocol>() {
-        public TaskUmbilicalProtocol run() throws IOException {
-          TaskUmbilicalProtocol taskTracker =
-            (TaskUmbilicalProtocol) RPC.getProxy(TaskUmbilicalProtocol.class,
-                TaskUmbilicalProtocol.versionID,
-                ttAddr, conf);
-          return taskTracker;
-        }
-      });
+    final TaskUmbilicalProtocol taskTracker =
+    ugiJob.doAs(new PrivilegedExceptionAction<TaskUmbilicalProtocol>() {
+      public TaskUmbilicalProtocol run() throws IOException {
+        TaskUmbilicalProtocol taskTracker =
+          (TaskUmbilicalProtocol) RPC.getProxy(TaskUmbilicalProtocol.class,
+                                               TaskUmbilicalProtocol.versionID,
+                                               ttAddr, conf);
+        return taskTracker;
+      }
+    });
     System.exit(
-      ugi.doAs(new PrivilegedExceptionAction<Integer>() {
-        public Integer run() {
-          try {
-            return localizer.runSetup(user, jobid, jobTokenFile, taskTracker);
-          } catch (Throwable e) {
-            e.printStackTrace(System.out);
-            return -1;
-          }
+    ugi.doAs(new PrivilegedExceptionAction<Integer>() {
+      public Integer run() {
+        try {
+          return localizer.runSetup(user, jobid, jobTokenFile, taskTracker);
+        } catch (Throwable e) {
+          e.printStackTrace(System.out);
+          return -1;
         }
-      }));
+      }
+    }));
   }
 
   /**
    * Write the task specific job-configuration file.
    * @throws IOException
    */
-  public static void writeLocalJobFile(Path jobFile, JobConf conf)
-      throws IOException {
+  public static void writeLocalJobFile(Path jobFile, JobConf conf) throws IOException {
     FileSystem localFs = FileSystem.getLocal(conf);
     localFs.delete(jobFile);
     OutputStream out = null;
