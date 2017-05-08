@@ -36,17 +36,17 @@ import org.apache.hadoop.security.authorize.AccessControlList;
 
 /**************************************************
  * Describes the current status of a job.
- * 
+ *
  * @see JobProfile for some more information.
  **************************************************/
 public class JobStatus implements Writable, Cloneable {
 
   static {                                      // register a ctor
     WritableFactories.setFactory
-      (JobStatus.class,
-       new WritableFactory() {
-         public Writable newInstance() { return new JobStatus(); }
-       });
+    (JobStatus.class,
+    new WritableFactory() {
+      public Writable newInstance() { return new JobStatus(); }
+    });
   }
 
   public static final int RUNNING = 1;
@@ -55,13 +55,11 @@ public class JobStatus implements Writable, Cloneable {
   public static final int PREP = 4;
   public static final int KILLED = 5;
 
-  private Map<JobACL, AccessControlList> jobACLs =
-    new HashMap<JobACL, AccessControlList>();
+  private Map<JobACL, AccessControlList> jobACLs = new HashMap<JobACL, AccessControlList>();
 
   private static final String UNKNOWN = "UNKNOWN";
-  private static final String[] runStates =
-      {UNKNOWN, "RUNNING", "SUCCEEDED", "FAILED", "PREP", "KILLED"};
-  
+  private static final String[] runStates = {UNKNOWN, "RUNNING", "SUCCEEDED", "FAILED", "PREP", "KILLED"};
+
   /**
    * Helper method to get human-readable state of the job.
    * @param state job state
@@ -73,7 +71,7 @@ public class JobStatus implements Writable, Cloneable {
     }
     return runStates[state];
   }
-  
+
   private JobID jobid;
   private float mapProgress;
   private float reduceProgress;
@@ -83,13 +81,12 @@ public class JobStatus implements Writable, Cloneable {
   private long startTime;
   private String user;
   private JobPriority priority;
-  private String schedulingInfo="NA";
+  private String schedulingInfo = "NA";
   private String failureInfo = "NA";
-  
+
   /**
    */
-  public JobStatus() {
-  }
+  public JobStatus() {}
 
   /**
    * Create a job status object for a given jobid.
@@ -102,7 +99,7 @@ public class JobStatus implements Writable, Cloneable {
   public JobStatus(JobID jobid, float mapProgress, float reduceProgress,
                    float cleanupProgress, int runState) {
     this(jobid, mapProgress, reduceProgress, cleanupProgress, runState,
-                  JobPriority.NORMAL);
+         JobPriority.NORMAL);
   }
 
   /**
@@ -112,8 +109,7 @@ public class JobStatus implements Writable, Cloneable {
    * @param reduceProgress The progress made on the reduces
    * @param runState The current state of the job
    */
-  public JobStatus(JobID jobid, float mapProgress, float reduceProgress,
-                   int runState) {
+  public JobStatus(JobID jobid, float mapProgress, float reduceProgress, int runState) {
     this(jobid, mapProgress, reduceProgress, 0.0f, runState);
   }
 
@@ -125,12 +121,12 @@ public class JobStatus implements Writable, Cloneable {
    * @param runState The current state of the job
    * @param jp Priority of the job.
    */
-   public JobStatus(JobID jobid, float mapProgress, float reduceProgress,
-                      float cleanupProgress, int runState, JobPriority jp) {
-     this(jobid, 0.0f, mapProgress, reduceProgress, 
-          cleanupProgress, runState, jp);
-   }
-   
+  public JobStatus(JobID jobid, float mapProgress, float reduceProgress,
+                   float cleanupProgress, int runState, JobPriority jp) {
+    this(jobid, 0.0f, mapProgress, reduceProgress,
+         cleanupProgress, runState, jp);
+  }
+
   /**
    * Create a job status object for a given jobid.
    * @param jobid The jobid of the job
@@ -141,42 +137,42 @@ public class JobStatus implements Writable, Cloneable {
    * @param runState The current state of the job
    * @param jp Priority of the job.
    */
-   public JobStatus(JobID jobid, float setupProgress, float mapProgress,
-                    float reduceProgress, float cleanupProgress, 
-                    int runState, JobPriority jp) {
-     this.jobid = jobid;
-     this.setupProgress = setupProgress;
-     this.mapProgress = mapProgress;
-     this.reduceProgress = reduceProgress;
-     this.cleanupProgress = cleanupProgress;
-     this.runState = runState;
-     this.user = "nobody";
-     if (jp == null) {
-       throw new IllegalArgumentException("Job Priority cannot be null.");
-     }
-     priority = jp;
-   }
+  public JobStatus(JobID jobid, float setupProgress, float mapProgress,
+                   float reduceProgress, float cleanupProgress,
+                   int runState, JobPriority jp) {
+    this.jobid = jobid;
+    this.setupProgress = setupProgress;
+    this.mapProgress = mapProgress;
+    this.reduceProgress = reduceProgress;
+    this.cleanupProgress = cleanupProgress;
+    this.runState = runState;
+    this.user = "nobody";
+    if (jp == null) {
+      throw new IllegalArgumentException("Job Priority cannot be null.");
+    }
+    priority = jp;
+  }
 
   /**
    * @deprecated use getJobID instead
    */
   @Deprecated
   public String getJobId() { return jobid.toString(); }
-  
+
   /**
    * @return The jobid of the Job
    */
   public JobID getJobID() { return jobid; }
-    
+
   /**
-   * @return Percentage of progress in maps 
+   * @return Percentage of progress in maps
    */
   public synchronized float mapProgress() { return mapProgress; }
 
   /**
    * Set the job acls
-   * 
-   * @param acls {@link Map} from {@link JobACL}  to {@link AccessControlList} 
+   *
+   * @param acls {@link Map} from {@link JobACL}  to {@link AccessControlList}
    */
   protected synchronized void setJobACLs(Map<JobACL, AccessControlList> acls) {
     this.jobACLs = acls;
@@ -186,54 +182,54 @@ public class JobStatus implements Writable, Cloneable {
    * Sets the map progress of this job
    * @param p The value of map progress to set to
    */
-  synchronized void setMapProgress(float p) { 
-    this.mapProgress = (float) Math.min(1.0, Math.max(0.0, p)); 
+  synchronized void setMapProgress(float p) {
+    this.mapProgress = (float) Math.min(1.0, Math.max(0.0, p));
   }
 
   /**
-   * @return Percentage of progress in cleanup 
+   * @return Percentage of progress in cleanup
    */
   public synchronized float cleanupProgress() { return cleanupProgress; }
-    
+
   /**
    * Sets the cleanup progress of this job
    * @param p The value of cleanup progress to set to
    */
-  synchronized void setCleanupProgress(float p) { 
-    this.cleanupProgress = (float) Math.min(1.0, Math.max(0.0, p)); 
+  synchronized void setCleanupProgress(float p) {
+    this.cleanupProgress = (float) Math.min(1.0, Math.max(0.0, p));
   }
 
   /**
-   * @return Percentage of progress in setup 
+   * @return Percentage of progress in setup
    */
   public synchronized float setupProgress() { return setupProgress; }
-    
+
   /**
    * Sets the setup progress of this job
    * @param p The value of setup progress to set to
    */
-  synchronized void setSetupProgress(float p) { 
-    this.setupProgress = (float) Math.min(1.0, Math.max(0.0, p)); 
+  synchronized void setSetupProgress(float p) {
+    this.setupProgress = (float) Math.min(1.0, Math.max(0.0, p));
   }
 
   /**
-   * @return Percentage of progress in reduce 
+   * @return Percentage of progress in reduce
    */
   public synchronized float reduceProgress() { return reduceProgress; }
-    
+
   /**
    * Sets the reduce progress of this Job
    * @param p The value of reduce progress to set to
    */
-  synchronized void setReduceProgress(float p) { 
-    this.reduceProgress = (float) Math.min(1.0, Math.max(0.0, p)); 
+  synchronized void setReduceProgress(float p) {
+    this.reduceProgress = (float) Math.min(1.0, Math.max(0.0, p));
   }
-    
+
   /**
    * @return running state of the job
    */
   public synchronized int getRunState() { return runState; }
-    
+
   /**
    * Change the current run state of the job.
    */
@@ -241,12 +237,12 @@ public class JobStatus implements Writable, Cloneable {
     this.runState = state;
   }
 
-  /** 
+  /**
    * Set the start time of the job
    * @param startTime The startTime of the job
    */
   synchronized void setStartTime(long startTime) { this.startTime = startTime;}
-    
+
   /**
    * @return start time of the job
    */
@@ -261,7 +257,7 @@ public class JobStatus implements Writable, Cloneable {
       throw new InternalError(cnse.toString());
     }
   }
-  
+
   /**
    * @param user The username of the job
    */
@@ -271,15 +267,15 @@ public class JobStatus implements Writable, Cloneable {
    * @return the username of the job
    */
   public synchronized String getUsername() { return this.user;}
-  
+
   /**
    * Gets the Scheduling information associated to a particular Job.
    * @return the scheduling information of the job
    */
   public synchronized String getSchedulingInfo() {
-   return schedulingInfo;
+    return schedulingInfo;
   }
-  
+
   /**
    * gets any available info on the reason of failure of the job.
    * @return diagnostic information on why a job might have failed.
@@ -295,19 +291,19 @@ public class JobStatus implements Writable, Cloneable {
   public synchronized void setFailureInfo(String failureInfo) {
     this.failureInfo = failureInfo;
   }
-  
+
   /**
    * Used to set the scheduling information associated to a particular Job.
-   * 
+   *
    * @param schedulingInfo Scheduling information of the job
    */
   public synchronized void setSchedulingInfo(String schedulingInfo) {
     this.schedulingInfo = schedulingInfo;
   }
-  
+
   /**
    * Get the acls for Job.
-   * 
+   *
    * @return a {@link Map} from {@link JobACL} to {@link AccessControlList}
    */
   public synchronized Map<JobACL, AccessControlList> getJobACLs() {
@@ -318,26 +314,26 @@ public class JobStatus implements Writable, Cloneable {
    * Return the priority of the job
    * @return job priority
    */
-   public synchronized JobPriority getJobPriority() { return priority; }
-  
+  public synchronized JobPriority getJobPriority() { return priority; }
+
   /**
    * Set the priority of the job, defaulting to NORMAL.
    * @param jp new job priority
    */
-   public synchronized void setJobPriority(JobPriority jp) {
-     if (jp == null) {
-       throw new IllegalArgumentException("Job priority cannot be null.");
-     }
-     priority = jp;
-   }
-  
-   /**
-    * Returns true if the status is for a completed job.
-    */
-   public synchronized boolean isJobComplete() {
-     return (runState == JobStatus.SUCCEEDED || runState == JobStatus.FAILED 
-             || runState == JobStatus.KILLED);
-   }
+  public synchronized void setJobPriority(JobPriority jp) {
+    if (jp == null) {
+      throw new IllegalArgumentException("Job priority cannot be null.");
+    }
+    priority = jp;
+  }
+
+  /**
+   * Returns true if the status is for a completed job.
+   */
+  public synchronized boolean isJobComplete() {
+    return (runState == JobStatus.SUCCEEDED || runState == JobStatus.FAILED
+            || runState == JobStatus.KILLED);
+  }
 
   ///////////////////////////////////////
   // Writable

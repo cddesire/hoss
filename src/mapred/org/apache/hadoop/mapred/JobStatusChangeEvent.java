@@ -18,8 +18,8 @@
 package org.apache.hadoop.mapred;
 
 /**
- * {@link JobStatusChangeEvent} tracks the change in job's status. Job's 
- * status can change w.r.t 
+ * {@link JobStatusChangeEvent} tracks the change in job's status. Job's
+ * status can change w.r.t
  *   - run state i.e PREP, RUNNING, FAILED, KILLED, SUCCEEDED
  *   - start time
  *   - priority
@@ -28,43 +28,41 @@ package org.apache.hadoop.mapred;
 class JobStatusChangeEvent extends JobChangeEvent {
   // Events in job status that can lead to a job-status change
   static enum EventType {RUN_STATE_CHANGED, START_TIME_CHANGED, PRIORITY_CHANGED}
-  
+
   private JobStatus oldStatus;
   private JobStatus newStatus;
   private EventType eventType;
-   
-  JobStatusChangeEvent(JobInProgress jip, EventType eventType, 
-                       JobStatus oldStatus, JobStatus newStatus) {
+
+  JobStatusChangeEvent(JobInProgress jip, EventType eventType, JobStatus oldStatus, JobStatus newStatus) {
     super(jip);
     this.oldStatus = oldStatus;
     this.newStatus = newStatus;
     this.eventType = eventType;
   }
-  
+
   /**
-   * Create a {@link JobStatusChangeEvent} indicating the state has changed. 
+   * Create a {@link JobStatusChangeEvent} indicating the state has changed.
    * Note that here we assume that the state change doesnt care about the old
    * state.
    */
-  JobStatusChangeEvent(JobInProgress jip, EventType eventType, JobStatus status)
-  {
+  JobStatusChangeEvent(JobInProgress jip, EventType eventType, JobStatus status) {
     this(jip, eventType, status, status);
   }
-  
+
   /**
    * Returns a event-type that caused the state change
    */
   EventType getEventType() {
     return eventType;
   }
-  
+
   /**
    * Get the old job status
    */
   JobStatus getOldStatus() {
     return oldStatus;
   }
-  
+
   /**
    * Get the new job status as a result of the events
    */
