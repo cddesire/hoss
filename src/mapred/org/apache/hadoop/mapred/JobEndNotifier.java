@@ -43,47 +43,43 @@ public class JobEndNotifier {
   public static void startNotifier() {
     running = true;
     thread = new Thread(
-                        new Runnable() {
-                          public void run() {
-                            try {
-                              while (running) {
-                                sendNotification(queue.take());
-                              }
-                            }
-                            catch (InterruptedException irex) {
-                              if (running) {
-                                LOG.error("Thread has ended unexpectedly", irex);
-                              }
-                            }
-                          }
+    new Runnable() {
+      public void run() {
+        try {
+          while (running) {
+            sendNotification(queue.take());
+          }
+        } catch (InterruptedException irex) {
+          if (running) {
+            LOG.error("Thread has ended unexpectedly", irex);
+          }
+        }
+      }
 
-                          private void sendNotification(JobEndStatusInfo notification) {
-                            try {
-                              int code = httpNotification(notification.getUri());
-                              if (code != 200) {
-                                throw new IOException("Invalid response status code: " + code);
-                              }
-                            }
-                            catch (IOException ioex) {
-                              LOG.error("Notification failure [" + notification + "]", ioex);
-                              if (notification.configureForRetry()) {
-                                try {
-                                  queue.put(notification);
-                                }
-                                catch (InterruptedException iex) {
-                                  LOG.error("Notification queuing error [" + notification + "]",
-                                            iex);
-                                }
-                              }
-                            }
-                            catch (Exception ex) {
-                              LOG.error("Notification failure [" + notification + "]", ex);
-                            }
-                          }
+      private void sendNotification(JobEndStatusInfo notification) {
+        try {
+          int code = httpNotification(notification.getUri());
+          if (code != 200) {
+            throw new IOException("Invalid response status code: " + code);
+          }
+        } catch (IOException ioex) {
+          LOG.error("Notification failure [" + notification + "]", ioex);
+          if (notification.configureForRetry()) {
+            try {
+              queue.put(notification);
+            } catch (InterruptedException iex) {
+              LOG.error("Notification queuing error [" + notification + "]",
+                        iex);
+            }
+          }
+        } catch (Exception ex) {
+          LOG.error("Notification failure [" + notification + "]", ex);
+        }
+      }
 
-                        }
+    }
 
-                        );
+    );
     thread.start();
   }
 
@@ -93,7 +89,7 @@ public class JobEndNotifier {
   }
 
   private static JobEndStatusInfo createNotification(JobConf conf,
-                                                     JobStatus status) {
+      JobStatus status) {
     JobEndStatusInfo notification = null;
     String uri = conf.getJobEndNotificationURI();
     if (uri != null) {
@@ -105,8 +101,8 @@ public class JobEndNotifier {
       }
       if (uri.contains("$jobStatus")) {
         String statusStr =
-          (status.getRunState() == JobStatus.SUCCEEDED) ? "SUCCEEDED" : 
-            (status.getRunState() == JobStatus.FAILED) ? "FAILED" : "KILLED";
+          (status.getRunState() == JobStatus.SUCCEEDED) ? "SUCCEEDED" :
+          (status.getRunState() == JobStatus.FAILED) ? "FAILED" : "KILLED";
         uri = uri.replace("$jobStatus", statusStr);
       }
       notification = new JobEndStatusInfo(uri, retryAttempts, retryInterval);
@@ -119,8 +115,7 @@ public class JobEndNotifier {
     if (notification != null) {
       try {
         queue.put(notification);
-      }
-      catch (InterruptedException iex) {
+      } catch (InterruptedException iex) {
         LOG.error("Notification queuing failure [" + notification + "]", iex);
       }
     }
@@ -144,23 +139,19 @@ public class JobEndNotifier {
           int code = httpNotification(notification.getUri());
           if (code != 200) {
             throw new IOException("Invalid response status code: " + code);
-          }
-          else {
+          } else {
             break;
           }
-        }
-        catch (IOException ioex) {
+        } catch (IOException ioex) {
           LOG.error("Notification error [" + notification.getUri() + "]", ioex);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
           LOG.error("Notification error [" + notification.getUri() + "]", ex);
         }
         try {
           synchronized (Thread.currentThread()) {
             Thread.currentThread().sleep(notification.getRetryInterval());
           }
-        }
-        catch (InterruptedException iex) {
+        } catch (InterruptedException iex) {
           LOG.error("Notification retry error [" + notification + "]", iex);
         }
       }
@@ -228,13 +219,13 @@ public class JobEndNotifier {
 
     @Override
     public int hashCode() {
-      return 37 * 17 + (int) (delayTime^(delayTime>>>32));
+      return 37 * 17 + (int) (delayTime ^ (delayTime >>> 32));
     }
-      
+
     @Override
     public String toString() {
       return "URL: " + uri + " remaining retries: " + retryAttempts +
-        " interval: " + retryInterval;
+             " interval: " + retryInterval;
     }
 
   }
