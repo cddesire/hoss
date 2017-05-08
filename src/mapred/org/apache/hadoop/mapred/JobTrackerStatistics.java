@@ -29,8 +29,7 @@ import org.apache.hadoop.mapred.StatisticsCollector.Stat;
 class JobTrackerStatistics {
 
   final StatisticsCollector collector;
-  final Map<String, TaskTrackerStat> ttStats = 
-    new HashMap<String, TaskTrackerStat>();
+  final Map<String, TaskTrackerStat> ttStats = new HashMap<String, TaskTrackerStat>();
 
   JobTrackerStatistics() {
     collector = new StatisticsCollector();
@@ -39,7 +38,7 @@ class JobTrackerStatistics {
 
   synchronized void taskTrackerAdded(String name) {
     TaskTrackerStat stat = ttStats.get(name);
-    if(stat == null) {
+    if (stat == null) {
       stat =  new TaskTrackerStat(name);
       ttStats.put(name, stat);
     }
@@ -47,7 +46,7 @@ class JobTrackerStatistics {
 
   synchronized void taskTrackerRemoved(String name) {
     TaskTrackerStat stat = ttStats.remove(name);
-    if(stat != null) {
+    if (stat != null) {
       stat.remove();
     }
   }
@@ -64,9 +63,9 @@ class JobTrackerStatistics {
     final Stat succeededTasksStat;
 
     TaskTrackerStat(String trackerName) {
-      totalTasksKey = trackerName+"-"+"totalTasks";
+      totalTasksKey = trackerName + "-" + "totalTasks";
       totalTasksStat = collector.createStat(totalTasksKey);
-      succeededTasksKey = trackerName+"-"+"succeededTasks";
+      succeededTasksKey = trackerName + "-" + "succeededTasks";
       succeededTasksStat = collector.createStat(succeededTasksKey);
     }
 

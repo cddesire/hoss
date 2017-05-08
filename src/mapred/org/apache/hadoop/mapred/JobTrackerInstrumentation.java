@@ -23,165 +23,115 @@ import org.apache.hadoop.metrics2.MetricsSystem;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 
 class JobTrackerInstrumentation {
-  private static final Log LOG =
-      LogFactory.getLog(JobTrackerInstrumentation.class);
+  private static final Log LOG = LogFactory.getLog(JobTrackerInstrumentation.class);
 
   protected final JobTracker tracker;
-  
+
   public JobTrackerInstrumentation(JobTracker jt, JobConf conf) {
     tracker = jt;
   }
 
-  public void launchMap(TaskAttemptID taskAttemptID)
-  { }
+  public void launchMap(TaskAttemptID taskAttemptID) { }
 
-  public void completeMap(TaskAttemptID taskAttemptID)
-  { }
+  public void completeMap(TaskAttemptID taskAttemptID) { }
 
-  public void failedMap(TaskAttemptID taskAttemptID)
-  { }
+  public void failedMap(TaskAttemptID taskAttemptID) { }
 
-  public void launchReduce(TaskAttemptID taskAttemptID)
-  { }
+  public void launchReduce(TaskAttemptID taskAttemptID) { }
 
-  public void completeReduce(TaskAttemptID taskAttemptID)
-  { }
-  
-  public void failedReduce(TaskAttemptID taskAttemptID)
-  { }
+  public void completeReduce(TaskAttemptID taskAttemptID) { }
 
-  public void submitJob(JobConf conf, JobID id) 
-  { }
-    
-  public void completeJob(JobConf conf, JobID id) 
-  { }
+  public void failedReduce(TaskAttemptID taskAttemptID) { }
 
-  public void terminateJob(JobConf conf, JobID id) 
-  { }
-  
-  public void finalizeJob(JobConf conf, JobID id) 
-  { }
-  
-  public void addWaitingMaps(JobID id, int task)
-  { }
-  
-  public void decWaitingMaps(JobID id, int task) 
-  { }
-  
-  public void addWaitingReduces(JobID id, int task)
-  { }
-  
-  public void decWaitingReduces(JobID id, int task)
-  { }
+  public void submitJob(JobConf conf, JobID id) { }
 
-  public void setMapSlots(int slots)
-  { }
+  public void completeJob(JobConf conf, JobID id) { }
 
-  public void setReduceSlots(int slots)
-  { }
+  public void terminateJob(JobConf conf, JobID id) { }
 
-  public void addBlackListedMapSlots(int slots)
-  { }
+  public void finalizeJob(JobConf conf, JobID id) { }
 
-  public void decBlackListedMapSlots(int slots)
-  { }
+  public void addWaitingMaps(JobID id, int task) { }
 
-  public void addBlackListedReduceSlots(int slots)
-  { }
+  public void decWaitingMaps(JobID id, int task) { }
 
-  public void decBlackListedReduceSlots(int slots)
-  { }
+  public void addWaitingReduces(JobID id, int task) { }
 
-  public void addReservedMapSlots(int slots)
-  { }
+  public void decWaitingReduces(JobID id, int task) { }
 
-  public void decReservedMapSlots(int slots)
-  { }
+  public void setMapSlots(int slots) { }
 
-  public void addReservedReduceSlots(int slots)
-  { }
+  public void setReduceSlots(int slots) { }
 
-  public void decReservedReduceSlots(int slots)
-  { }
+  public void addBlackListedMapSlots(int slots) { }
 
-  public void addOccupiedMapSlots(int slots)
-  { }
+  public void decBlackListedMapSlots(int slots) { }
 
-  public void decOccupiedMapSlots(int slots)
-  { }
+  public void addBlackListedReduceSlots(int slots) { }
 
-  public void addOccupiedReduceSlots(int slots)
-  { }
+  public void decBlackListedReduceSlots(int slots) { }
 
-  public void decOccupiedReduceSlots(int slots)
-  { }
+  public void addReservedMapSlots(int slots) { }
 
-  public void failedJob(JobConf conf, JobID id) 
-  { }
+  public void decReservedMapSlots(int slots) { }
 
-  public void killedJob(JobConf conf, JobID id) 
-  { }
+  public void addReservedReduceSlots(int slots) { }
 
-  public void addPrepJob(JobConf conf, JobID id) 
-  { }
-  
-  public void decPrepJob(JobConf conf, JobID id) 
-  { }
+  public void decReservedReduceSlots(int slots) { }
 
-  public void addRunningJob(JobConf conf, JobID id) 
-  { }
+  public void addOccupiedMapSlots(int slots) { }
 
-  public void decRunningJob(JobConf conf, JobID id) 
-  { }
+  public void decOccupiedMapSlots(int slots) { }
 
-  public void addRunningMaps(int tasks)
-  { }
+  public void addOccupiedReduceSlots(int slots) { }
 
-  public void decRunningMaps(int tasks) 
-  { }
+  public void decOccupiedReduceSlots(int slots) { }
 
-  public void addRunningReduces(int tasks)
-  { }
+  public void failedJob(JobConf conf, JobID id) { }
 
-  public void decRunningReduces(int tasks)
-  { }
+  public void killedJob(JobConf conf, JobID id) { }
 
-  public void killedMap(TaskAttemptID taskAttemptID)
-  { }
+  public void addPrepJob(JobConf conf, JobID id) { }
 
-  public void killedReduce(TaskAttemptID taskAttemptID)
-  { }
+  public void decPrepJob(JobConf conf, JobID id) { }
 
-  public void addTrackers(int trackers)
-  { }
+  public void addRunningJob(JobConf conf, JobID id) { }
 
-  public void decTrackers(int trackers)
-  { }
+  public void decRunningJob(JobConf conf, JobID id) { }
 
-  public void addBlackListedTrackers(int trackers)
-  { }
+  public void addRunningMaps(int tasks) { }
 
-  public void decBlackListedTrackers(int trackers)
-  { }
+  public void decRunningMaps(int tasks) { }
 
-  public void addGrayListedTrackers(int trackers)
-  { }
+  public void addRunningReduces(int tasks) { }
 
-  public void decGrayListedTrackers(int trackers)
-  { }
+  public void decRunningReduces(int tasks) { }
 
-  public void setDecommissionedTrackers(int trackers)
-  { }   
+  public void killedMap(TaskAttemptID taskAttemptID) { }
 
-  public void heartbeat() {
-  }
+  public void killedReduce(TaskAttemptID taskAttemptID) { }
+
+  public void addTrackers(int trackers) { }
+
+  public void decTrackers(int trackers) { }
+
+  public void addBlackListedTrackers(int trackers) { }
+
+  public void decBlackListedTrackers(int trackers) { }
+
+  public void addGrayListedTrackers(int trackers) { }
+
+  public void decGrayListedTrackers(int trackers) { }
+
+  public void setDecommissionedTrackers(int trackers) { }
+
+  public void heartbeat() {}
 
   static JobTrackerInstrumentation create(JobTracker jt, JobConf conf) {
     return create(jt, conf, DefaultMetricsSystem.INSTANCE);
   }
 
-  static JobTrackerInstrumentation create(JobTracker jt, JobConf conf,
-                                          MetricsSystem ms) {
+  static JobTrackerInstrumentation create(JobTracker jt, JobConf conf, MetricsSystem ms) {
     return ms.register("JobTrackerMetrics", "JobTracker metrics",
                        new JobTrackerMetricsSource(jt, conf));
   }

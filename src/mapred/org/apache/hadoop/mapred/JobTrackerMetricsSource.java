@@ -31,71 +31,40 @@ import org.apache.hadoop.metrics2.source.JvmMetricsSource;
  */
 @SuppressWarnings("deprecation")
 class JobTrackerMetricsSource extends JobTrackerInstrumentation
-                          implements MetricsSource {
+  implements MetricsSource {
 
   final MetricsRegistry registry = new MetricsRegistry("jobtracker");
-  final MetricMutableGaugeInt mapSlots =
-      registry.newGauge("map_slots", "", 0);
-  final MetricMutableGaugeInt redSlots =
-      registry.newGauge("reduce_slots", "", 0);
-  final MetricMutableGaugeInt blMapSlots =
-      registry.newGauge("blacklisted_maps", "", 0);
-  final MetricMutableGaugeInt blRedSlots =
-      registry.newGauge("blacklisted_reduces", "", 0);
-  final MetricMutableCounterInt mapsLaunched =
-      registry.newCounter("maps_launched", "", 0);
-  final MetricMutableCounterInt mapsCompleted =
-      registry.newCounter("maps_completed", "", 0);
-  final MetricMutableCounterInt mapsFailed =
-      registry.newCounter("maps_failed", "", 0);
-  final MetricMutableCounterInt redsLaunched =
-      registry.newCounter("reduces_launched", "", 0);
-  final MetricMutableCounterInt redsCompleted =
-      registry.newCounter("reduces_completed", "", 0);
-  final MetricMutableCounterInt redsFailed =
-      registry.newCounter("reduces_failed", "", 0);
-  final MetricMutableCounterInt jobsSubmitted =
-      registry.newCounter("jobs_submitted", "", 0);
-  final MetricMutableCounterInt jobsCompleted =
-      registry.newCounter("jobs_completed", "", 0);
-  final MetricMutableGaugeInt waitingMaps =
-      registry.newGauge("waiting_maps", "", 0);
-  final MetricMutableGaugeInt waitingReds =
-      registry.newGauge("waiting_reduces", "", 0);
-  final MetricMutableGaugeInt reservedMapSlots =
-      registry.newGauge("reserved_map_slots", "", 0);
-  final MetricMutableGaugeInt reservedRedSlots =
-      registry.newGauge("reserved_reduce_slots", "", 0);
-  final MetricMutableGaugeInt occupiedMapSlots =
-      registry.newGauge("occupied_map_slots", "", 0);
-  final MetricMutableGaugeInt occupiedRedSlots =
-      registry.newGauge("occupied_reduce_slots", "", 0);
-  final MetricMutableCounterInt jobsFailed =
-      registry.newCounter("jobs_failed", "", 0);
-  final MetricMutableCounterInt jobsKilled =
-      registry.newCounter("jobs_killed", "", 0);
-  final MetricMutableGaugeInt jobsPreparing =
-      registry.newGauge("jobs_preparing", "", 0);
-  final MetricMutableGaugeInt jobsRunning =
-      registry.newGauge("jobs_running", "", 0);
-  final MetricMutableGaugeInt runningMaps =
-      registry.newGauge("running_maps", "", 0);
-  final MetricMutableGaugeInt runningReds =
-      registry.newGauge("running_reduces", "", 0);
-  final MetricMutableCounterInt mapsKilled =
-      registry.newCounter("maps_killed", "", 0);
-  final MetricMutableCounterInt redsKilled =
-      registry.newCounter("reduces_killed", "", 0);
-  final MetricMutableGaugeInt numTrackers =
-      registry.newGauge("trackers", "", 0);
-  final MetricMutableGaugeInt blacklistedTrackers =
-      registry.newGauge("trackers_blacklisted", "", 0);
-  final MetricMutableGaugeInt graylistedTrackers =
-      registry.newGauge("trackers_graylisted", "", 0);
-  final MetricMutableGaugeInt decTrackers =
-      registry.newGauge("trackers_decommissioned", "", 0);
-  final MetricMutableCounterLong numHeartbeats =
-      registry.newCounter("heartbeats", "", 0L);
+  final MetricMutableGaugeInt mapSlots = registry.newGauge("map_slots", "", 0);
+  final MetricMutableGaugeInt redSlots = registry.newGauge("reduce_slots", "", 0);
+  final MetricMutableGaugeInt blMapSlots = registry.newGauge("blacklisted_maps", "", 0);
+  final MetricMutableGaugeInt blRedSlots = registry.newGauge("blacklisted_reduces", "", 0);
+  final MetricMutableCounterInt mapsLaunched = registry.newCounter("maps_launched", "", 0);
+  final MetricMutableCounterInt mapsCompleted = registry.newCounter("maps_completed", "", 0);
+  final MetricMutableCounterInt mapsFailed = registry.newCounter("maps_failed", "", 0);
+  final MetricMutableCounterInt redsLaunched = registry.newCounter("reduces_launched", "", 0);
+  final MetricMutableCounterInt redsCompleted = registry.newCounter("reduces_completed", "", 0);
+  final MetricMutableCounterInt redsFailed = registry.newCounter("reduces_failed", "", 0);
+  final MetricMutableCounterInt jobsSubmitted = registry.newCounter("jobs_submitted", "", 0);
+  final MetricMutableCounterInt jobsCompleted = registry.newCounter("jobs_completed", "", 0);
+  final MetricMutableGaugeInt waitingMaps = registry.newGauge("waiting_maps", "", 0);
+  final MetricMutableGaugeInt waitingReds = registry.newGauge("waiting_reduces", "", 0);
+  final MetricMutableGaugeInt reservedMapSlots = registry.newGauge("reserved_map_slots", "", 0);
+  final MetricMutableGaugeInt reservedRedSlots = registry.newGauge("reserved_reduce_slots", "", 0);
+  final MetricMutableGaugeInt occupiedMapSlots = registry.newGauge("occupied_map_slots", "", 0);
+  final MetricMutableGaugeInt occupiedRedSlots = registry.newGauge("occupied_reduce_slots", "", 0);
+  final MetricMutableCounterInt jobsFailed = registry.newCounter("jobs_failed", "", 0);
+  final MetricMutableCounterInt jobsKilled = registry.newCounter("jobs_killed", "", 0);
+  final MetricMutableGaugeInt jobsPreparing = registry.newGauge("jobs_preparing", "", 0);
+  final MetricMutableGaugeInt jobsRunning = registry.newGauge("jobs_running", "", 0);
+  final MetricMutableGaugeInt runningMaps = registry.newGauge("running_maps", "", 0);
+  final MetricMutableGaugeInt runningReds = registry.newGauge("running_reduces", "", 0);
+  final MetricMutableCounterInt mapsKilled = registry.newCounter("maps_killed", "", 0);
+  final MetricMutableCounterInt redsKilled = registry.newCounter("reduces_killed", "", 0);
+  final MetricMutableGaugeInt numTrackers = registry.newGauge("trackers", "", 0);
+  final MetricMutableGaugeInt blacklistedTrackers = registry.newGauge("trackers_blacklisted", "", 0);
+  final MetricMutableGaugeInt graylistedTrackers = registry.newGauge("trackers_graylisted", "", 0);
+  final MetricMutableGaugeInt decTrackers = registry.newGauge("trackers_decommissioned", "", 0);
+  final MetricMutableCounterLong numHeartbeats = registry.newCounter("heartbeats", "", 0L);
 
   final String sessionId;
 
@@ -170,7 +139,7 @@ class JobTrackerMetricsSource extends JobTrackerInstrumentation
   }
 
   @Override
-  public void decWaitingReduces(JobID id, int task){
+  public void decWaitingReduces(JobID id, int task) {
     waitingReds.decr(task);
   }
 
@@ -185,22 +154,22 @@ class JobTrackerMetricsSource extends JobTrackerInstrumentation
   }
 
   @Override
-  public void addBlackListedMapSlots(int slots){
+  public void addBlackListedMapSlots(int slots) {
     blMapSlots.incr(slots);
   }
 
   @Override
-  public void decBlackListedMapSlots(int slots){
+  public void decBlackListedMapSlots(int slots) {
     blMapSlots.decr(slots);
   }
 
   @Override
-  public void addBlackListedReduceSlots(int slots){
+  public void addBlackListedReduceSlots(int slots) {
     blRedSlots.incr(slots);
   }
 
   @Override
-  public void decBlackListedReduceSlots(int slots){
+  public void decBlackListedReduceSlots(int slots) {
     blRedSlots.decr(slots);
   }
 
