@@ -36,10 +36,10 @@ public class JobProfile implements Writable {
 
   static {                                      // register a ctor
     WritableFactories.setFactory
-      (JobProfile.class,
-       new WritableFactory() {
-         public Writable newInstance() { return new JobProfile(); }
-       });
+    (JobProfile.class,
+    new WritableFactory() {
+      public Writable newInstance() { return new JobProfile(); }
+    });
   }
 
   String user;
@@ -48,7 +48,7 @@ public class JobProfile implements Writable {
   String url;
   String name;
   String queueName;
-  
+
   /**
    * Construct an empty {@link JobProfile}.
    */
@@ -57,33 +57,33 @@ public class JobProfile implements Writable {
   }
 
   /**
-   * Construct a {@link JobProfile} the userid, jobid, 
-   * job config-file, job-details url and job name. 
-   * 
+   * Construct a {@link JobProfile} the userid, jobid,
+   * job config-file, job-details url and job name.
+   *
    * @param user userid of the person who submitted the job.
    * @param jobid id of the job.
-   * @param jobFile job configuration file. 
+   * @param jobFile job configuration file.
    * @param url link to the web-ui for details of the job.
    * @param name user-specified job name.
    */
-  public JobProfile(String user, org.apache.hadoop.mapreduce.JobID jobid, 
+  public JobProfile(String user, org.apache.hadoop.mapreduce.JobID jobid,
                     String jobFile, String url,
                     String name) {
     this(user, jobid, jobFile, url, name, JobConf.DEFAULT_QUEUE_NAME);
   }
 
   /**
-   * Construct a {@link JobProfile} the userid, jobid, 
-   * job config-file, job-details url and job name. 
-   * 
+   * Construct a {@link JobProfile} the userid, jobid,
+   * job config-file, job-details url and job name.
+   *
    * @param user userid of the person who submitted the job.
    * @param jobid id of the job.
-   * @param jobFile job configuration file. 
+   * @param jobFile job configuration file.
    * @param url link to the web-ui for details of the job.
    * @param name user-specified job name.
    * @param queueName name of the queue to which the job is submitted
    */
-  public JobProfile(String user, org.apache.hadoop.mapreduce.JobID jobid, 
+  public JobProfile(String user, org.apache.hadoop.mapreduce.JobID jobid,
                     String jobFile, String url,
                     String name, String queueName) {
     this.user = user;
@@ -93,23 +93,22 @@ public class JobProfile implements Writable {
     this.name = name;
     this.queueName = queueName;
   }
-  
+
   /**
    * @deprecated use JobProfile(String, JobID, String, String, String) instead
    */
   @Deprecated
-  public JobProfile(String user, String jobid, String jobFile, String url,
-      String name) {
+  public JobProfile(String user, String jobid, String jobFile, String url, String name) {
     this(user, JobID.forName(jobid), jobFile, url, name);
   }
-  
+
   /**
    * Get the user id.
    */
   public String getUser() {
     return user;
   }
-    
+
   /**
    * Get the job id.
    */
@@ -124,7 +123,7 @@ public class JobProfile implements Writable {
   public String getJobId() {
     return jobid.toString();
   }
-  
+
   /**
    * Get the configuration file for the job.
    */
@@ -149,7 +148,7 @@ public class JobProfile implements Writable {
   public String getJobName() {
     return name;
   }
-  
+
   /**
    * Get the name of the queue to which the job is submitted.
    * @return name of the queue.
@@ -157,10 +156,8 @@ public class JobProfile implements Writable {
   public String getQueueName() {
     return queueName;
   }
-  
-  ///////////////////////////////////////
+
   // Writable
-  ///////////////////////////////////////
   public void write(DataOutput out) throws IOException {
     jobid.write(out);
     Text.writeString(out, jobFile);

@@ -25,9 +25,9 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 /**
- * Class that contains the information regarding the Job Queues which are 
+ * Class that contains the information regarding the Job Queues which are
  * maintained by the Hadoop Map/Reduce framework.
- * 
+ *
  */
 
 public class JobQueueInfo implements Writable {
@@ -48,7 +48,7 @@ public class JobQueueInfo implements Writable {
   /**
    * Construct a new JobQueueInfo object using the queue name and the
    * scheduling information passed.
-   * 
+   *
    * @param queueName Name of the job queue
    * @param schedulingInfo Scheduling Information associated with the job
    * queue
@@ -57,11 +57,11 @@ public class JobQueueInfo implements Writable {
     this.queueName = queueName;
     this.schedulingInfo = schedulingInfo;
   }
-  
-  
+
+
   /**
    * Set the queue name of the JobQueueInfo
-   * 
+   *
    * @param queueName Name of the job queue.
    */
   public void setQueueName(String queueName) {
@@ -70,7 +70,7 @@ public class JobQueueInfo implements Writable {
 
   /**
    * Get the queue name from JobQueueInfo
-   * 
+   *
    * @return queue name
    */
   public String getQueueName() {
@@ -79,25 +79,25 @@ public class JobQueueInfo implements Writable {
 
   /**
    * Set the scheduling information associated to particular job queue
-   * 
+   *
    * @param schedulingInfo
    */
   public void setSchedulingInfo(String schedulingInfo) {
     this.schedulingInfo = (schedulingInfo != null)
-      ? schedulingInfo
-      : EMPTY_INFO;
+                          ? schedulingInfo
+                          : EMPTY_INFO;
   }
 
   /**
    * Gets the scheduling information associated to particular job queue.
    * If nothing is set would return <b>"N/A"</b>
-   * 
+   *
    * @return Scheduling information associated to particular Job Queue
    */
   public String getSchedulingInfo() {
     return schedulingInfo;
   }
-  
+
   /**
    * Set the state of the queue
    * @param state state of the queue.
