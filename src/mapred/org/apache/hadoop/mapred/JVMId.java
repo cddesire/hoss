@@ -32,21 +32,21 @@ class JVMId extends ID {
     idFormat.setGroupingUsed(false);
     idFormat.setMinimumIntegerDigits(6);
   }
-  
+
   public JVMId(JobID jobId, boolean isMap, int id) {
     super(id);
     this.isMap = isMap;
     this.jobId = jobId;
   }
-  
+
   public JVMId (String jtIdentifier, int jobId, boolean isMap, int id) {
     this(new JobID(jtIdentifier, jobId), isMap, id);
   }
-    
-  public JVMId() { 
+
+  public JVMId() {
     jobId = new JobID();
   }
-  
+
   public boolean isMapJVM() {
     return isMap;
   }
@@ -54,25 +54,23 @@ class JVMId extends ID {
     return jobId;
   }
   public boolean equals(Object o) {
-    if(o == null)
+    if (o == null)
       return false;
-    if(o.getClass().equals(JVMId.class)) {
+    if (o.getClass().equals(JVMId.class)) {
       JVMId that = (JVMId)o;
-      return this.id==that.id
-        && this.isMap == that.isMap
-        && this.jobId.equals(that.jobId);
-    }
-    else return false;
+      return this.id == that.id && this.isMap == that.isMap && this.jobId.equals(that.jobId);
+    } else 
+      return false;
   }
 
-  /**Compare TaskInProgressIds by first jobIds, then by tip numbers. Reduces are 
+  /**Compare TaskInProgressIds by first jobIds, then by tip numbers. Reduces are
    * defined as greater then maps.*/
   @Override
   public int compareTo(org.apache.hadoop.mapreduce.ID o) {
     JVMId that = (JVMId)o;
     int jobComp = this.jobId.compareTo(that.jobId);
-    if(jobComp == 0) {
-      if(this.isMap == that.isMap) {
+    if (jobComp == 0) {
+      if (this.isMap == that.isMap) {
         return this.id - that.id;
       } else {
         return this.isMap ? -1 : 1;
@@ -81,9 +79,9 @@ class JVMId extends ID {
       return jobComp;
     }
   }
-  
+
   @Override
-  public String toString() { 
+  public String toString() {
     return appendTo(new StringBuilder(JVM)).toString();
   }
 
@@ -94,17 +92,17 @@ class JVMId extends ID {
    */
   protected StringBuilder appendTo(StringBuilder builder) {
     return jobId.appendTo(builder).
-                 append(SEPARATOR).
-                 append(isMap ? 'm' : 'r').
-                 append(SEPARATOR).
-                 append(idFormat.format(id));
+           append(SEPARATOR).
+           append(isMap ? 'm' : 'r').
+           append(SEPARATOR).
+           append(idFormat.format(id));
   }
-  
+
   @Override
   public int hashCode() {
     return jobId.hashCode() * 11 + id;
   }
-  
+
   @Override
   public void readFields(DataInput in) throws IOException {
     super.readFields(in);
@@ -118,31 +116,29 @@ class JVMId extends ID {
     jobId.write(out);
     out.writeBoolean(isMap);
   }
-  
-  /** Construct a JVMId object from given string 
+
+  /** Construct a JVMId object from given string
    * @return constructed JVMId object or null if the given String is null
    * @throws IllegalArgumentException if the given string is malformed
    */
-  public static JVMId forName(String str) 
-    throws IllegalArgumentException {
-    if(str == null)
+  public static JVMId forName(String str)
+  throws IllegalArgumentException {
+    if (str == null)
       return null;
     try {
       String[] parts = str.split("_");
-      if(parts.length == 5) {
-        if(parts[0].equals(JVM)) {
+      if (parts.length == 5) {
+        if (parts[0].equals(JVM)) {
           boolean isMap = false;
-          if(parts[3].equals("m")) isMap = true;
-          else if(parts[3].equals("r")) isMap = false;
+          if (parts[3].equals("m")) isMap = true;
+          else if (parts[3].equals("r")) isMap = false;
           else throw new Exception();
-          return new JVMId(parts[1], Integer.parseInt(parts[2]),
-              isMap, Integer.parseInt(parts[4]));
+          return new JVMId(parts[1], Integer.parseInt(parts[2]), isMap, Integer.parseInt(parts[4]));
         }
       }
-    }catch (Exception ex) {//fall below
+    } catch (Exception ex) {//fall below
     }
-    throw new IllegalArgumentException("TaskId string : " + str 
-        + " is not properly formed");
+    throw new IllegalArgumentException("TaskId string : " + str + " is not properly formed");
   }
 
 }

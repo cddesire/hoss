@@ -29,8 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 class JvmContext implements Writable {
 
-  public static final Log LOG =
-    LogFactory.getLog(JvmContext.class);
+  public static final Log LOG = LogFactory.getLog(JvmContext.class);
   
   JVMId jvmId;
   String pid;
