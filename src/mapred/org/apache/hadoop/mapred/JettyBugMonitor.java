@@ -35,13 +35,13 @@ import org.mortbay.jetty.nio.SelectChannelConnector;
  * HTTP content is being served. Given that this bug has been
  * active in Jetty/JDK for a long time with no resolution in site,
  * this class provides a temporary workaround.
- * 
+ *
  * Upon detecting the selector thread spinning, it simply exits the
  * JVM with a Fatal message.
  */
 class JettyBugMonitor extends Thread {
   private final static Log LOG = LogFactory.getLog(
-      JettyBugMonitor.class);
+                                   JettyBugMonitor.class);
 
   private static final ThreadMXBean threadBean =
     ManagementFactory.getThreadMXBean();
@@ -49,12 +49,12 @@ class JettyBugMonitor extends Thread {
   private static final String CHECK_ENABLED_KEY =
     "mapred.tasktracker.jetty.cpu.check.enabled";
   private static final boolean CHECK_ENABLED_DEFAULT = true;
-  
+
   static final String CHECK_INTERVAL_KEY =
     "mapred.tasktracker.jetty.cpu.check.interval";
-  private static final long CHECK_INTERVAL_DEFAULT = 15*1000;
-  private long checkInterval; 
-  
+  private static final long CHECK_INTERVAL_DEFAULT = 15 * 1000;
+  private long checkInterval;
+
   private static final String WARN_THRESHOLD_KEY =
     "mapred.tasktracker.jetty.cpu.threshold.warn";
   private static final float WARN_THRESHOLD_DEFAULT = 0.50f;
@@ -64,7 +64,7 @@ class JettyBugMonitor extends Thread {
     "mapred.tasktracker.jetty.cpu.threshold.fatal";
   private static final float FATAL_THRESHOLD_DEFAULT = 0.90f;
   private float fatalThreshold;
-  
+
   private boolean stopping = false;
 
   /**
@@ -75,27 +75,27 @@ class JettyBugMonitor extends Thread {
     if (!conf.getBoolean(CHECK_ENABLED_KEY, CHECK_ENABLED_DEFAULT))  {
       return null;
     }
-    
+
     if (!threadBean.isThreadCpuTimeSupported()) {
       LOG.info("Not starting monitor for Jetty bug since thread CPU time " +
-          "measurement is not supported by this JVM");
+               "measurement is not supported by this JVM");
       return null;
     }
     return new JettyBugMonitor(conf);
   }
-  
+
   JettyBugMonitor(Configuration conf) {
     setName("Monitor for Jetty bugs");
     setDaemon(true);
-    
+
     this.warnThreshold = conf.getFloat(
-        WARN_THRESHOLD_KEY, WARN_THRESHOLD_DEFAULT);
+                           WARN_THRESHOLD_KEY, WARN_THRESHOLD_DEFAULT);
     this.fatalThreshold = conf.getFloat(
-        FATAL_THRESHOLD_KEY, FATAL_THRESHOLD_DEFAULT);
+                            FATAL_THRESHOLD_KEY, FATAL_THRESHOLD_DEFAULT);
     this.checkInterval = conf.getLong(
-        CHECK_INTERVAL_KEY, CHECK_INTERVAL_DEFAULT);
+                           CHECK_INTERVAL_KEY, CHECK_INTERVAL_DEFAULT);
   }
-  
+
   @Override
   public void run() {
     try {
@@ -109,7 +109,7 @@ class JettyBugMonitor extends Thread {
     }
     LOG.debug("JettyBugMonitor shutting down");
   }
-  
+
   private void doRun() throws InterruptedException {
     List<Long> tids = waitForJettyThreads();
     if (tids.isEmpty()) {
@@ -124,7 +124,7 @@ class JettyBugMonitor extends Thread {
       }
     }
   }
-  
+
   /**
    * Monitor the given list of threads, summing their CPU usage.
    * If the usage exceeds the configured threshold, aborts the JVM.
@@ -134,8 +134,8 @@ class JettyBugMonitor extends Thread {
    *         running
    */
   private void monitorThreads(List<Long> tids)
-      throws InterruptedException, ThreadNotRunningException {
-    
+  throws InterruptedException, ThreadNotRunningException {
+
     long timeBefore = System.nanoTime();
     long usageBefore = getCpuUsageNanos(tids);
     while (true) {
@@ -145,14 +145,14 @@ class JettyBugMonitor extends Thread {
 
       long delta = usageAfter - usageBefore;
       double percentCpu = (double)delta / (timeAfter - timeBefore);
-      
+
       String msg = String.format("Jetty CPU usage: %.1f%%", percentCpu * 100);
       if (percentCpu > fatalThreshold) {
         LOG.fatal(
-            "************************************************************\n" +
-            msg + ". This is greater than the fatal threshold " +
-            FATAL_THRESHOLD_KEY + ". Aborting JVM.\n" +
-            "************************************************************");
+          "************************************************************\n" +
+          msg + ". This is greater than the fatal threshold " +
+          FATAL_THRESHOLD_KEY + ". Aborting JVM.\n" +
+          "************************************************************");
         doAbort();
       } else if (percentCpu > warnThreshold) {
         LOG.warn(msg);
@@ -164,7 +164,7 @@ class JettyBugMonitor extends Thread {
       timeBefore = timeAfter;
     }
   }
-  
+
   protected void doAbort() {
     Runtime.getRuntime().exit(1);
   }
@@ -185,7 +185,7 @@ class JettyBugMonitor extends Thread {
   }
 
   private static long getCpuUsageNanos(List<Long> tids)
-      throws ThreadNotRunningException {
+  throws ThreadNotRunningException {
     long total = 0;
     for (long tid : tids) {
       long time = threadBean.getThreadCpuTime(tid);
@@ -219,17 +219,17 @@ class JettyBugMonitor extends Thread {
       // compare class names instead of classses, since
       // jetty uses a different classloader
       if (SelectChannelConnector.class.getName().equals(
-          stack.getClassName())) {
+            stack.getClassName())) {
         LOG.debug("Thread #" + tid + " (" + info.getThreadName() + ") " +
-            "is a Jetty selector thread.");
+                  "is a Jetty selector thread.");
         return true;
       }
     }
     LOG.debug("Thread #" + tid + " (" + info.getThreadName() + ") " +
-      "is not a jetty thread");
+              "is not a jetty thread");
     return false;
   }
-  
+
   private static class ThreadNotRunningException extends Exception {
     private static final long serialVersionUID = 1L;
   }

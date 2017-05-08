@@ -91,11 +91,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 /**
  * <code>JobClient</code> is the primary interface for the user-job to interact
  * with the {@link JobTracker}.
- * 
- * <code>JobClient</code> provides facilities to submit jobs, track their 
+ *
+ * <code>JobClient</code> provides facilities to submit jobs, track their
  * progress, access component-tasks' reports/logs, get the Map-Reduce cluster
  * status information etc.
- * 
+ *
  * <p>The job submission process involves:
  * <ol>
  *   <li>
@@ -105,59 +105,59 @@ import org.codehaus.jackson.map.ObjectMapper;
  *   Computing the {@link InputSplit}s for the job.
  *   </li>
  *   <li>
- *   Setup the requisite accounting information for the {@link DistributedCache} 
+ *   Setup the requisite accounting information for the {@link DistributedCache}
  *   of the job, if necessary.
  *   </li>
  *   <li>
- *   Copying the job's jar and configuration to the map-reduce system directory 
- *   on the distributed file-system. 
+ *   Copying the job's jar and configuration to the map-reduce system directory
+ *   on the distributed file-system.
  *   </li>
  *   <li>
  *   Submitting the job to the <code>JobTracker</code> and optionally monitoring
  *   it's status.
  *   </li>
  * </ol></p>
- *  
+ *
  * Normally the user creates the application, describes various facets of the
- * job via {@link JobConf} and then uses the <code>JobClient</code> to submit 
+ * job via {@link JobConf} and then uses the <code>JobClient</code> to submit
  * the job and monitor its progress.
- * 
+ *
  * <p>Here is an example on how to use <code>JobClient</code>:</p>
  * <p><blockquote><pre>
  *     // Create a new JobConf
  *     JobConf job = new JobConf(new Configuration(), MyJob.class);
- *     
- *     // Specify various job-specific parameters     
+ *
+ *     // Specify various job-specific parameters
  *     job.setJobName("myjob");
- *     
+ *
  *     job.setInputPath(new Path("in"));
  *     job.setOutputPath(new Path("out"));
- *     
+ *
  *     job.setMapperClass(MyJob.MyMapper.class);
  *     job.setReducerClass(MyJob.MyReducer.class);
  *
  *     // Submit the job, then poll for progress until the job is complete
  *     JobClient.runJob(job);
  * </pre></blockquote></p>
- * 
+ *
  * <h4 id="JobControl">Job Control</h4>
- * 
- * <p>At times clients would chain map-reduce jobs to accomplish complex tasks 
- * which cannot be done via a single map-reduce job. This is fairly easy since 
- * the output of the job, typically, goes to distributed file-system and that 
+ *
+ * <p>At times clients would chain map-reduce jobs to accomplish complex tasks
+ * which cannot be done via a single map-reduce job. This is fairly easy since
+ * the output of the job, typically, goes to distributed file-system and that
  * can be used as the input for the next job.</p>
- * 
- * <p>However, this also means that the onus on ensuring jobs are complete 
- * (success/failure) lies squarely on the clients. In such situations the 
+ *
+ * <p>However, this also means that the onus on ensuring jobs are complete
+ * (success/failure) lies squarely on the clients. In such situations the
  * various job-control options are:
  * <ol>
  *   <li>
- *   {@link #runJob(JobConf)} : submits the job and returns only after 
+ *   {@link #runJob(JobConf)} : submits the job and returns only after
  *   the job has completed.
  *   </li>
  *   <li>
- *   {@link #submitJob(JobConf)} : only submits the job, then poll the 
- *   returned handle to the {@link RunningJob} to query status and make 
+ *   {@link #submitJob(JobConf)} : only submits the job, then poll the
+ *   returned handle to the {@link RunningJob} to query status and make
  *   scheduling decisions.
  *   </li>
  *   <li>
@@ -165,7 +165,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  *   on job-completion, thus avoiding polling.
  *   </li>
  * </ol></p>
- * 
+ *
  * @see JobConf
  * @see ClusterStatus
  * @see Tool
@@ -174,10 +174,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class JobClient extends Configured implements MRConstants, Tool  {
   private static final Log LOG = LogFactory.getLog(JobClient.class);
   public static enum TaskStatusFilter { NONE, KILLED, FAILED, SUCCEEDED, ALL }
-  private TaskStatusFilter taskOutputFilter = TaskStatusFilter.FAILED; 
+  private TaskStatusFilter taskOutputFilter = TaskStatusFilter.FAILED;
   private static final long MAX_JOBPROFILE_AGE = 1000 * 2;
 
-  static{
+  static {
     Configuration.addDefaultResource("mapred-default.xml");
     Configuration.addDefaultResource("mapred-site.xml");
   }
@@ -204,18 +204,18 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       this.status = job;
       this.profile = prof;
       this.jobSubmitClient = jobSubmitClient;
-      if(this.status == null) {
+      if (this.status == null) {
         throw new IOException("The Job status cannot be null");
       }
-      if(this.profile == null) {
+      if (this.profile == null) {
         throw new IOException("The Job profile cannot be null");
       }
-      if(this.jobSubmitClient == null) {
+      if (this.jobSubmitClient == null) {
         throw new IOException("The Job Submission Protocol cannot be null");
       }
       this.statustime = System.currentTimeMillis();
     }
-    
+
     /**
      * Some methods rely on having a recent job profile object.  Refresh
      * it, if necessary
@@ -225,15 +225,15 @@ public class JobClient extends Configured implements MRConstants, Tool  {
         updateStatus();
       }
     }
-    
+
     /** Some methods need to update status immediately. So, refresh
      * immediately
      * @throws IOException
      */
     synchronized void updateStatus() throws IOException {
       this.status = jobSubmitClient.getJobStatus(profile.getJobID());
-      if(this.status == null) {
-        throw new IOException("The job appears to have been removed."); 
+      if (this.status == null) {
+        throw new IOException("The job appears to have been removed.");
       }
       this.statustime = System.currentTimeMillis();
     }
@@ -244,14 +244,14 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     public JobID getID() {
       return profile.getJobID();
     }
-    
-    /** @deprecated This method is deprecated and will be removed. Applications should 
+
+    /** @deprecated This method is deprecated and will be removed. Applications should
      * rather use {@link #getID()}.*/
     @Deprecated
     public String getJobID() {
       return profile.getJobID().toString();
     }
-    
+
     /**
      * The user-specified job name
      */
@@ -346,23 +346,23 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       updateStatus();
       return status.getRunState();
     }
-    
+
     /**
      * Tells the service to terminate the current job.
      */
     public synchronized void killJob() throws IOException {
       jobSubmitClient.killJob(getID());
     }
-   
-    
+
+
     /** Set the priority of the job.
-    * @param priority new priority of the job. 
+    * @param priority new priority of the job.
     */
-    public synchronized void setJobPriority(String priority) 
-                                                throws IOException {
+    public synchronized void setJobPriority(String priority)
+    throws IOException {
       jobSubmitClient.setJobPriority(getID(), priority);
     }
-    
+
     /**
      * Kill indicated task attempt.
      * @param taskId the id of the task to kill.
@@ -378,14 +378,14 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     public synchronized void killTask(String taskId, boolean shouldFail) throws IOException {
       killTask(TaskAttemptID.forName(taskId), shouldFail);
     }
-    
+
     /**
-     * Fetch task completion events from jobtracker for this job. 
+     * Fetch task completion events from jobtracker for this job.
      */
     public synchronized TaskCompletionEvent[] getTaskCompletionEvents(
-                                                                      int startFrom) throws IOException{
+      int startFrom) throws IOException {
       return jobSubmitClient.getTaskCompletionEvents(
-                                                     getID(), startFrom, 10); 
+               getID(), startFrom, 10);
     }
 
     /**
@@ -397,22 +397,22 @@ public class JobClient extends Configured implements MRConstants, Tool  {
         updateStatus();
       } catch (IOException e) {
       }
-      return "Job: " + profile.getJobID() + "\n" + 
-        "file: " + profile.getJobFile() + "\n" + 
-        "tracking URL: " + profile.getURL() + "\n" + 
-        "map() completion: " + status.mapProgress() + "\n" + 
-        "reduce() completion: " + status.reduceProgress() + "\n" +
-        ((status.getRunState() == JobStatus.FAILED) ? ("Failure Info: " + status.getFailureInfo()) : "");
-      
+      return "Job: " + profile.getJobID() + "\n" +
+             "file: " + profile.getJobFile() + "\n" +
+             "tracking URL: " + profile.getURL() + "\n" +
+             "map() completion: " + status.mapProgress() + "\n" +
+             "reduce() completion: " + status.reduceProgress() + "\n" +
+             ((status.getRunState() == JobStatus.FAILED) ? ("Failure Info: " + status.getFailureInfo()) : "");
+
     }
-        
+
     /**
      * Returns the counters for this job
      */
     public Counters getCounters() throws IOException {
       return jobSubmitClient.getJobCounters(getID());
     }
-    
+
     @Override
     public String[] getTaskDiagnostics(TaskAttemptID id) throws IOException {
       return jobSubmitClient.getTaskDiagnostics(id);
@@ -420,8 +420,8 @@ public class JobClient extends Configured implements MRConstants, Tool  {
 
     @Override
     public String getFailureInfo() throws IOException {
-      //assuming that this is just being called after 
-      //we realized the job failed. SO we try avoiding 
+      //assuming that this is just being called after
+      //we realized the job failed. SO we try avoiding
       //a rpc by not calling updateStatus
       ensureFreshStatus();
       return status.getFailureInfo();
@@ -431,10 +431,10 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   private JobSubmissionProtocol jobSubmitClient;
   private Path sysDir = null;
   private Path stagingAreaDir = null;
-  
+
   private FileSystem fs = null;
   private UserGroupInformation ugi;
-  private static final String TASKLOG_PULL_TIMEOUT_KEY = 
+  private static final String TASKLOG_PULL_TIMEOUT_KEY =
     "mapreduce.client.tasklog.timeout";
   private static final int DEFAULT_TASKLOG_TIMEOUT = 60000;
   static int tasklogtimeout;
@@ -444,11 +444,11 @@ public class JobClient extends Configured implements MRConstants, Tool  {
    */
   public JobClient() {
   }
-    
+
   /**
-   * Build a job client with the given {@link JobConf}, and connect to the 
+   * Build a job client with the given {@link JobConf}, and connect to the
    * default {@link JobTracker}.
-   * 
+   *
    * @param conf the job configuration.
    * @throws IOException
    */
@@ -465,22 +465,22 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   public void init(JobConf conf) throws IOException {
     String tracker = conf.get("mapred.job.tracker", "local");
     tasklogtimeout = conf.getInt(
-      TASKLOG_PULL_TIMEOUT_KEY, DEFAULT_TASKLOG_TIMEOUT);
+                       TASKLOG_PULL_TIMEOUT_KEY, DEFAULT_TASKLOG_TIMEOUT);
     this.ugi = UserGroupInformation.getCurrentUser();
     if ("local".equals(tracker)) {
       conf.setNumMapTasks(1);
       this.jobSubmitClient = new LocalJobRunner(conf);
     } else {
       this.jobSubmitClient = createRPCProxy(JobTracker.getAddress(conf), conf);
-    }        
+    }
   }
 
   private static JobSubmissionProtocol createRPCProxy(InetSocketAddress addr,
       Configuration conf) throws IOException {
     return (JobSubmissionProtocol) RPC.getProxy(JobSubmissionProtocol.class,
-        JobSubmissionProtocol.versionID, addr, 
-        UserGroupInformation.getCurrentUser(), conf,
-        NetUtils.getSocketFactory(conf, JobSubmissionProtocol.class));
+           JobSubmissionProtocol.versionID, addr,
+           UserGroupInformation.getCurrentUser(), conf,
+           NetUtils.getSocketFactory(conf, JobSubmissionProtocol.class));
   }
 
   @InterfaceAudience.Private
@@ -494,7 +494,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     @SuppressWarnings("unchecked")
     @Override
     public long renew(Token<?> token, Configuration conf
-                      ) throws IOException, InterruptedException {
+                     ) throws IOException, InterruptedException {
       InetSocketAddress addr = SecurityUtil.getTokenServiceAddr(token);
       JobSubmissionProtocol jt = createRPCProxy(addr, conf);
       return jt.renewDelegationToken((Token<DelegationTokenIdentifier>) token);
@@ -503,7 +503,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     @SuppressWarnings("unchecked")
     @Override
     public void cancel(Token<?> token, Configuration conf
-                       ) throws IOException, InterruptedException {
+                      ) throws IOException, InterruptedException {
       InetSocketAddress addr = SecurityUtil.getTokenServiceAddr(token);
       JobSubmissionProtocol jt = createRPCProxy(addr, conf);
       jt.cancelDelegationToken((Token<DelegationTokenIdentifier>) token);
@@ -512,23 +512,23 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     @Override
     public boolean isManaged(Token<?> token) throws IOException {
       ByteArrayInputStream buf = new ByteArrayInputStream(token.getIdentifier());
-      DelegationTokenIdentifier id = new DelegationTokenIdentifier(); 
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier();
       id.readFields(new DataInputStream(buf));
       // AbstractDelegationToken converts given renewer to a short name, but
       // AbstractDelegationTokenSecretManager does not, so we have to do it
       String loginUser = UserGroupInformation.getLoginUser().getShortUserName();
       return loginUser.equals(id.getRenewer().toString());
     }
-    
+
   }
 
   /**
    * Build a job client, connect to the indicated job tracker.
-   * 
+   *
    * @param jobTrackAddr the job tracker to connect to.
    * @param conf configuration.
    */
-  public JobClient(InetSocketAddress jobTrackAddr, 
+  public JobClient(InetSocketAddress jobTrackAddr,
                    Configuration conf) throws IOException {
     this.ugi = UserGroupInformation.getCurrentUser();
     jobSubmitClient = createRPCProxy(jobTrackAddr, conf);
@@ -546,9 +546,9 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   /**
    * Get a filesystem handle.  We need this to prepare jobs
    * for submission to the MapReduce system.
-   * 
+   *
    * @return the filesystem handle.
-   * @throws IOException 
+   * @throws IOException
    */
   public synchronized FileSystem getFs() throws IOException {
     if (this.fs == null) {
@@ -565,7 +565,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     }
     return this.fs;
   }
-  
+
   /* see if two file systems are the same or not
    *
    */
@@ -578,23 +578,21 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     if (!srcUri.getScheme().equals(dstUri.getScheme())) {
       return false;
     }
-    String srcHost = srcUri.getHost();    
+    String srcHost = srcUri.getHost();
     String dstHost = dstUri.getHost();
     if ((srcHost != null) && (dstHost != null)) {
       try {
         srcHost = InetAddress.getByName(srcHost).getCanonicalHostName();
         dstHost = InetAddress.getByName(dstHost).getCanonicalHostName();
-      } catch(UnknownHostException ue) {
+      } catch (UnknownHostException ue) {
         return false;
       }
       if (!srcHost.equals(dstHost)) {
         return false;
       }
-    }
-    else if (srcHost == null && dstHost != null) {
+    } else if (srcHost == null && dstHost != null) {
       return false;
-    }
-    else if (srcHost != null && dstHost == null) {
+    } else if (srcHost != null && dstHost == null) {
       return false;
     }
     //check for ports
@@ -606,18 +604,18 @@ public class JobClient extends Configured implements MRConstants, Tool  {
 
   // copies a file to the jobtracker filesystem and returns the path where it
   // was copied to
-  private Path copyRemoteFiles(FileSystem jtFs, Path parentDir, 
-      final Path originalPath, final JobConf job, short replication) 
+  private Path copyRemoteFiles(FileSystem jtFs, Path parentDir,
+                               final Path originalPath, final JobConf job, short replication)
   throws IOException, InterruptedException {
     //check if we do not need to copy the files
     // is jt using the same file system.
-    // just checking for uri strings... doing no dns lookups 
+    // just checking for uri strings... doing no dns lookups
     // to see if the filesystems are the same. This is not optimal.
     // but avoids name resolution.
-    
+
     FileSystem remoteFs = null;
     remoteFs = originalPath.getFileSystem(job);
-    
+
     if (compareFs(remoteFs, jtFs)) {
       return originalPath;
     }
@@ -628,9 +626,9 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     jtFs.setReplication(newPath, replication);
     return newPath;
   }
- 
+
   private URI getPathURI(Path destPath, String fragment)
-      throws URISyntaxException {
+  throws URISyntaxException {
     URI pathURI = destPath.toUri();
     if (pathURI.getFragment() == null) {
       if (fragment == null) {
@@ -643,26 +641,26 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   }
 
   /**
-   * configure the jobconf of the user with the command line options of 
+   * configure the jobconf of the user with the command line options of
    * -libjars, -files, -archives
    * @param job the JobConf
    * @param submitJobDir
    * @throws IOException
    */
-  private void copyAndConfigureFiles(JobConf job, Path jobSubmitDir) 
+  private void copyAndConfigureFiles(JobConf job, Path jobSubmitDir)
   throws IOException, InterruptedException {
     short replication = (short)job.getInt("mapred.submit.replication", 10);
     copyAndConfigureFiles(job, jobSubmitDir, replication);
 
     // Set the working directory
     if (job.getWorkingDirectory() == null) {
-      job.setWorkingDirectory(fs.getWorkingDirectory());          
+      job.setWorkingDirectory(fs.getWorkingDirectory());
     }
   }
-  
-  private void copyAndConfigureFiles(JobConf job, Path submitJobDir, 
-      short replication) throws IOException, InterruptedException {
-    
+
+  private void copyAndConfigureFiles(JobConf job, Path submitJobDir,
+                                     short replication) throws IOException, InterruptedException {
+
     if (!(job.getBoolean("mapred.used.genericoptionsparser", false))) {
       LOG.warn("Use GenericOptionsParser for parsing the arguments. " +
                "Applications should implement Tool for the same.");
@@ -677,7 +675,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     //
     // Figure out what fs the JobTracker is using.  Copy the
     // job to it, under a temporary name.  This allows DFS to work,
-    // and under the local fs also provides UNIX-like object loading 
+    // and under the local fs also provides UNIX-like object loading
     // semantics.  (that is, if the job file is deleted right after
     // submission, we can still run the submission to completion)
     //
@@ -687,8 +685,8 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     LOG.debug("default FileSystem: " + fs.getUri());
     if (fs.exists(submitJobDir)) {
       throw new IOException("Not submitting job. Job directory " + submitJobDir
-          +" already exists!! This is unexpected.Please check what's there in" +
-          " that directory");
+                            + " already exists!! This is unexpected.Please check what's there in" +
+                            " that directory");
     }
     submitJobDir = fs.makeQualified(submitJobDir);
     FsPermission mapredSysPerms = new FsPermission(JobSubmissionFiles.JOB_DIR_PERMISSION);
@@ -697,12 +695,12 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     Path archivesDir = JobSubmissionFiles.getJobDistCacheArchives(submitJobDir);
     Path libjarsDir = JobSubmissionFiles.getJobDistCacheLibjars(submitJobDir);
     // add all the command line files/ jars and archive
-    // first copy them to jobtrackers filesystem 
-    
+    // first copy them to jobtrackers filesystem
+
     if (files != null) {
       FileSystem.mkdirs(fs, filesDir, mapredSysPerms);
       String[] fileArr = files.split(",");
-      for (String tmpFile: fileArr) {
+      for (String tmpFile : fileArr) {
         URI tmpURI;
         try {
           tmpURI = new URI(tmpFile);
@@ -710,53 +708,53 @@ public class JobClient extends Configured implements MRConstants, Tool  {
           throw new IllegalArgumentException(e);
         }
         Path tmp = new Path(tmpURI);
-        Path newPath = copyRemoteFiles(fs,filesDir, tmp, job, replication);
+        Path newPath = copyRemoteFiles(fs, filesDir, tmp, job, replication);
         try {
           URI pathURI = getPathURI(newPath, tmpURI.getFragment());
           DistributedCache.addCacheFile(pathURI, job);
-        } catch(URISyntaxException ue) {
-          //should not throw a uri exception 
+        } catch (URISyntaxException ue) {
+          //should not throw a uri exception
           throw new IOException("Failed to create uri for " + tmpFile, ue);
         }
         DistributedCache.createSymlink(job);
       }
     }
-    
+
     if (libjars != null) {
       FileSystem.mkdirs(fs, libjarsDir, mapredSysPerms);
       String[] libjarsArr = libjars.split(",");
-      for (String tmpjars: libjarsArr) {
+      for (String tmpjars : libjarsArr) {
         Path tmp = new Path(tmpjars);
         Path newPath = copyRemoteFiles(fs, libjarsDir, tmp, job, replication);
         DistributedCache.addArchiveToClassPath
-          (new Path(newPath.toUri().getPath()), job, fs);
+        (new Path(newPath.toUri().getPath()), job, fs);
       }
     }
-    
-    
+
+
     if (archives != null) {
-     FileSystem.mkdirs(fs, archivesDir, mapredSysPerms); 
-     String[] archivesArr = archives.split(",");
-     for (String tmpArchives: archivesArr) {
-       URI tmpURI;
-       try {
-         tmpURI = new URI(tmpArchives);
-       } catch (URISyntaxException e) {
-         throw new IllegalArgumentException(e);
-       }
-       Path tmp = new Path(tmpURI);
-       Path newPath = copyRemoteFiles(fs, archivesDir, tmp, job, replication);
-       try {
-         URI pathURI = getPathURI(newPath, tmpURI.getFragment());
-         DistributedCache.addCacheArchive(pathURI, job);
-       } catch(URISyntaxException ue) {
-         //should not throw an uri excpetion
-         throw new IOException("Failed to create uri for " + tmpArchives, ue);
-       }
-       DistributedCache.createSymlink(job);
-     }
+      FileSystem.mkdirs(fs, archivesDir, mapredSysPerms);
+      String[] archivesArr = archives.split(",");
+      for (String tmpArchives : archivesArr) {
+        URI tmpURI;
+        try {
+          tmpURI = new URI(tmpArchives);
+        } catch (URISyntaxException e) {
+          throw new IllegalArgumentException(e);
+        }
+        Path tmp = new Path(tmpURI);
+        Path newPath = copyRemoteFiles(fs, archivesDir, tmp, job, replication);
+        try {
+          URI pathURI = getPathURI(newPath, tmpURI.getFragment());
+          DistributedCache.addCacheArchive(pathURI, job);
+        } catch (URISyntaxException ue) {
+          //should not throw an uri excpetion
+          throw new IOException("Failed to create uri for " + tmpArchives, ue);
+        }
+        DistributedCache.createSymlink(job);
+      }
     }
-    
+
     // First we check whether the cached archives and files are legal.
     TrackerDistributedCacheManager.validate(job);
     //  set the timestamps of the archives and files
@@ -764,34 +762,34 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     //  set the public/private visibility of the archives and files
     TrackerDistributedCacheManager.determineCacheVisibilities(job);
     // get DelegationTokens for cache files
-    TrackerDistributedCacheManager.getDelegationTokens(job, 
-                                                       job.getCredentials());
+    TrackerDistributedCacheManager.getDelegationTokens(job,
+        job.getCredentials());
 
     String originalJarPath = job.getJar();
 
     if (originalJarPath != null) {           // copy jar to JobTracker's fs
-      // use jar name if job is not named. 
-      if ("".equals(job.getJobName())){
+      // use jar name if job is not named.
+      if ("".equals(job.getJobName())) {
         job.setJobName(new Path(originalJarPath).getName());
       }
       Path submitJarFile = JobSubmissionFiles.getJobJar(submitJobDir);
       job.setJar(submitJarFile.toString());
       fs.copyFromLocalFile(new Path(originalJarPath), submitJarFile);
       fs.setReplication(submitJarFile, replication);
-      fs.setPermission(submitJarFile, 
-          new FsPermission(JobSubmissionFiles.JOB_FILE_PERMISSION));
+      fs.setPermission(submitJarFile,
+                       new FsPermission(JobSubmissionFiles.JOB_FILE_PERMISSION));
     } else {
-      LOG.warn("No job jar file set.  User classes may not be found. "+
+      LOG.warn("No job jar file set.  User classes may not be found. " +
                "See JobConf(Class) or JobConf#setJar(String).");
     }
   }
-  
+
   /**
    * Submit a job to the MR system.
-   * 
+   *
    * This returns a handle to the {@link RunningJob} which can be used to track
    * the running-job.
-   * 
+   *
    * @param jobFile the job configuration.
    * @return a handle to the {@link RunningJob} which can be used to track the
    *         running-job.
@@ -799,19 +797,19 @@ public class JobClient extends Configured implements MRConstants, Tool  {
    * @throws InvalidJobConfException
    * @throws IOException
    */
-  public RunningJob submitJob(String jobFile) throws FileNotFoundException, 
-                                                     InvalidJobConfException, 
-                                                     IOException {
+  public RunningJob submitJob(String jobFile) throws FileNotFoundException,
+           InvalidJobConfException,
+    IOException {
     // Load in the submitted job details
     JobConf job = new JobConf(jobFile);
     return submitJob(job);
   }
-      
+
   /**
    * Submit a job to the MR system.
    * This returns a handle to the {@link RunningJob} which can be used to track
    * the running-job.
-   * 
+   *
    * @param job the job configuration.
    * @return a handle to the {@link RunningJob} which can be used to track the
    *         running-job.
@@ -819,7 +817,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
    * @throws IOException
    */
   public RunningJob submitJob(JobConf job) throws FileNotFoundException,
-                                                  IOException {
+    IOException {
     try {
       return submitJobInternal(job);
     } catch (InterruptedException ie) {
@@ -838,23 +836,23 @@ public class JobClient extends Configured implements MRConstants, Tool  {
    * @throws InterruptedException
    * @throws IOException
    */
-  public 
+  public
   RunningJob submitJobInternal(final JobConf job
-                               ) throws FileNotFoundException, 
-                                        ClassNotFoundException,
-                                        InterruptedException,
-                                        IOException {
+                              ) throws FileNotFoundException,
+    ClassNotFoundException,
+    InterruptedException,
+    IOException {
     /*
      * configure the command line options correctly on the submitting dfs
      */
     return ugi.doAs(new PrivilegedExceptionAction<RunningJob>() {
-      public RunningJob run() throws FileNotFoundException, 
-      ClassNotFoundException,
-      InterruptedException,
-      IOException{
+      public RunningJob run() throws FileNotFoundException,
+               ClassNotFoundException,
+               InterruptedException,
+        IOException {
         JobConf jobCopy = job;
         Path jobStagingArea = JobSubmissionFiles.getStagingDir(JobClient.this,
-            jobCopy);
+                              jobCopy);
         JobID jobId = jobSubmitClient.getNewJobId();
         Path submitJobDir = new Path(jobStagingArea, jobId.toString());
         jobCopy.set("mapreduce.job.dir", submitJobDir.toString());
@@ -879,16 +877,16 @@ public class JobClient extends Configured implements MRConstants, Tool  {
           JobContext context = new JobContext(jobCopy, jobId);
 
           // Check the output specification
-          if (reduces == 0 ? jobCopy.getUseNewMapper() : 
-            jobCopy.getUseNewReducer()) {
-            org.apache.hadoop.mapreduce.OutputFormat<?,?> output =
+          if (reduces == 0 ? jobCopy.getUseNewMapper() :
+              jobCopy.getUseNewReducer()) {
+            org.apache.hadoop.mapreduce.OutputFormat<?, ?> output =
               ReflectionUtils.newInstance(context.getOutputFormatClass(),
-                  jobCopy);
+                                          jobCopy);
             output.checkOutputSpecs(context);
           } else {
             jobCopy.getOutputFormat().checkOutputSpecs(fs, jobCopy);
           }
-          
+
           jobCopy = (JobConf)context.getConfiguration();
 
           // Create the splits for the job
@@ -902,12 +900,12 @@ public class JobClient extends Configured implements MRConstants, Tool  {
           String queue = jobCopy.getQueueName();
           AccessControlList acl = jobSubmitClient.getQueueAdmins(queue);
           jobCopy.set(QueueManager.toFullPropertyName(queue,
-              QueueACL.ADMINISTER_JOBS.getAclName()), acl.getACLString());
+                      QueueACL.ADMINISTER_JOBS.getAclName()), acl.getACLString());
 
-          // Write job file to JobTracker's fs        
-          FSDataOutputStream out = 
+          // Write job file to JobTracker's fs
+          FSDataOutputStream out =
             FileSystem.create(fs, submitJobFile,
-                new FsPermission(JobSubmissionFiles.JOB_FILE_PERMISSION));
+                              new FsPermission(JobSubmissionFiles.JOB_FILE_PERMISSION));
 
           try {
             jobCopy.writeXml(out);
@@ -919,7 +917,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
           //
           printTokens(jobId, jobCopy.getCredentials());
           status = jobSubmitClient.submitJob(
-              jobId, submitJobDir.toString(), jobCopy.getCredentials());
+                     jobId, submitJobDir.toString(), jobCopy.getCredentials());
           JobProfile prof = jobSubmitClient.getJobProfile(jobId);
           if (status != null && prof != null) {
             return new NetworkedJob(status, prof, jobSubmitClient);
@@ -942,10 +940,10 @@ public class JobClient extends Configured implements MRConstants, Tool  {
                            Credentials credentials) throws IOException {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Printing tokens for job: " + jobId);
-      for(Token<?> token: credentials.getAllTokens()) {
+      for (Token<?> token : credentials.getAllTokens()) {
         if (token.getKind().toString().equals("HDFS_DELEGATION_TOKEN")) {
           LOG.debug("Submitting with " +
-              DFSClient.stringifyToken((Token<org.apache.hadoop.hdfs.security.token.delegation.DelegationTokenIdentifier>) token));
+                    DFSClient.stringifyToken((Token<org.apache.hadoop.hdfs.security.token.delegation.DelegationTokenIdentifier>) token));
         }
       }
     }
@@ -954,7 +952,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   @SuppressWarnings("unchecked")
   private <T extends InputSplit>
   int writeNewSplits(JobContext job, Path jobSubmitDir) throws IOException,
-      InterruptedException, ClassNotFoundException {
+    InterruptedException, ClassNotFoundException {
     Configuration conf = job.getConfiguration();
     InputFormat<?, ?> input =
       ReflectionUtils.newInstance(job.getInputFormatClass(), conf);
@@ -966,13 +964,13 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     // go first
     Arrays.sort(array, new SplitComparator());
     JobSplitWriter.createSplitFiles(jobSubmitDir, conf,
-        jobSubmitDir.getFileSystem(conf), array);
+                                    jobSubmitDir.getFileSystem(conf), array);
     return array.length;
   }
-  
+
   private int writeSplits(org.apache.hadoop.mapreduce.JobContext job,
-      Path jobSubmitDir) throws IOException,
-      InterruptedException, ClassNotFoundException {
+                          Path jobSubmitDir) throws IOException,
+    InterruptedException, ClassNotFoundException {
     JobConf jConf = (JobConf)job.getConfiguration();
     int maps;
     if (jConf.getUseNewMapper()) {
@@ -982,12 +980,12 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     }
     return maps;
   }
-  
+
   //method to write splits for old api mapper.
-  private int writeOldSplits(JobConf job, Path jobSubmitDir) 
+  private int writeOldSplits(JobConf job, Path jobSubmitDir)
   throws IOException {
     org.apache.hadoop.mapred.InputSplit[] splits =
-    job.getInputFormat().getSplits(job, job.getNumMapTasks());
+      job.getInputFormat().getSplits(job, job.getNumMapTasks());
     // sort the splits into order based on size, so that the biggest
     // go first
     Arrays.sort(splits, new Comparator<org.apache.hadoop.mapred.InputSplit>() {
@@ -1009,10 +1007,10 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       }
     });
     JobSplitWriter.createSplitFiles(jobSubmitDir, job,
-        jobSubmitDir.getFileSystem(job), splits);
+                                    jobSubmitDir.getFileSystem(job), splits);
     return splits.length;
   }
-  
+
   private static class SplitComparator implements Comparator<InputSplit> {
     @Override
     public int compare(InputSplit o1, InputSplit o2) {
@@ -1033,16 +1031,16 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       }
     }
   }
-  
-  /** 
-   * Checks if the job directory is clean and has all the required components 
+
+  /**
+   * Checks if the job directory is clean and has all the required components
    * for (re) starting the job
    */
-  public static boolean isJobDirValid(Path jobDirPath, FileSystem fs) 
+  public static boolean isJobDirValid(Path jobDirPath, FileSystem fs)
   throws IOException {
     FileStatus[] contents = fs.listStatus(jobDirPath);
     int matchCount = 0;
-    if (contents != null && contents.length >=2) {
+    if (contents != null && contents.length >= 2) {
       for (FileStatus status : contents) {
         if ("job.xml".equals(status.getPath().getName())) {
           ++matchCount;
@@ -1057,13 +1055,13 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     }
     return false;
   }
-    
+
   /**
    * Get an {@link RunningJob} object to track an ongoing job.  Returns
    * null if the id does not correspond to any known job.
-   * 
+   *
    * @param jobid the jobid of the job.
-   * @return the {@link RunningJob} handle to track the job, null if the 
+   * @return the {@link RunningJob} handle to track the job, null if the
    *         <code>jobid</code> doesn't correspond to any known job.
    * @throws IOException
    */
@@ -1077,16 +1075,16 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     }
   }
 
-  /**@deprecated Applications should rather use {@link #getJob(JobID)}. 
+  /**@deprecated Applications should rather use {@link #getJob(JobID)}.
    */
   @Deprecated
   public RunningJob getJob(String jobid) throws IOException {
     return getJob(JobID.forName(jobid));
   }
-  
+
   /**
    * Get the information of the current state of the map tasks of a job.
-   * 
+   *
    * @param jobId the job to query.
    * @return the list of all of the map tips.
    * @throws IOException
@@ -1094,42 +1092,42 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   public TaskReport[] getMapTaskReports(JobID jobId) throws IOException {
     return jobSubmitClient.getMapTaskReports(jobId);
   }
-  
+
   /**@deprecated Applications should rather use {@link #getMapTaskReports(JobID)}*/
   @Deprecated
   public TaskReport[] getMapTaskReports(String jobId) throws IOException {
     return getMapTaskReports(JobID.forName(jobId));
   }
-  
+
   /**
    * Get the information of the current state of the reduce tasks of a job.
-   * 
+   *
    * @param jobId the job to query.
    * @return the list of all of the reduce tips.
    * @throws IOException
-   */    
+   */
   public TaskReport[] getReduceTaskReports(JobID jobId) throws IOException {
     return jobSubmitClient.getReduceTaskReports(jobId);
   }
 
   /**
    * Get the information of the current state of the cleanup tasks of a job.
-   * 
+   *
    * @param jobId the job to query.
    * @return the list of all of the cleanup tips.
    * @throws IOException
-   */    
+   */
   public TaskReport[] getCleanupTaskReports(JobID jobId) throws IOException {
     return jobSubmitClient.getCleanupTaskReports(jobId);
   }
 
   /**
    * Get the information of the current state of the setup tasks of a job.
-   * 
+   *
    * @param jobId the job to query.
    * @return the list of all of the setup tips.
    * @throws IOException
-   */    
+   */
   public TaskReport[] getSetupTaskReports(JobID jobId) throws IOException {
     return jobSubmitClient.getSetupTaskReports(jobId);
   }
@@ -1139,17 +1137,17 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   public TaskReport[] getReduceTaskReports(String jobId) throws IOException {
     return getReduceTaskReports(JobID.forName(jobId));
   }
-  
+
   /**
    * Display the information about a job's tasks, of a particular type and
    * in a particular state
-   * 
+   *
    * @param jobId the ID of the job
    * @param type the type of the task (map/reduce/setup/cleanup)
-   * @param state the state of the task 
+   * @param state the state of the task
    * (pending/running/completed/failed/killed)
    */
-  public void displayTasks(JobID jobId, String type, String state) 
+  public void displayTasks(JobID jobId, String type, String state)
   throws IOException {
     TaskReport[] reports = new TaskReport[0];
     if (type.equals("map")) {
@@ -1163,8 +1161,8 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     }
     for (TaskReport report : reports) {
       TIPStatus status = report.getCurrentStatus();
-      if ((state.equals("pending") && status ==TIPStatus.PENDING) ||
-          (state.equals("running") && status ==TIPStatus.RUNNING) ||
+      if ((state.equals("pending") && status == TIPStatus.PENDING) ||
+          (state.equals("running") && status == TIPStatus.RUNNING) ||
           (state.equals("completed") && status == TIPStatus.COMPLETE) ||
           (state.equals("failed") && status == TIPStatus.FAILED) ||
           (state.equals("killed") && status == TIPStatus.KILLED)) {
@@ -1176,15 +1174,15 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     if (report.getCurrentStatus() == TIPStatus.COMPLETE) {
       System.out.println(report.getSuccessfulTaskAttempt());
     } else if (report.getCurrentStatus() == TIPStatus.RUNNING) {
-      for (TaskAttemptID t : 
-        report.getRunningTaskAttempts()) {
+      for (TaskAttemptID t :
+           report.getRunningTaskAttempts()) {
         System.out.println(t);
       }
     }
   }
   /**
    * Get status information about the Map-Reduce cluster.
-   *  
+   *
    * @return the status information about the Map-Reduce cluster as an object
    *         of {@link ClusterStatus}.
    * @throws IOException
@@ -1195,7 +1193,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
 
   /**
    * Get status information about the Map-Reduce cluster.
-   *  
+   *
    * @param  detailed if true then get a detailed status including the
    *         tracker names and memory usage of the JobTracker
    * @return the status information about the Map-Reduce cluster as an object
@@ -1205,11 +1203,11 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   public ClusterStatus getClusterStatus(boolean detailed) throws IOException {
     return jobSubmitClient.getClusterStatus(detailed);
   }
-  
+
   /**
-   * Grab the jobtracker's view of the staging directory path where 
+   * Grab the jobtracker's view of the staging directory path where
    * job-specific files will  be placed.
-   * 
+   *
    * @return the staging directory where job-specific files are to be placed.
    */
   public Path getStagingAreaDir() throws IOException {
@@ -1217,11 +1215,11 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       stagingAreaDir = new Path(jobSubmitClient.getStagingAreaDir());
     }
     return stagingAreaDir;
-  }    
+  }
 
-  /** 
+  /**
    * Get the jobs that are not completed and not failed.
-   * 
+   *
    * @return array of {@link JobStatus} for the running/to-be-run jobs.
    * @throws IOException
    */
@@ -1230,29 +1228,29 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   }
 
   private static void downloadProfile(TaskCompletionEvent e
-                                      ) throws IOException  {
-    URLConnection connection = 
-      new URL(getTaskLogURL(e.getTaskAttemptId(), e.getTaskTrackerHttp()) + 
+                                     ) throws IOException  {
+    URLConnection connection =
+      new URL(getTaskLogURL(e.getTaskAttemptId(), e.getTaskTrackerHttp()) +
               "&filter=profile").openConnection();
     InputStream in = connection.getInputStream();
     OutputStream out = new FileOutputStream(e.getTaskAttemptId() + ".profile");
     IOUtils.copyBytes(in, out, 64 * 1024, true);
   }
 
-  /** 
+  /**
    * Get the jobs that are submitted.
-   * 
+   *
    * @return array of {@link JobStatus} for the submitted jobs.
    * @throws IOException
    */
   public JobStatus[] getAllJobs() throws IOException {
     return jobSubmitClient.getAllJobs();
   }
-  
-  /** 
+
+  /**
    * Utility that submits a job, then polls for progress until the job is
    * complete.
-   * 
+   *
    * @param job the job configuration.
    * @throws IOException if the job fails
    */
@@ -1269,18 +1267,18 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     }
     return rj;
   }
-  
+
   /**
-   * Monitor a job and print status in real-time as progress is made and tasks 
+   * Monitor a job and print status in real-time as progress is made and tasks
    * fail.
    * @param conf the job's configuration
    * @param job the job to track
    * @return true if the job succeeded
    * @throws IOException if communication to the JobTracker fails
    */
-  public boolean monitorAndPrintJob(JobConf conf, 
+  public boolean monitorAndPrintJob(JobConf conf,
                                     RunningJob job
-  ) throws IOException, InterruptedException {
+                                   ) throws IOException, InterruptedException {
     String lastReport = null;
     TaskStatusFilter filter;
     filter = getTaskOutputFilter(conf);
@@ -1293,59 +1291,59 @@ public class JobClient extends Configured implements MRConstants, Tool  {
 
     while (!job.isComplete()) {
       Thread.sleep(1000);
-      String report = 
-        (" map " + StringUtils.formatPercent(job.mapProgress(), 0)+
-            " reduce " + 
-            StringUtils.formatPercent(job.reduceProgress(), 0));
+      String report =
+        (" map " + StringUtils.formatPercent(job.mapProgress(), 0) +
+         " reduce " +
+         StringUtils.formatPercent(job.reduceProgress(), 0));
       if (!report.equals(lastReport)) {
         LOG.info(report);
         lastReport = report;
       }
 
-      TaskCompletionEvent[] events = 
-        job.getTaskCompletionEvents(eventCounter); 
+      TaskCompletionEvent[] events =
+        job.getTaskCompletionEvents(eventCounter);
       eventCounter += events.length;
-      for(TaskCompletionEvent event : events){
+      for (TaskCompletionEvent event : events) {
         TaskCompletionEvent.Status status = event.getTaskStatus();
-        if (profiling && 
+        if (profiling &&
             (status == TaskCompletionEvent.Status.SUCCEEDED ||
-                status == TaskCompletionEvent.Status.FAILED) &&
-                (event.isMap ? mapRanges : reduceRanges).
-                isIncluded(event.idWithinJob())) {
+             status == TaskCompletionEvent.Status.FAILED) &&
+            (event.isMap ? mapRanges : reduceRanges).
+            isIncluded(event.idWithinJob())) {
           downloadProfile(event);
         }
-        switch(filter){
+        switch (filter) {
         case NONE:
           break;
         case SUCCEEDED:
-          if (event.getTaskStatus() == 
-            TaskCompletionEvent.Status.SUCCEEDED){
+          if (event.getTaskStatus() ==
+              TaskCompletionEvent.Status.SUCCEEDED) {
             LOG.info(event.toString());
             displayTaskLogs(event.getTaskAttemptId(), event.getTaskTrackerHttp());
           }
-          break; 
+          break;
         case FAILED:
-          if (event.getTaskStatus() == 
-            TaskCompletionEvent.Status.FAILED){
+          if (event.getTaskStatus() ==
+              TaskCompletionEvent.Status.FAILED) {
             LOG.info(event.toString());
             // Displaying the task diagnostic information
             TaskAttemptID taskId = event.getTaskAttemptId();
-            String[] taskDiagnostics = 
-              jobSubmitClient.getTaskDiagnostics(taskId); 
+            String[] taskDiagnostics =
+              jobSubmitClient.getTaskDiagnostics(taskId);
             if (taskDiagnostics != null) {
-              for(String diagnostics : taskDiagnostics){
+              for (String diagnostics : taskDiagnostics) {
                 System.err.println(diagnostics);
               }
             }
             // Displaying the task logs
             displayTaskLogs(event.getTaskAttemptId(), event.getTaskTrackerHttp());
           }
-          break; 
+          break;
         case KILLED:
-          if (event.getTaskStatus() == TaskCompletionEvent.Status.KILLED){
+          if (event.getTaskStatus() == TaskCompletionEvent.Status.KILLED) {
             LOG.info(event.toString());
           }
-          break; 
+          break;
         case ALL:
           LOG.info(event.toString());
           displayTaskLogs(event.getTaskAttemptId(), event.getTaskTrackerHttp());
@@ -1355,9 +1353,9 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     }
     LOG.info("Job complete: " + jobId);
     Counters counters = null;
-    try{
-       counters = job.getCounters();
-    } catch(IOException ie) {
+    try {
+      counters = job.getCounters();
+    } catch (IOException ie) {
       counters = null;
       LOG.info(ie.getMessage());
     }
@@ -1368,33 +1366,33 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   }
 
   static String getTaskLogURL(TaskAttemptID taskId, String baseUrl) {
-    return (baseUrl + "/tasklog?plaintext=true&attemptid=" + taskId); 
+    return (baseUrl + "/tasklog?plaintext=true&attemptid=" + taskId);
   }
-  
+
   private static void displayTaskLogs(TaskAttemptID taskId, String baseUrl)
-    throws IOException {
+  throws IOException {
     // The tasktracker for a 'failed/killed' job might not be around...
     if (baseUrl != null) {
       // Construct the url for the tasklogs
       String taskLogUrl = getTaskLogURL(taskId, baseUrl);
-      
+
       // Copy tasks's stdout of the JobClient
-      getTaskLogs(taskId, new URL(taskLogUrl+"&filter=stdout"), System.out);
-        
-      // Copy task's stderr to stderr of the JobClient 
-      getTaskLogs(taskId, new URL(taskLogUrl+"&filter=stderr"), System.err);
+      getTaskLogs(taskId, new URL(taskLogUrl + "&filter=stdout"), System.out);
+
+      // Copy task's stderr to stderr of the JobClient
+      getTaskLogs(taskId, new URL(taskLogUrl + "&filter=stderr"), System.err);
     }
   }
-    
-  private static void getTaskLogs(TaskAttemptID taskId, URL taskLogUrl, 
+
+  private static void getTaskLogs(TaskAttemptID taskId, URL taskLogUrl,
                                   OutputStream out) {
     try {
       URLConnection connection = taskLogUrl.openConnection();
       connection.setReadTimeout(tasklogtimeout);
       connection.setConnectTimeout(tasklogtimeout);
-      BufferedReader input = 
+      BufferedReader input =
         new BufferedReader(new InputStreamReader(connection.getInputStream()));
-      BufferedWriter output = 
+      BufferedWriter output =
         new BufferedWriter(new OutputStreamWriter(out));
       try {
         String logData = null;
@@ -1407,15 +1405,14 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       } finally {
         input.close();
       }
-    }catch(IOException ioe){
-      LOG.warn("Error reading task output" + ioe.getMessage()); 
+    } catch (IOException ioe) {
+      LOG.warn("Error reading task output" + ioe.getMessage());
     }
-  }    
+  }
 
-  static Configuration getConfiguration(String jobTrackerSpec)
-  {
+  static Configuration getConfiguration(String jobTrackerSpec) {
     Configuration conf = new Configuration();
-    if (jobTrackerSpec != null) {        
+    if (jobTrackerSpec != null) {
       if (jobTrackerSpec.indexOf(":") >= 0) {
         conf.set("mapred.job.tracker", jobTrackerSpec);
       } else {
@@ -1432,43 +1429,43 @@ public class JobClient extends Configured implements MRConstants, Tool  {
 
   /**
    * Sets the output filter for tasks. only those tasks are printed whose
-   * output matches the filter. 
+   * output matches the filter.
    * @param newValue task filter.
    */
   @Deprecated
-  public void setTaskOutputFilter(TaskStatusFilter newValue){
+  public void setTaskOutputFilter(TaskStatusFilter newValue) {
     this.taskOutputFilter = newValue;
   }
-    
+
   /**
    * Get the task output filter out of the JobConf.
-   * 
+   *
    * @param job the JobConf to examine.
    * @return the filter level.
    */
   public static TaskStatusFilter getTaskOutputFilter(JobConf job) {
-    return TaskStatusFilter.valueOf(job.get("jobclient.output.filter", 
+    return TaskStatusFilter.valueOf(job.get("jobclient.output.filter",
                                             "FAILED"));
   }
-    
+
   /**
    * Modify the JobConf to set the task output filter.
-   * 
+   *
    * @param job the JobConf to modify.
    * @param newValue the value to set.
    */
-  public static void setTaskOutputFilter(JobConf job, 
+  public static void setTaskOutputFilter(JobConf job,
                                          TaskStatusFilter newValue) {
     job.set("jobclient.output.filter", newValue.toString());
   }
-    
+
   /**
    * Returns task output filter.
-   * @return task filter. 
+   * @return task filter.
    */
   @Deprecated
-  public TaskStatusFilter getTaskOutputFilter(){
-    return this.taskOutputFilter; 
+  public TaskStatusFilter getTaskOutputFilter() {
+    return this.taskOutputFilter;
   }
 
   private String getJobPriorityNames() {
@@ -1476,9 +1473,9 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     for (JobPriority p : JobPriority.values()) {
       sb.append(p.name()).append(" ");
     }
-    return sb.substring(0, sb.length()-1);
+    return sb.substring(0, sb.length() - 1);
   }
-  
+
   /**
    * Display usage of the command-line tool and terminate execution
    */
@@ -1487,7 +1484,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     String jobPriorityValues = getJobPriorityNames();
     String taskTypes = "map, reduce, setup, cleanup";
     String taskStates = "running, completed";
-    if("-submit".equals(cmd)) {
+    if ("-submit".equals(cmd)) {
       System.err.println(prefix + "[" + cmd + " <job-file>]");
     } else if ("-status".equals(cmd) || "-kill".equals(cmd)) {
       System.err.println(prefix + "[" + cmd + " <job-id>]");
@@ -1503,17 +1500,17 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       System.err.println(prefix + "[" + cmd + " <task-id>]");
     } else if ("-set-priority".equals(cmd)) {
       System.err.println(prefix + "[" + cmd + " <job-id> <priority>]. " +
-          "Valid values for priorities are: " 
-          + jobPriorityValues); 
+                         "Valid values for priorities are: "
+                         + jobPriorityValues);
     } else if ("-list-active-trackers".equals(cmd)) {
       System.err.println(prefix + "[" + cmd + "]");
     } else if ("-list-blacklisted-trackers".equals(cmd)) {
       System.err.println(prefix + "[" + cmd + "]");
     } else if ("-list-attempt-ids".equals(cmd)) {
-      System.err.println(prefix + "[" + cmd + 
-          " <job-id> <task-type> <task-state>]. " +
-          "Valid values for <task-type> are " + taskTypes + ". " +
-          "Valid values for <task-state> are " + taskStates);
+      System.err.println(prefix + "[" + cmd +
+                         " <job-id> <task-type> <task-state>]. " +
+                         "Valid values for <task-type> are " + taskTypes + ". " +
+                         "Valid values for <task-state> are " + taskStates);
     } else {
       System.err.printf(prefix + "<command> <args>\n");
       System.err.printf("\t[-submit <job-file>]\n");
@@ -1521,27 +1518,27 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       System.err.printf("\t[-counter <job-id> <group-name> <counter-name>]\n");
       System.err.printf("\t[-kill <job-id>]\n");
       System.err.printf("\t[-set-priority <job-id> <priority>]. " +
-                                      "Valid values for priorities are: " +
-                                      jobPriorityValues + "\n");
+                        "Valid values for priorities are: " +
+                        jobPriorityValues + "\n");
       System.err.printf("\t[-events <job-id> <from-event-#> <#-of-events>]\n");
       System.err.printf("\t[-history <jobOutputDir>]\n");
       System.err.printf("\t[-list [all]]\n");
       System.err.printf("\t[-list-active-trackers]\n");
       System.err.printf("\t[-list-blacklisted-trackers]\n");
       System.err.println("\t[-list-attempt-ids <job-id> <task-type> " +
-      		"<task-state>]\n");
+                         "<task-state>]\n");
       System.err.printf("\t[-kill-task <task-id>]\n");
       System.err.printf("\t[-fail-task <task-id>]\n\n");
       ToolRunner.printGenericCommandUsage(System.out);
     }
   }
-    
+
   public int run(String[] argv) throws Exception {
     int exitCode = -1;
     if (argv.length < 1) {
       displayUsage("");
       return exitCode;
-    }    
+    }
     // process arguments
     String cmd = argv[0];
     String submitJobFile = null;
@@ -1583,7 +1580,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       }
       jobid = argv[1];
       getStatus = true;
-    } else if("-counter".equals(cmd)) {
+    } else if ("-counter".equals(cmd)) {
       if (argv.length != 4) {
         displayUsage(cmd);
         return exitCode;
@@ -1607,12 +1604,12 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       jobid = argv[1];
       newPriority = argv[2];
       try {
-        JobPriority jp = JobPriority.valueOf(newPriority); 
+        JobPriority jp = JobPriority.valueOf(newPriority);
       } catch (IllegalArgumentException iae) {
         displayUsage(cmd);
         return exitCode;
       }
-      setJobPriority = true; 
+      setJobPriority = true;
     } else if ("-events".equals(cmd)) {
       if (argv.length != 4) {
         displayUsage(cmd);
@@ -1624,15 +1621,15 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       listEvents = true;
     } else if ("-history".equals(cmd)) {
       if (argv.length != 2 && !(argv.length == 3 && "all".equals(argv[1]))) {
-         displayUsage(cmd);
-         return exitCode;
+        displayUsage(cmd);
+        return exitCode;
       }
       viewHistory = true;
       if (argv.length == 3 && "all".equals(argv[1])) {
-         viewAllHistory = true;
-         outputDir = argv[2];
+        viewAllHistory = true;
+        outputDir = argv[2];
       } else {
-         outputDir = argv[1];
+        outputDir = argv[1];
       }
     } else if ("-list".equals(cmd)) {
       if (argv.length != 1 && !(argv.length == 2 && "all".equals(argv[1]))) {
@@ -1644,15 +1641,15 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       } else {
         listJobs = true;
       }
-    } else if("-kill-task".equals(cmd)) {
-      if(argv.length != 2) {
+    } else if ("-kill-task".equals(cmd)) {
+      if (argv.length != 2) {
         displayUsage(cmd);
         return exitCode;
       }
       killTask = true;
       taskid = argv[1];
-    } else if("-fail-task".equals(cmd)) {
-      if(argv.length != 2) {
+    } else if ("-fail-task".equals(cmd)) {
+      if (argv.length != 2) {
         displayUsage(cmd);
         return exitCode;
       }
@@ -1692,7 +1689,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       conf = new JobConf(getConf());
     }
     init(conf);
-        
+
     // Submit the request
     try {
       if (submitJobFile != null) {
@@ -1739,10 +1736,10 @@ public class JobClient extends Configured implements MRConstants, Tool  {
           if (counters == null) {
             if (counterException != null) {
               System.out
-                  .println("Error fetching counters: " + counterException.getMessage());
+              .println("Error fetching counters: " + counterException.getMessage());
             } else {
               System.out.println("Counters not available for retired job "
-                  + jobid);
+                                 + jobid);
             }
             exitCode = -1;
           } else {
@@ -1769,7 +1766,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
           job.setJobPriority(newPriority);
           System.out.println("Changed job priority.");
           exitCode = 0;
-        } 
+        }
       } else if (viewHistory) {
         viewHistory(outputDir, viewAllHistory);
         exitCode = 0;
@@ -1790,16 +1787,16 @@ public class JobClient extends Configured implements MRConstants, Tool  {
         exitCode = 0;
       } else if (displayTasks) {
         displayTasks(JobID.forName(jobid), taskType, taskState);
-      } else if(killTask) {
-        if(jobSubmitClient.killTask(TaskAttemptID.forName(taskid), false)) {
+      } else if (killTask) {
+        if (jobSubmitClient.killTask(TaskAttemptID.forName(taskid), false)) {
           System.out.println("Killed task " + taskid);
           exitCode = 0;
         } else {
           System.out.println("Could not kill task " + taskid);
           exitCode = -1;
         }
-      } else if(failTask) {
-        if(jobSubmitClient.killTask(TaskAttemptID.forName(taskid), true)) {
+      } else if (failTask) {
+        if (jobSubmitClient.killTask(TaskAttemptID.forName(taskid), true)) {
           System.out.println("Killed task " + taskid + " by failing it");
           exitCode = 0;
         } else {
@@ -1807,7 +1804,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
           exitCode = -1;
         }
       }
-    } catch (RemoteException re){
+    } catch (RemoteException re) {
       IOException unwrappedException = re.unwrapRemoteException();
       if (unwrappedException instanceof AccessControlException) {
         System.out.println(unwrappedException.getMessage());
@@ -1820,28 +1817,28 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     return exitCode;
   }
 
-  private void viewHistory(String outputDir, boolean all) 
-    throws IOException {
+  private void viewHistory(String outputDir, boolean all)
+  throws IOException {
     HistoryViewer historyViewer = new HistoryViewer(outputDir,
-                                        getConf(), all);
+        getConf(), all);
     historyViewer.print();
   }
-  
+
   /**
    * List the events for the given job
    * @param jobId the job id for the job's events to list
    * @throws IOException
    */
   private void listEvents(JobID jobId, int fromEventId, int numEvents)
-    throws IOException {
-    TaskCompletionEvent[] events = 
+  throws IOException {
+    TaskCompletionEvent[] events =
       jobSubmitClient.getTaskCompletionEvents(jobId, fromEventId, numEvents);
     System.out.println("Task completion events for " + jobId);
-    System.out.println("Number of events (from " + fromEventId + 
+    System.out.println("Number of events (from " + fromEventId +
                        ") are: " + events.length);
-    for(TaskCompletionEvent event: events) {
-      System.out.println(event.getTaskStatus() + " " + event.getTaskAttemptId() + " " + 
-                         getTaskLogURL(event.getTaskAttemptId(), 
+    for (TaskCompletionEvent event : events) {
+      System.out.println(event.getTaskStatus() + " " + event.getTaskAttemptId() + " " +
+                         getTaskLogURL(event.getTaskAttemptId(),
                                        event.getTaskTrackerHttp()));
     }
   }
@@ -1858,7 +1855,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     System.out.printf("%d jobs currently running\n", jobs.length);
     displayJobList(jobs);
   }
-    
+
   /**
    * Dump a list of all jobs submitted.
    * @throws IOException
@@ -1869,10 +1866,10 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       jobs = new JobStatus[0];
     System.out.printf("%d jobs submitted\n", jobs.length);
     System.out.printf("States are:\n\tRunning : 1\tSucceded : 2" +
-    "\tFailed : 3\tPrep : 4\n");
+                      "\tFailed : 3\tPrep : 4\n");
     displayJobList(jobs);
   }
-  
+
   /**
    * Display the list of active trackers
    */
@@ -1899,14 +1896,14 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     System.out.printf("JobId\tState\tStartTime\tUserName\tPriority\tSchedulingInfo\n");
     for (JobStatus job : jobs) {
       System.out.printf("%s\t%d\t%d\t%s\t%s\t%s\n", job.getJobID(), job.getRunState(),
-          job.getStartTime(), job.getUsername(), 
-          job.getJobPriority().name(), job.getSchedulingInfo());
+                        job.getStartTime(), job.getUsername(),
+                        job.getJobPriority().name(), job.getSchedulingInfo());
     }
   }
 
   /**
    * Get status information about the max available Maps in the cluster.
-   *  
+   *
    * @return the max available Maps in the cluster
    * @throws IOException
    */
@@ -1916,7 +1913,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
 
   /**
    * Get status information about the max available Reduces in the cluster.
-   *  
+   *
    * @return the max available Reduces in the cluster
    * @throws IOException
    */
@@ -1926,7 +1923,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
 
   /**
    * Grab the jobtracker system directory path where job-specific files are to be placed.
-   * 
+   *
    * @return the system directory where job-specific files are to be placed.
    */
   public Path getSystemDir() {
@@ -1935,34 +1932,34 @@ public class JobClient extends Configured implements MRConstants, Tool  {
     }
     return sysDir;
   }
-  
-  
+
+
   /**
    * Return an array of queue information objects about all the Job Queues
    * configured.
-   * 
+   *
    * @return Array of JobQueueInfo objects
    * @throws IOException
    */
   public JobQueueInfo[] getQueues() throws IOException {
     return jobSubmitClient.getQueues();
   }
-  
+
   /**
    * Gets all the jobs which were added to particular Job Queue
-   * 
+   *
    * @param queueName name of the Job Queue
    * @return Array of jobs present in the job queue
    * @throws IOException
    */
-  
+
   public JobStatus[] getJobsFromQueue(String queueName) throws IOException {
     return jobSubmitClient.getJobsFromQueue(queueName);
   }
-  
+
   /**
    * Gets the queue information associated to a particular Job Queue
-   * 
+   *
    * @param queueName name of the job queue.
    * @return Queue information associated to particular queue.
    * @throws IOException
@@ -1970,7 +1967,7 @@ public class JobClient extends Configured implements MRConstants, Tool  {
   public JobQueueInfo getQueueInfo(String queueName) throws IOException {
     return jobSubmitClient.getQueueInfo(queueName);
   }
-  
+
   /**
    * Gets the Queue ACLs for current user
    * @return array of QueueAclsInfo object for current user.
@@ -1984,8 +1981,8 @@ public class JobClient extends Configured implements MRConstants, Tool  {
    * @return the new token
    * @throws IOException
    */
-  public Token<DelegationTokenIdentifier> 
-    getDelegationToken(Text renewer) throws IOException, InterruptedException {
+  public Token<DelegationTokenIdentifier>
+  getDelegationToken(Text renewer) throws IOException, InterruptedException {
     Token<DelegationTokenIdentifier> result =
       jobSubmitClient.getDelegationToken(renewer);
     SecurityUtil.setTokenService(result, JobTracker.getAddress(getConf()));
@@ -2015,8 +2012,8 @@ public class JobClient extends Configured implements MRConstants, Tool  {
    * @throws IOException
    */
   public void cancelDelegationToken(Token<DelegationTokenIdentifier> token
-                                    ) throws IOException, 
-                                             InterruptedException {
+                                   ) throws IOException,
+    InterruptedException {
     try {
       jobSubmitClient.cancelDelegationToken(token);
     } catch (RemoteException re) {
@@ -2024,29 +2021,29 @@ public class JobClient extends Configured implements MRConstants, Tool  {
                                      AccessControlException.class);
     }
   }
- 
+
   /**
    */
   public static void main(String argv[]) throws Exception {
     int res = ToolRunner.run(new JobClient(), argv);
     System.exit(res);
   }
-  
+
   @SuppressWarnings("unchecked")
   private void readTokensFromFiles(Configuration conf, Credentials credentials
-                                   ) throws IOException {
+                                  ) throws IOException {
     // add tokens and secrets coming from a token storage file
     String binaryTokenFilename =
       conf.get("mapreduce.job.credentials.binary");
     if (binaryTokenFilename != null) {
-      Credentials binary = 
-        Credentials.readTokenStorageFile(new Path("file:///" +  
-                                                  binaryTokenFilename), conf);
+      Credentials binary =
+        Credentials.readTokenStorageFile(new Path("file:///" +
+                                         binaryTokenFilename), conf);
       credentials.addAll(binary);
     }
     // add secret keys coming from a json file
     String tokensFileName = conf.get("mapreduce.job.credentials.json");
-    if(tokensFileName != null) {
+    if (tokensFileName != null) {
       LOG.info("loading user's secret keys from " + tokensFileName);
       String localFileName = new Path(tokensFileName).toUri().getPath();
 
@@ -2054,11 +2051,11 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       try {
         // read JSON
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> nm = 
+        Map<String, String> nm =
           mapper.readValue(new File(localFileName), Map.class);
 
-        for(Map.Entry<String, String> ent: nm.entrySet()) {
-          credentials.addSecretKey(new Text(ent.getKey()), 
+        for (Map.Entry<String, String> ent : nm.entrySet()) {
+          credentials.addSecretKey(new Text(ent.getKey()),
                                    ent.getValue().getBytes());
         }
       } catch (JsonMappingException e) {
@@ -2066,24 +2063,24 @@ public class JobClient extends Configured implements MRConstants, Tool  {
       } catch (JsonParseException e) {
         json_error = true;
       }
-      if(json_error)
+      if (json_error)
         LOG.warn("couldn't parse Token Cache JSON file with user secret keys");
     }
   }
 
   //get secret keys and tokens and store them into TokenCache
   @SuppressWarnings("unchecked")
-  private void populateTokenCache(Configuration conf, Credentials credentials) 
-  throws IOException{
+  private void populateTokenCache(Configuration conf, Credentials credentials)
+  throws IOException {
     readTokensFromFiles(conf, credentials);
- 
+
     // add the delegation tokens from configuration
     String [] nameNodes = conf.getStrings(JobContext.JOB_NAMENODES);
-    LOG.debug("adding the following namenodes' delegation tokens:" + 
+    LOG.debug("adding the following namenodes' delegation tokens:" +
               Arrays.toString(nameNodes));
-    if(nameNodes != null) {
+    if (nameNodes != null) {
       Path [] ps = new Path[nameNodes.length];
-      for(int i=0; i< nameNodes.length; i++) {
+      for (int i = 0; i < nameNodes.length; i++) {
         ps[i] = new Path(nameNodes[i]);
       }
       TokenCache.obtainTokensForNamenodes(credentials, ps, conf);

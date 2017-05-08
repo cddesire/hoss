@@ -23,7 +23,7 @@ public class JobContext extends org.apache.hadoop.mapreduce.JobContext {
   private JobConf job;
   private Progressable progress;
 
-  JobContext(JobConf conf, org.apache.hadoop.mapreduce.JobID jobId, 
+  JobContext(JobConf conf, org.apache.hadoop.mapreduce.JobID jobId,
              Progressable progress) {
     super(conf, jobId);
     this.job = conf;
@@ -33,20 +33,20 @@ public class JobContext extends org.apache.hadoop.mapreduce.JobContext {
   JobContext(JobConf conf, org.apache.hadoop.mapreduce.JobID jobId) {
     this(conf, jobId, Reporter.NULL);
   }
-  
+
   /**
    * Get the job Configuration
-   * 
+   *
    * @return JobConf
    */
   public JobConf getJobConf() {
     return job;
   }
-  
+
   /**
    * Get the progress mechanism for reporting progress.
-   * 
-   * @return progress mechanism 
+   *
+   * @return progress mechanism
    */
   public Progressable getProgressible() {
     return progress;
