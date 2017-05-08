@@ -28,7 +28,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
 /**
- * Represents the basic information that is saved per a job when the 
+ * Represents the basic information that is saved per a job when the
  * JobTracker receives a submitJob request. The information is saved
  * so that the JobTracker can recover incomplete jobs upon restart.
  */
@@ -37,36 +37,36 @@ class JobInfo implements Writable {
   private Text user;
   private Path jobSubmitDir;
   public JobInfo() {}
-  
-  public JobInfo(org.apache.hadoop.mapreduce.JobID id, 
-      Text user,
-      Path jobSubmitDir) {
+
+  public JobInfo(org.apache.hadoop.mapreduce.JobID id,
+                 Text user,
+                 Path jobSubmitDir) {
     this.id = id;
     this.user = user;
     this.jobSubmitDir = jobSubmitDir;
   }
-  
+
   /**
    * Get the job id.
    */
   public org.apache.hadoop.mapreduce.JobID getJobID() {
     return id;
   }
-  
+
   /**
    * Get the configured job's user-name.
    */
   public Text getUser() {
     return user;
   }
-      
+
   /**
    * Get the job submission directory
    */
   public Path getJobSubmitDir() {
     return this.jobSubmitDir;
   }
-  
+
   public void readFields(DataInput in) throws IOException {
     id = new org.apache.hadoop.mapreduce.JobID();
     id.readFields(in);
