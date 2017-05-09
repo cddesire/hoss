@@ -47,14 +47,13 @@ import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.log4j.LogManager;
 
-/** 
- * The main() for child processes. 
+/**
+ * The main() for child processes.
  */
 
 class Child {
 
-  public static final Log LOG =
-    LogFactory.getLog(Child.class);
+  public static final Log LOG = LogFactory.getLog(Child.class);
 
   static volatile TaskAttemptID taskid = null;
   static volatile boolean currentJobSegmented = true;
@@ -77,54 +76,45 @@ class Child {
     final String logLocation = args[3];
     final int SLEEP_LONGER_COUNT = 5;
     int jvmIdInt = Integer.parseInt(args[4]);
-    JVMId jvmId = new JVMId(firstTaskid.getJobID(),firstTaskid.isMap(),jvmIdInt);
+    JVMId jvmId = new JVMId(firstTaskid.getJobID(), firstTaskid.isMap(), jvmIdInt);
     String prefix = firstTaskid.isMap() ? "MapTask" : "ReduceTask";
-    
+
     cwd = System.getenv().get(TaskRunner.HADOOP_WORK_DIR);
     if (cwd == null) {
-      throw new IOException("Environment variable " + 
-                             TaskRunner.HADOOP_WORK_DIR + " is not set");
+      throw new IOException("Environment variable " + TaskRunner.HADOOP_WORK_DIR + " is not set");
     }
 
     // file name is passed thru env
-    String jobTokenFile = 
-      System.getenv().get(UserGroupInformation.HADOOP_TOKEN_FILE_LOCATION);
-    Credentials credentials = 
-      TokenCache.loadTokens(jobTokenFile, defaultConf);
-    LOG.debug("loading token. # keys =" +credentials.numberOfSecretKeys() + 
-        "; from file=" + jobTokenFile);
-    
+    String jobTokenFile = System.getenv().get(UserGroupInformation.HADOOP_TOKEN_FILE_LOCATION);
+    Credentials credentials = TokenCache.loadTokens(jobTokenFile, defaultConf);
+    LOG.debug("loading token. # keys =" + credentials.numberOfSecretKeys() + "; from file=" + jobTokenFile);
+
     Token<JobTokenIdentifier> jt = TokenCache.getJobToken(credentials);
     SecurityUtil.setTokenService(jt, address);
     UserGroupInformation current = UserGroupInformation.getCurrentUser();
     current.addToken(jt);
 
-    UserGroupInformation taskOwner 
-     = UserGroupInformation.createRemoteUser(firstTaskid.getJobID().toString());
+    UserGroupInformation taskOwner = UserGroupInformation.createRemoteUser(firstTaskid.getJobID().toString());
     taskOwner.addToken(jt);
-    
+
     // Set the credentials
     defaultConf.setCredentials(credentials);
-    
-    final TaskUmbilicalProtocol umbilical = 
-      taskOwner.doAs(new PrivilegedExceptionAction<TaskUmbilicalProtocol>() {
-        @Override
-        public TaskUmbilicalProtocol run() throws Exception {
-          return (TaskUmbilicalProtocol)RPC.getProxy(TaskUmbilicalProtocol.class,
-              TaskUmbilicalProtocol.versionID,
-              address,
-              defaultConf);
-        }
+
+    final TaskUmbilicalProtocol umbilical = taskOwner.doAs(new PrivilegedExceptionAction<TaskUmbilicalProtocol>() {
+      @Override
+      public TaskUmbilicalProtocol run() throws Exception {
+        return (TaskUmbilicalProtocol)RPC.getProxy(TaskUmbilicalProtocol.class,
+               TaskUmbilicalProtocol.versionID, address, defaultConf);
+      }
     });
-    
+
     int numTasksToExecute = -1; //-1 signifies "no limit"
     int numTasksExecuted = 0;
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         try {
           if (taskid != null) {
-            TaskLog.syncLogs
-              (logLocation, taskid, isCleanup, currentJobSegmented);
+            TaskLog.syncLogs(logLocation, taskid, isCleanup, currentJobSegmented);
           }
         } catch (Throwable throwable) {
         }
@@ -139,7 +129,7 @@ class Child {
             Thread.sleep(5000);
             if (taskid != null) {
               TaskLog.syncLogs
-                (logLocation, taskid, isCleanup, currentJobSegmented);
+              (logLocation, taskid, isCleanup, currentJobSegmented);
             }
           } catch (InterruptedException ie) {
           } catch (IOException iee) {
@@ -152,7 +142,7 @@ class Child {
     t.setName("Thread for syncLogs");
     t.setDaemon(true);
     t.start();
-    
+
     String pid = "";
     if (!Shell.WINDOWS) {
       pid = System.getenv().get("JVM_PID");
@@ -160,9 +150,7 @@ class Child {
     JvmContext context = new JvmContext(jvmId, pid);
     int idleLoopCount = 0;
     Task task = null;
-    
     UserGroupInformation childUGI = null;
-
     final JvmContext jvmContext = context;
     try {
       while (true) {
@@ -199,7 +187,7 @@ class Child {
         isCleanup = task.isTaskCleanupTask();
         // reset the statistics for the task
         FileSystem.clearStatistics();
-        
+
         // Set credentials
         job.setCredentials(defaultConf.getCredentials());
         //forcefully turn off caching for localfs. All cached FileSystems
@@ -209,13 +197,12 @@ class Child {
         job.setBoolean("fs.file.impl.disable.cache", false);
 
         // set the jobTokenFile into task
-        task.setJobTokenSecret(JobTokenSecretManager.
-            createSecretKey(jt.getPassword()));
+        task.setJobTokenSecret(JobTokenSecretManager.createSecretKey(jt.getPassword()));
 
         // setup the child's mapred-local-dir. The child is now sandboxed and
         // can only see files down and under attemtdir only.
         TaskRunner.setupChildMapredLocalDirs(task, job);
-        
+
         // setup the child's attempt directories
         localizeTask(task, job, logLocation);
 
@@ -223,12 +210,11 @@ class Child {
         //cache. After a task exits we wipe the workdir clean, and hence
         //the symlinks have to be rebuilt.
         TaskRunner.setupWorkDir(job, new File(cwd));
-        
-        //create the index file so that the log files 
+
+        //create the index file so that the log files
         //are viewable immediately
-        TaskLog.syncLogs
-          (logLocation, taskid, isCleanup, logIsSegmented(job));
-        
+        TaskLog.syncLogs(logLocation, taskid, isCleanup, logIsSegmented(job));
+
         numTasksToExecute = job.getNumTasksToExecutePerJvm();
         assert(numTasksToExecute != 0);
 
@@ -240,10 +226,10 @@ class Child {
         LOG.debug("Creating remote user to execute task: " + job.get("user.name"));
         childUGI = UserGroupInformation.createRemoteUser(job.get("user.name"));
         // Add tokens to new user so that it may execute its task correctly.
-        for(Token<?> token : UserGroupInformation.getCurrentUser().getTokens()) {
+        for (Token<?> token : UserGroupInformation.getCurrentUser().getTokens()) {
           childUGI.addToken(token);
         }
-        
+
         // Create a final reference to the task for the doAs block
         final Task taskFinal = task;
         childUGI.doAs(new PrivilegedExceptionAction<Object>() {
@@ -255,11 +241,11 @@ class Child {
               taskFinal.run(job, umbilical);        // run the task
             } finally {
               TaskLog.syncLogs
-                (logLocation, taskid, isCleanup, logIsSegmented(job));
+              (logLocation, taskid, isCleanup, logIsSegmented(job));
               TaskLogsTruncater trunc = new TaskLogsTruncater(defaultConf);
               trunc.truncateLogs(new JVMInfo(
-                  TaskLog.getAttemptDir(taskFinal.getTaskID(),
-                    taskFinal.isTaskCleanupTask()), Arrays.asList(taskFinal)));
+                                   TaskLog.getAttemptDir(taskFinal.getTaskID(),
+                                       taskFinal.isTaskCleanupTask()), Arrays.asList(taskFinal)));
             }
 
             return null;
@@ -277,7 +263,7 @@ class Child {
       try {
         if (task != null) {
           // do cleanup for the task
-          if(childUGI == null) {
+          if (childUGI == null) {
             task.taskCleanup(umbilical);
           } else {
             final Task taskFinal = task;
@@ -304,24 +290,23 @@ class Child {
                 + StringUtils.stringifyException(throwable));
       if (taskid != null) {
         Throwable tCause = throwable.getCause();
-        String cause = tCause == null 
-                       ? throwable.getMessage() 
+        String cause = tCause == null
+                       ? throwable.getMessage()
                        : StringUtils.stringifyException(tCause);
         umbilical.fatalError(taskid, cause, jvmContext);
       }
     } finally {
       RPC.stopProxy(umbilical);
       shutdownMetrics();
-      // Shutting down log4j of the child-vm... 
-      // This assumes that on return from Task.run() 
+      // Shutting down log4j of the child-vm...
+      // This assumes that on return from Task.run()
       // there is no more logging done.
       LogManager.shutdown();
     }
   }
 
-  private static void initMetrics(String prefix, String procName,
-                                  String sessionId) {
-    DefaultMetricsSystem.initialize(prefix);  
+  private static void initMetrics(String prefix, String procName, String sessionId) {
+    DefaultMetricsSystem.initialize(prefix);
     JvmMetricsSource.create(procName, sessionId);
   }
 
@@ -329,14 +314,12 @@ class Child {
     DefaultMetricsSystem.INSTANCE.shutdown();
   }
 
-  static void localizeTask(Task task, JobConf jobConf, String logLocation) 
-  throws IOException{
-    
+  static void localizeTask(Task task, JobConf jobConf, String logLocation) throws IOException {
     // Do the task-type specific localization
     task.localizeConfiguration(jobConf);
-    
+
     //write the localized task jobconf
-    LocalDirAllocator lDirAlloc = 
+    LocalDirAllocator lDirAlloc =
       new LocalDirAllocator(JobConf.MAPRED_LOCAL_DIR_PROPERTY);
     Path localTaskFile =
       lDirAlloc.getLocalPathForWrite(TaskTracker.JOBFILE, jobConf);
