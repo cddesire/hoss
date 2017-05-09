@@ -31,11 +31,9 @@ import org.apache.hadoop.security.UserGroupInformation;
 
 class CleanupQueue {
 
-  public static final Log LOG =
-    LogFactory.getLog(CleanupQueue.class);
+  public static final Log LOG = LogFactory.getLog(CleanupQueue.class);
 
-  private static final PathCleanupThread cleanupThread =
-    new PathCleanupThread();
+  private static final PathCleanupThread cleanupThread = new PathCleanupThread();
   private static final CleanupQueue inst = new CleanupQueue();
 
   public static CleanupQueue getInstance() { return inst; }
@@ -49,7 +47,7 @@ class CleanupQueue {
    * deletion.
    */
   protected CleanupQueue() { }
-  
+
   /**
    * Contains info related to the path of the file/dir to be deleted
    */
@@ -61,24 +59,24 @@ class CleanupQueue {
       this.fullPath = fullPath;
       this.conf = conf;
     }
-    
+
     protected Path getPathForCleanup() {
       return fullPath;
     }
 
     /**
      * Deletes the path (and its subdirectories recursively)
-     * @throws IOException, InterruptedException 
+     * @throws IOException, InterruptedException
      */
     protected void deletePath() throws IOException, InterruptedException {
       final Path p = getPathForCleanup();
       UserGroupInformation.getLoginUser().doAs(
-          new PrivilegedExceptionAction<Object>() {
-            public Object run() throws IOException {
-             p.getFileSystem(conf).delete(p, true);
-             return null;
-            }
-          });
+      new PrivilegedExceptionAction<Object>() {
+        public Object run() throws IOException {
+          p.getFileSystem(conf).delete(p, true);
+          return null;
+        }
+      });
     }
 
     @Override
@@ -116,7 +114,7 @@ class CleanupQueue {
       for (PathDeletionContext context : contexts) {
         try {
           queue.put(context);
-        } catch(InterruptedException ie) {}
+        } catch (InterruptedException ie) {}
       }
     }
 
@@ -138,7 +136,7 @@ class CleanupQueue {
           return;
         } catch (Throwable e) {
           LOG.warn("Error deleting path " + context, e);
-        } 
+        }
       }
     }
   }

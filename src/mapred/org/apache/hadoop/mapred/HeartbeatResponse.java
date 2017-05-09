@@ -34,7 +34,7 @@ import org.apache.hadoop.io.WritableUtils;
 /**
  * The response sent by the {@link JobTracker} to the hearbeat sent
  * periodically by the {@link TaskTracker}
- * 
+ *
  */
 class HeartbeatResponse implements Writable, Configurable {
   Configuration conf = null;
@@ -44,37 +44,37 @@ class HeartbeatResponse implements Writable, Configurable {
   Set<JobID> recoveredJobs = new HashSet<JobID>();
 
   HeartbeatResponse() {}
-  
+
   HeartbeatResponse(short responseId, TaskTrackerAction[] actions) {
     this.responseId = responseId;
     this.actions = actions;
     this.heartbeatInterval = MRConstants.HEARTBEAT_INTERVAL_MIN;
   }
-  
+
   public void setResponseId(short responseId) {
-    this.responseId = responseId; 
+    this.responseId = responseId;
   }
-  
+
   public short getResponseId() {
     return responseId;
   }
-  
+
   public void setRecoveredJobs(Set<JobID> ids) {
-    recoveredJobs = ids; 
+    recoveredJobs = ids;
   }
-  
+
   public Set<JobID> getRecoveredJobs() {
     return recoveredJobs;
   }
-  
+
   public void setActions(TaskTrackerAction[] actions) {
     this.actions = actions;
   }
-  
+
   public TaskTrackerAction[] getActions() {
     return actions;
   }
-  
+
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
@@ -86,11 +86,11 @@ class HeartbeatResponse implements Writable, Configurable {
   public void setHeartbeatInterval(int interval) {
     this.heartbeatInterval = interval;
   }
-  
+
   public int getHeartbeatInterval() {
     return heartbeatInterval;
   }
-  
+
   public void write(DataOutput out) throws IOException {
     out.writeShort(responseId);
     out.writeInt(heartbeatInterval);
@@ -109,15 +109,15 @@ class HeartbeatResponse implements Writable, Configurable {
       id.write(out);
     }
   }
-  
+
   public void readFields(DataInput in) throws IOException {
     this.responseId = in.readShort();
     this.heartbeatInterval = in.readInt();
     int length = WritableUtils.readVInt(in);
     if (length > 0) {
       actions = new TaskTrackerAction[length];
-      for (int i=0; i < length; ++i) {
-        TaskTrackerAction.ActionType actionType = 
+      for (int i = 0; i < length; ++i) {
+        TaskTrackerAction.ActionType actionType =
           WritableUtils.readEnum(in, TaskTrackerAction.ActionType.class);
         actions[i] = TaskTrackerAction.createAction(actionType);
         actions[i].readFields(in);

@@ -23,9 +23,9 @@ import org.mortbay.util.ajax.JSON;
 
 class InfoMap extends LinkedHashMap<String, Object> {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  String toJson() {
-    return JSON.toString(this);
-  }
+	String toJson() {
+		return JSON.toString(this);
+	}
 }
