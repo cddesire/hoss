@@ -27,10 +27,9 @@ import org.apache.hadoop.security.KerberosInfo;
  * Protocol for admin operations. This is a framework-public interface and is
  * NOT_TO_BE_USED_BY_USERS_DIRECTLY.
  */
-@KerberosInfo(
-    serverPrincipal = JobTracker.JT_USER_NAME)
+@KerberosInfo(serverPrincipal = JobTracker.JT_USER_NAME)
 public interface AdminOperationsProtocol extends VersionedProtocol {
-  
+
   /**
    * Version 1: Initial version. Added refreshQueueAcls.
    * Version 2: Added node refresh facility
@@ -45,9 +44,9 @@ public interface AdminOperationsProtocol extends VersionedProtocol {
    * Access control lists and queue states are refreshed.
    */
   void refreshQueues() throws IOException;
-  
+
   /**
-   * Refresh the node list at the {@link JobTracker} 
+   * Refresh the node list at the {@link JobTracker}
    */
   void refreshNodes() throws IOException;
 }
