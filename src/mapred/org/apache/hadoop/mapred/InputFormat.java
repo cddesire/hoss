@@ -91,8 +91,6 @@ public interface InputFormat<K, V> {
    * @param job the job that this split belongs to
    * @return a {@link RecordReader}
    */
-  RecordReader<K, V> getRecordReader(InputSplit split,
-                                     JobConf job, 
-                                     Reporter reporter) throws IOException;
+  RecordReader<K, V> getRecordReader(InputSplit split, JobConf job, Reporter reporter) throws IOException;
 }
 

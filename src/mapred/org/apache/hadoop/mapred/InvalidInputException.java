@@ -23,43 +23,43 @@ import java.util.Iterator;
 
 /**
  * This class wraps a list of problems with the input, so that the user
- * can get a list of problems together instead of finding and fixing them one 
+ * can get a list of problems together instead of finding and fixing them one
  * by one.
  */
 public class InvalidInputException extends IOException {
- 
-  private static final long serialVersionUID = 1L;
-  private List<IOException> problems;
-  
-  /**
-   * Create the exception with the given list.
-   * @param probs the list of problems to report. this list is not copied.
-   */
-  public InvalidInputException(List<IOException> probs) {
-    problems = probs;
-  }
-  
-  /**
-   * Get the complete list of the problems reported.
-   * @return the list of problems, which must not be modified
-   */
-  public List<IOException> getProblems() {
-    return problems;
-  }
-  
-  /**
-   * Get a summary message of the problems found.
-   * @return the concatenated messages from all of the problems.
-   */
-  public String getMessage() {
-    StringBuffer result = new StringBuffer();
-    Iterator<IOException> itr = problems.iterator();
-    while(itr.hasNext()) {
-      result.append(itr.next().getMessage());
-      if (itr.hasNext()) {
-        result.append("\n");
-      }
-    }
-    return result.toString();
-  }
+
+	private static final long serialVersionUID = 1L;
+	private List<IOException> problems;
+
+	/**
+	 * Create the exception with the given list.
+	 * @param probs the list of problems to report. this list is not copied.
+	 */
+	public InvalidInputException(List<IOException> probs) {
+		problems = probs;
+	}
+
+	/**
+	 * Get the complete list of the problems reported.
+	 * @return the list of problems, which must not be modified
+	 */
+	public List<IOException> getProblems() {
+		return problems;
+	}
+
+	/**
+	 * Get a summary message of the problems found.
+	 * @return the concatenated messages from all of the problems.
+	 */
+	public String getMessage() {
+		StringBuffer result = new StringBuffer();
+		Iterator<IOException> itr = problems.iterator();
+		while (itr.hasNext()) {
+			result.append(itr.next().getMessage());
+			if (itr.hasNext()) {
+				result.append("\n");
+			}
+		}
+		return result.toString();
+	}
 }
