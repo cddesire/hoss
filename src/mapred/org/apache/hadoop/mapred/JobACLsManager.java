@@ -46,8 +46,7 @@ class JobACLsManager {
 	 */
 	Map<JobACL, AccessControlList> constructJobACLs(JobConf conf) {
 
-		Map<JobACL, AccessControlList> acls =
-		    new HashMap<JobACL, AccessControlList>();
+		Map<JobACL, AccessControlList> acls = new HashMap<JobACL, AccessControlList>();
 
 		// Don't construct anything if authorization is disabled.
 		if (!areACLsEnabled()) {
@@ -92,8 +91,7 @@ class JobACLsManager {
 		}
 
 		// Allow Job-owner for any operation on the job
-		if (user.equals(jobOwner)
-		        || jobACL.isUserAllowed(callerUGI)) {
+		if (user.equals(jobOwner) || jobACL.isUserAllowed(callerUGI)) {
 			return true;
 		}
 
