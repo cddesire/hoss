@@ -22,13 +22,13 @@ import java.util.*;
 import java.io.*;
 
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.mapred.JobHistory.Keys; 
+import org.apache.hadoop.mapred.JobHistory.Keys;
 import org.apache.hadoop.mapred.JobHistory.Values;
 
 /**
- * Default parser for job history files. It creates object model from 
- * job history file. 
- * 
+ * Default parser for job history files. It creates object model from
+ * job history file.
+ *
  */
 public class DefaultJobHistoryParser {
 
@@ -38,25 +38,22 @@ public class DefaultJobHistoryParser {
   // possible if it is a non-generic class.
 
   /**
-   * Populates a JobInfo object from the job's history log file. 
-   * @param jobHistoryFile history file for this job. 
-   * @param job a precreated JobInfo object, should be non-null. 
-   * @param fs FileSystem where historyFile is present. 
+   * Populates a JobInfo object from the job's history log file.
+   * @param jobHistoryFile history file for this job.
+   * @param job a precreated JobInfo object, should be non-null.
+   * @param fs FileSystem where historyFile is present.
    * @throws IOException
    */
-  public static void parseJobTasks(String jobHistoryFile, 
-                       JobHistory.JobInfo job, FileSystem fs)
-    throws IOException {
-    JobHistory.parseHistoryFromFS(jobHistoryFile, 
-                            new JobTasksParseListener(job), fs);
+  public static void parseJobTasks(String jobHistoryFile,
+                                   JobHistory.JobInfo job, FileSystem fs) throws IOException {
+    JobHistory.parseHistoryFromFS(jobHistoryFile, new JobTasksParseListener(job), fs);
   }
-  
+
   /**
-   * Listener for Job's history log file, it populates JobHistory.JobInfo 
-   * object with data from log file. 
+   * Listener for Job's history log file, it populates JobHistory.JobInfo
+   * object with data from log file.
    */
-  static class JobTasksParseListener
-    implements JobHistory.Listener {
+  static class JobTasksParseListener implements JobHistory.Listener {
     JobHistory.JobInfo job;
 
     JobTasksParseListener(JobHistory.JobInfo job) {
@@ -74,10 +71,10 @@ public class DefaultJobHistoryParser {
     }
 
     private JobHistory.MapAttempt getMapAttempt(
-                                                String jobid, String jobTrackerId, String taskId, String taskAttemptId) {
+      String jobid, String jobTrackerId, String taskId, String taskAttemptId) {
 
       JobHistory.Task task = getTask(taskId);
-      JobHistory.MapAttempt mapAttempt = 
+      JobHistory.MapAttempt mapAttempt =
         (JobHistory.MapAttempt) task.getTaskAttempts().get(taskAttemptId);
       if (null == mapAttempt) {
         mapAttempt = new JobHistory.MapAttempt();
@@ -88,10 +85,10 @@ public class DefaultJobHistoryParser {
     }
 
     private JobHistory.ReduceAttempt getReduceAttempt(
-                                                      String jobid, String jobTrackerId, String taskId, String taskAttemptId) {
+      String jobid, String jobTrackerId, String taskId, String taskAttemptId) {
 
       JobHistory.Task task = getTask(taskId);
-      JobHistory.ReduceAttempt reduceAttempt = 
+      JobHistory.ReduceAttempt reduceAttempt =
         (JobHistory.ReduceAttempt) task.getTaskAttempts().get(taskAttemptId);
       if (null == reduceAttempt) {
         reduceAttempt = new JobHistory.ReduceAttempt();
@@ -101,15 +98,14 @@ public class DefaultJobHistoryParser {
       return reduceAttempt;
     }
 
-    // JobHistory.Listener implementation 
-    public void handle(JobHistory.RecordTypes recType, Map<Keys, String> values)
-      throws IOException {
+    // JobHistory.Listener implementation
+    public void handle(JobHistory.RecordTypes recType, Map<Keys, String> values) throws IOException {
       String jobTrackerId = values.get(JobHistory.Keys.JOBTRACKERID);
       String jobid = values.get(Keys.JOBID);
-      
+
       if (recType == JobHistory.RecordTypes.Job) {
         job.handle(values);
-      }if (recType.equals(JobHistory.RecordTypes.Task)) {
+      } if (recType.equals(JobHistory.RecordTypes.Task)) {
         String taskid = values.get(JobHistory.Keys.TASKID);
         getTask(taskid).handle(values);
       } else if (recType.equals(JobHistory.RecordTypes.MapAttempt)) {
@@ -126,33 +122,32 @@ public class DefaultJobHistoryParser {
     }
   }
 
-  // call this only for jobs that succeeded for better results. 
+  // call this only for jobs that succeeded for better results.
   abstract static class NodesFilter implements JobHistory.Listener {
-    private Map<String, Set<String>> badNodesToNumFailedTasks =
-      new HashMap<String, Set<String>>();
-    
-    Map<String, Set<String>> getValues(){
-      return badNodesToNumFailedTasks; 
+    private Map<String, Set<String>> badNodesToNumFailedTasks = new HashMap<String, Set<String>>();
+
+    Map<String, Set<String>> getValues() {
+      return badNodesToNumFailedTasks;
     }
-    String failureType;
     
-    public void handle(JobHistory.RecordTypes recType, Map<Keys, String> values)
-      throws IOException {
-      if (recType.equals(JobHistory.RecordTypes.MapAttempt) || 
+    String failureType;
+
+    public void handle(JobHistory.RecordTypes recType, Map<Keys, String> values) throws IOException {
+      if (recType.equals(JobHistory.RecordTypes.MapAttempt) ||
           recType.equals(JobHistory.RecordTypes.ReduceAttempt)) {
         if (failureType.equals(values.get(Keys.TASK_STATUS)) ) {
           String hostName = values.get(Keys.HOSTNAME);
-          String taskid = values.get(Keys.TASKID); 
-          Set<String> tasks = badNodesToNumFailedTasks.get(hostName); 
-          if (null == tasks ){
-            tasks = new TreeSet<String>(); 
+          String taskid = values.get(Keys.TASKID);
+          Set<String> tasks = badNodesToNumFailedTasks.get(hostName);
+          if (null == tasks ) {
+            tasks = new TreeSet<String>();
             tasks.add(taskid);
             badNodesToNumFailedTasks.put(hostName, tasks);
-          }else{
+          } else {
             tasks.add(taskid);
           }
         }
-      }      
+      }
     }
     abstract void setFailureType();
     String getFailureType() {
@@ -162,7 +157,7 @@ public class DefaultJobHistoryParser {
       setFailureType();
     }
   }
- 
+
   static class FailedOnNodesFilter extends NodesFilter {
     void setFailureType() {
       failureType = Values.FAILED.name();

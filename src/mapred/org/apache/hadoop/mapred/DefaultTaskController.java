@@ -41,19 +41,18 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * The default implementation for controlling tasks.
- * 
- * This class provides an implementation for launching and killing 
+ *
+ * This class provides an implementation for launching and killing
  * tasks that need to be run as the tasktracker itself. Hence,
  * many of the initializing or cleanup methods are not required here.
- * 
+ *
  * <br/>
- * 
+ *
  *  NOTE: This class is internal only class and not intended for users!!
  */
 public class DefaultTaskController extends TaskController {
 
-  private static final Log LOG = 
-      LogFactory.getLog(DefaultTaskController.class);
+  private static final Log LOG = LogFactory.getLog(DefaultTaskController.class);
   private FileSystem fs;
   @Override
   public void setConf(Configuration conf) {
@@ -66,12 +65,10 @@ public class DefaultTaskController extends TaskController {
   }
 
   @Override
-  public void createLogDir(TaskAttemptID taskID, 
-		  			boolean isCleanup) throws IOException {
-    TaskLog.createTaskAttemptLogDir(taskID, isCleanup, 
-                                    localStorage.getDirs());
+  public void createLogDir(TaskAttemptID taskID, boolean isCleanup) throws IOException {
+    TaskLog.createTaskAttemptLogDir(taskID, isCleanup, localStorage.getDirs());
   }
-  
+
   /**
    * Create all of the directories for the task and launches the child jvm.
    * @param user the user name
@@ -79,55 +76,42 @@ public class DefaultTaskController extends TaskController {
    * @throws IOException
    */
   @Override
-  public int launchTask(String user, 
-                                  String jobId,
-                                  String attemptId,
-                                  List<String> setup,
-                                  List<String> jvmArguments,
-                                  File currentWorkDirectory,
-                                  String stdout,
-                                  String stderr) throws IOException {
+  public int launchTask(String user, String jobId, String attemptId, List<String> setup,
+                        List<String> jvmArguments, File currentWorkDirectory, String stdout,
+                        String stderr) throws IOException {
     ShellCommandExecutor shExec = null;
-    try {    	            
+    try {
       FileSystem localFs = FileSystem.getLocal(getConf());
-      
       //create the attempt dirs
-      new Localizer(localFs, 
-          getConf().getStrings(JobConf.MAPRED_LOCAL_DIR_PROPERTY)).
-          initializeAttemptDirs(user, jobId, attemptId);
-      
-      // create the working-directory of the task 
+      new Localizer(localFs, getConf().getStrings(JobConf.MAPRED_LOCAL_DIR_PROPERTY)).
+      initializeAttemptDirs(user, jobId, attemptId);
+
+      // create the working-directory of the task
       if (!currentWorkDirectory.mkdir()) {
-        throw new IOException("Mkdirs failed to create " 
-                    + currentWorkDirectory.toString());
+        throw new IOException("Mkdirs failed to create "+ currentWorkDirectory.toString());
       }
-      
       //mkdir the loglocation
       String logLocation = TaskLog.getAttemptDir(jobId, attemptId).toString();
       if (!localFs.mkdirs(new Path(logLocation))) {
-        throw new IOException("Mkdirs failed to create " 
-                   + logLocation);
+        throw new IOException("Mkdirs failed to create "+ logLocation);
       }
       //read the configuration for the job
       FileSystem rawFs = FileSystem.getLocal(getConf()).getRaw();
       long logSize = 0; //TODO MAPREDUCE-1100
       // get the JVM command line.
-      String cmdLine = 
-        TaskLog.buildCommandLine(setup, jvmArguments,
-            new File(stdout), new File(stderr), logSize, true);
+      String cmdLine =
+        TaskLog.buildCommandLine(setup, jvmArguments, new File(stdout), new File(stderr), logSize, true);
 
       // write the command to a file in the
       // task specific cache directory
       // TODO copy to user dir
       Path p = new Path(allocator.getLocalPathForWrite(
-          TaskTracker.getPrivateDirTaskScriptLocation(user, jobId, attemptId),
-          getConf()), COMMAND_FILE);
+                          TaskTracker.getPrivateDirTaskScriptLocation(user, jobId, attemptId),
+                          getConf()), COMMAND_FILE);
 
       String commandFile = writeCommand(cmdLine, rawFs, p);
       rawFs.setPermission(p, TaskController.TASK_LAUNCH_SCRIPT_PERMISSION);
-      shExec = new ShellCommandExecutor(new String[]{
-          "bash", "-c", commandFile},
-          currentWorkDirectory);
+      shExec = new ShellCommandExecutor(new String[] {"bash", "-c", commandFile }, currentWorkDirectory);
       shExec.execute();
     } catch (Exception e) {
       if (shExec == null) {
@@ -141,24 +125,24 @@ public class DefaultTaskController extends TaskController {
     }
     return 0;
   }
-    
+
   /**
    * This routine initializes the local file system for running a job.
    * Details:
    * <ul>
    * <li>Copies the credentials file from the TaskTracker's private space to
    * the job's private space </li>
-   * <li>Creates the job work directory and set 
+   * <li>Creates the job work directory and set
    * {@link TaskTracker#JOB_LOCAL_DIR} in the configuration</li>
-   * <li>Downloads the job.jar, unjars it, and updates the configuration to 
+   * <li>Downloads the job.jar, unjars it, and updates the configuration to
    * reflect the localized path of the job.jar</li>
    * <li>Creates a base JobConf in the job's private space</li>
    * <li>Sets up the distributed cache</li>
    * <li>Sets up the user logs directory for the job</li>
    * </ul>
-   * This method must be invoked in the access control context of the job owner 
-   * user. This is because the distributed cache is also setup here and the 
-   * access to the hdfs files requires authentication tokens in case where 
+   * This method must be invoked in the access control context of the job owner
+   * user. This is because the distributed cache is also setup here and the
+   * access to the hdfs files requires authentication tokens in case where
    * security is enabled.
    * @param user the user in question (the job owner)
    * @param jobid the ID of the job in question
@@ -171,11 +155,11 @@ public class DefaultTaskController extends TaskController {
    * @throws InterruptedException
    */
   @Override
-  public void initializeJob(String user, String jobid, 
-                            Path credentials, Path jobConf, 
+  public void initializeJob(String user, String jobid,
+                            Path credentials, Path jobConf,
                             TaskUmbilicalProtocol taskTracker,
                             InetSocketAddress ttAddr
-                            ) throws IOException, InterruptedException {
+                           ) throws IOException, InterruptedException {
     final LocalDirAllocator lDirAlloc = allocator;
     FileSystem localFs = FileSystem.getLocal(getConf());
     JobLocalizer localizer = new JobLocalizer((JobConf)getConf(), user, jobid);
@@ -187,20 +171,15 @@ public class DefaultTaskController extends TaskController {
     localizer.createWorkDir(jConf);
     //copy the credential file
     Path localJobTokenFile = lDirAlloc.getLocalPathForWrite(
-        TaskTracker.getLocalJobTokenFile(user, jobid), getConf());
-    FileUtil.copy(
-        localFs, credentials, localFs, localJobTokenFile, false, getConf());
-
-
+                               TaskTracker.getLocalJobTokenFile(user, jobid), getConf());
+    FileUtil.copy(localFs, credentials, localFs, localJobTokenFile, false, getConf());
     //setup the user logs dir
     localizer.initializeJobLogDir();
-
     // Download the job.jar for this job from the system FS
     // setup the distributed cache
     // write job acls
     // write localized config
-    localizer.localizeJobFiles(JobID.forName(jobid), jConf, localJobTokenFile, 
-                               taskTracker);
+    localizer.localizeJobFiles(JobID.forName(jobid), jConf, localJobTokenFile, taskTracker);
   }
 
   @Override
@@ -208,7 +187,7 @@ public class DefaultTaskController extends TaskController {
     if (ProcessTree.isSetsidAvailable) {
       ProcessTree.killProcessGroup(Integer.toString(taskPid), signal);
     } else {
-      ProcessTree.killProcess(Integer.toString(taskPid), signal);      
+      ProcessTree.killProcess(Integer.toString(taskPid), signal);
     }
   }
 
@@ -220,14 +199,13 @@ public class DefaultTaskController extends TaskController {
    * @throws IOException
    */
   @Override
-  public void deleteAsUser(String user, 
-                           String subDir) throws IOException {
+  public void deleteAsUser(String user, String subDir) throws IOException {
     String dir = TaskTracker.getUserDir(user) + Path.SEPARATOR + subDir;
-    for(Path fullDir: allocator.getAllLocalPathsToRead(dir, getConf())) {
+    for (Path fullDir : allocator.getAllLocalPathsToRead(dir, getConf())) {
       fs.delete(fullDir, true);
     }
   }
-  
+
   /**
    * Delete the user's files under the userlogs directory.
    * @param user the user to work as
@@ -235,39 +213,32 @@ public class DefaultTaskController extends TaskController {
    * @throws IOException
    */
   @Override
-  public void deleteLogAsUser(String user, 
-                              String subDir) throws IOException {
+  public void deleteLogAsUser(String user, String subDir) throws IOException {
     Path dir = new Path(TaskLog.getUserLogDir().getAbsolutePath(), subDir);
     //Delete the subDir in <hadoop.log.dir>/userlogs
     File subDirPath = new File(dir.toString());
     FileUtil.fullyDelete( subDirPath );
-    
-    //Delete the subDir in all good <mapred.local.dirs>/userlogs 
+
+    //Delete the subDir in all good <mapred.local.dirs>/userlogs
     String [] localDirs = localStorage.getDirs();
-    for(String localdir : localDirs) {
-    	String dirPath = localdir + File.separatorChar + 
-    					TaskLog.USERLOGS_DIR_NAME + File.separatorChar +
-    					subDir;
-    	try {
-    		FileUtil.fullyDelete( new File(dirPath) );
-        } catch(Exception e){
-        	//Skip bad dir for later deletion
-            LOG.warn("Could not delete dir: " + dirPath + 
-                " , Reason : " + e.getMessage());
-        }
+    for (String localdir : localDirs) {
+      String dirPath = localdir + File.separatorChar + TaskLog.USERLOGS_DIR_NAME + File.separatorChar +
+                       subDir;
+      try {
+        FileUtil.fullyDelete( new File(dirPath) );
+      } catch (Exception e) {
+        //Skip bad dir for later deletion
+        LOG.warn("Could not delete dir: " + dirPath + " , Reason : " + e.getMessage());
+      }
     }
   }
-  
+
   @Override
-  public void truncateLogsAsUser(String user, List<Task> allAttempts)
-    throws IOException {
+  public void truncateLogsAsUser(String user, List<Task> allAttempts) throws IOException {
     Task firstTask = allAttempts.get(0);
     TaskLogsTruncater trunc = new TaskLogsTruncater(getConf());
-
-    trunc.truncateLogs(new JVMInfo(
-            TaskLog.getAttemptDir(firstTask.getTaskID(), 
-                                  firstTask.isTaskCleanupTask()),
-                       allAttempts));
+    trunc.truncateLogs(new JVMInfo(TaskLog.getAttemptDir(firstTask.getTaskID(),
+                             firstTask.isTaskCleanupTask()), allAttempts));
   }
 
   @Override
@@ -275,5 +246,5 @@ public class DefaultTaskController extends TaskController {
     this.allocator = allocator;
     this.localStorage = localStorage;
   }
-  
+
 }

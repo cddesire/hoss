@@ -36,16 +36,12 @@ import org.apache.hadoop.util.StringUtils;
  * as the job is added (using the {@link #jobAdded(JobInProgress)} method).
  */
 class EagerTaskInitializationListener extends JobInProgressListener {
-  
+
   private static final int DEFAULT_NUM_THREADS = 4;
-  private static final Log LOG = LogFactory.getLog(
-      EagerTaskInitializationListener.class.getName());
-  
-  /////////////////////////////////////////////////////////////////
+  private static final Log LOG = LogFactory.getLog(EagerTaskInitializationListener.class.getName());
+
   //  Used to init new jobs that have just been created
-  /////////////////////////////////////////////////////////////////
   class JobInitManager implements Runnable {
-   
     public void run() {
       JobInProgress job = null;
       while (true) {
@@ -60,48 +56,45 @@ class EagerTaskInitializationListener extends JobInProgressListener {
         } catch (InterruptedException t) {
           LOG.info("JobInitManagerThread interrupted.");
           break;
-        } 
+        }
       }
       LOG.info("Shutting down thread pool");
       threadPool.shutdownNow();
     }
   }
-  
+
   class InitJob implements Runnable {
-  
     private JobInProgress job;
-    
     public InitJob(JobInProgress job) {
       this.job = job;
     }
-    
     public void run() {
       ttm.initJob(job);
     }
   }
-  
+
   private JobInitManager jobInitManager = new JobInitManager();
   private Thread jobInitManagerThread;
   private List<JobInProgress> jobInitQueue = new ArrayList<JobInProgress>();
   private ExecutorService threadPool;
   private int numThreads;
   private TaskTrackerManager ttm;
-  
+
   public EagerTaskInitializationListener(Configuration conf) {
     numThreads = conf.getInt("mapred.jobinit.threads", DEFAULT_NUM_THREADS);
     threadPool = Executors.newFixedThreadPool(numThreads);
   }
-  
+
   public void setTaskTrackerManager(TaskTrackerManager ttm) {
     this.ttm = ttm;
   }
-  
+
   public void start() throws IOException {
     this.jobInitManagerThread = new Thread(jobInitManager, "jobInitManager");
     jobInitManagerThread.setDaemon(true);
     this.jobInitManagerThread.start();
   }
-  
+
   public void terminate() throws IOException {
     if (jobInitManagerThread != null && jobInitManagerThread.isAlive()) {
       LOG.info("Stopping Job Init Manager thread");
@@ -115,7 +108,7 @@ class EagerTaskInitializationListener extends JobInProgressListener {
   }
 
   /**
-   * We add the JIP to the jobInitQueue, which is processed 
+   * We add the JIP to the jobInitQueue, which is processed
    * asynchronously to handle split-computation and build up
    * the right TaskTracker/Block mapping.
    */
@@ -128,7 +121,7 @@ class EagerTaskInitializationListener extends JobInProgressListener {
     }
 
   }
-  
+
   /**
    * Sort jobs by priority and then by start time.
    */
@@ -136,17 +129,17 @@ class EagerTaskInitializationListener extends JobInProgressListener {
     Comparator<JobInProgress> comp = new Comparator<JobInProgress>() {
       public int compare(JobInProgress o1, JobInProgress o2) {
         int res = o1.getPriority().compareTo(o2.getPriority());
-        if(res == 0) {
-          if(o1.getStartTime() < o2.getStartTime())
+        if (res == 0) {
+          if (o1.getStartTime() < o2.getStartTime())
             res = -1;
           else
-            res = (o1.getStartTime()==o2.getStartTime() ? 0 : 1);
+            res = (o1.getStartTime() == o2.getStartTime() ? 0 : 1);
         }
-          
+
         return res;
       }
     };
-    
+
     synchronized (jobInitQueue) {
       Collections.sort(jobInitQueue, comp);
     }
@@ -165,7 +158,7 @@ class EagerTaskInitializationListener extends JobInProgressListener {
       jobStateChanged((JobStatusChangeEvent)event);
     }
   }
-  
+
   // called when the job's status is changed
   private void jobStateChanged(JobStatusChangeEvent event) {
     // Resort the job queue if the job-start-time or job-priority changes

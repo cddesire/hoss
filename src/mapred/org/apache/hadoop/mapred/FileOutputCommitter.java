@@ -33,15 +33,13 @@ import org.apache.hadoop.util.StringUtils;
  **/
 public class FileOutputCommitter extends OutputCommitter {
 
-  public static final Log LOG = LogFactory.getLog(
-      "org.apache.hadoop.mapred.FileOutputCommitter");
+  public static final Log LOG = LogFactory.getLog("org.apache.hadoop.mapred.FileOutputCommitter");
 /**
    * Temporary directory name 
    */
   public static final String TEMP_DIR_NAME = "_temporary";
   public static final String SUCCEEDED_FILE_NAME = "_SUCCESS";
-  static final String SUCCESSFUL_JOB_OUTPUT_DIR_MARKER =
-    "mapreduce.fileoutputcommitter.marksuccessfuljobs";
+  static final String SUCCESSFUL_JOB_OUTPUT_DIR_MARKER = "mapreduce.fileoutputcommitter.marksuccessfuljobs";
 
   public void setupJob(JobContext context) throws IOException {
     JobConf conf = context.getJobConf();
@@ -56,13 +54,11 @@ public class FileOutputCommitter extends OutputCommitter {
   }
 
   private static boolean getOutputDirMarking(JobConf conf) {
-    return conf.getBoolean(SUCCESSFUL_JOB_OUTPUT_DIR_MARKER, 
-                           true);
+    return conf.getBoolean(SUCCESSFUL_JOB_OUTPUT_DIR_MARKER, true);
   }
 
   // Mark the output dir of the job for which the context is passed.
-  private void markSuccessfulOutputDir(JobContext context) 
-  throws IOException {
+  private void markSuccessfulOutputDir(JobContext context) throws IOException {
     JobConf conf = context.getJobConf();
     Path outputPath = FileOutputFormat.getOutputPath(conf);
     if (outputPath != null) {
@@ -118,8 +114,7 @@ public class FileOutputCommitter extends OutputCommitter {
     // task is writing.
   }
 		  
-  public void commitTask(TaskAttemptContext context) 
-  throws IOException {
+  public void commitTask(TaskAttemptContext context) throws IOException {
     Path taskOutputPath = getTempTaskOutputPath(context);
     TaskAttemptID attemptId = context.getTaskAttemptID();
     JobConf job = context.getJobConf();
@@ -135,30 +130,23 @@ public class FileOutputCommitter extends OutputCommitter {
           LOG.info("Failed to delete the temporary output" + 
           " directory of task: " + attemptId + " - " + taskOutputPath);
         }
-        LOG.info("Saved output of task '" + attemptId + "' to " + 
-                 jobOutputPath);
+        LOG.info("Saved output of task '" + attemptId + "' to " + jobOutputPath);
       }
     }
   }
 		  
-  private void moveTaskOutputs(TaskAttemptContext context,
-                               FileSystem fs,
-                               Path jobOutputDir,
-                               Path taskOutput) 
-  throws IOException {
+  private void moveTaskOutputs(TaskAttemptContext context, FileSystem fs, Path jobOutputDir,
+                               Path taskOutput) throws IOException {
     TaskAttemptID attemptId = context.getTaskAttemptID();
     context.getProgressible().progress();
     if (fs.isFile(taskOutput)) {
-      Path finalOutputPath = getFinalPath(jobOutputDir, taskOutput, 
-                                          getTempTaskOutputPath(context));
+      Path finalOutputPath = getFinalPath(jobOutputDir, taskOutput, getTempTaskOutputPath(context));
       if (!fs.rename(taskOutput, finalOutputPath)) {
         if (!fs.delete(finalOutputPath, true)) {
-          throw new IOException("Failed to delete earlier output of task: " + 
-                                 attemptId);
+          throw new IOException("Failed to delete earlier output of task: " + attemptId);
         }
         if (!fs.rename(taskOutput, finalOutputPath)) {
-          throw new IOException("Failed to save output of task: " + 
-        		  attemptId);
+          throw new IOException("Failed to save output of task: " + attemptId);
         }
       }
       LOG.debug("Moved " + taskOutput + " to " + finalOutputPath);
@@ -188,8 +176,7 @@ public class FileOutputCommitter extends OutputCommitter {
     }
   }
 
-  private Path getFinalPath(Path jobOutputDir, Path taskOutput, 
-                            Path taskOutputPath) throws IOException {
+  private Path getFinalPath(Path jobOutputDir, Path taskOutput, Path taskOutputPath) throws IOException {
     URI taskOutputUri = taskOutput.toUri();
     URI relativePath = taskOutputPath.toUri().relativize(taskOutputUri);
     if (taskOutputUri == relativePath) {//taskOutputPath is not a parent of taskOutput
@@ -203,8 +190,7 @@ public class FileOutputCommitter extends OutputCommitter {
     }
   }
 
-  public boolean needsTaskCommit(TaskAttemptContext context) 
-  throws IOException {
+  public boolean needsTaskCommit(TaskAttemptContext context) throws IOException {
     try {
       Path taskOutputPath = getTempTaskOutputPath(context);
       if (taskOutputPath != null) {
@@ -241,8 +227,7 @@ public class FileOutputCommitter extends OutputCommitter {
     return null;
   }
   
-  Path getWorkPath(TaskAttemptContext taskContext, Path basePath) 
-  throws IOException {
+  Path getWorkPath(TaskAttemptContext taskContext, Path basePath) throws IOException {
     // ${mapred.out.dir}/_temporary
     Path jobTmpDir = new Path(basePath, FileOutputCommitter.TEMP_DIR_NAME);
     FileSystem fs = jobTmpDir.getFileSystem(taskContext.getJobConf());

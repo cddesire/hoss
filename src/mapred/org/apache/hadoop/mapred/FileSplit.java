@@ -29,8 +29,7 @@ import org.apache.hadoop.fs.Path;
  * InputFormat#getSplits(JobConf, int)} and passed to
  * {@link InputFormat#getRecordReader(InputSplit,JobConf,Reporter)}. 
  */
-public class FileSplit extends org.apache.hadoop.mapreduce.InputSplit 
-                       implements InputSplit {
+public class FileSplit extends org.apache.hadoop.mapreduce.InputSplit implements InputSplit {
   private Path file;
   private long start;
   private long length;
@@ -82,10 +81,7 @@ public class FileSplit extends org.apache.hadoop.mapreduce.InputSplit
       return file + ":" + start + "+" + length; 
   }
 
-  ////////////////////////////////////////////
   // Writable methods
-  ////////////////////////////////////////////
-
   public void write(DataOutput out) throws IOException {
     UTF8.writeString(out, file.toString());
     out.writeLong(start);
