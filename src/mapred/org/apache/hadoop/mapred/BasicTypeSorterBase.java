@@ -29,30 +29,30 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.io.SequenceFile.Sorter.RawKeyValueIterator;
 import org.apache.hadoop.util.Progressable;
 
-/** This class implements the sort interface using primitive int arrays as 
+/** This class implements the sort interface using primitive int arrays as
  * the data structures (that is why this class is called 'BasicType'SorterBase)
  */
 abstract class BasicTypeSorterBase implements BufferSorter {
-  
+
   protected OutputBuffer keyValBuffer; //the buffer used for storing
-                                           //key/values
+  //key/values
   protected int[] startOffsets; //the array used to store the start offsets of
-                                //keys in keyValBuffer
+  //keys in keyValBuffer
   protected int[] keyLengths; //the array used to store the lengths of
-                              //keys
-  protected int[] valueLengths; //the array used to store the value lengths 
+  //keys
+  protected int[] valueLengths; //the array used to store the value lengths
   protected int[] pointers; //the array of startOffsets's indices. This will
-                            //be sorted at the end to contain a sorted array of
-                            //indices to offsets
+  //be sorted at the end to contain a sorted array of
+  //indices to offsets
   protected RawComparator comparator; //the comparator for the map output
   protected int count; //the number of key/values
-  //the overhead of the arrays in memory 
+  //the overhead of the arrays in memory
   //12 => 4 for keyoffsets, 4 for keylengths, 4 for valueLengths, and
   //4 for indices into startOffsets array in the
   //pointers array (ignored the partpointers list itself)
   static private final int BUFFERED_KEY_VAL_OVERHEAD = 16;
   static private final int INITIAL_ARRAY_SIZE = 5;
-  //we maintain the max lengths of the key/val that we encounter.  During 
+  //we maintain the max lengths of the key/val that we encounter.  During
   //iteration of the sorted results, we will create a DataOutputBuffer to
   //return the keys. The max size of the DataOutputBuffer will be the max
   //keylength that we encounter. Expose this value to model memory more
@@ -68,9 +68,9 @@ abstract class BasicTypeSorterBase implements BufferSorter {
   public void configure(JobConf conf) {
     comparator = conf.getOutputKeyComparator();
   }
-  
+
   public void setProgressable(Progressable reporter) {
-    this.reporter = reporter;  
+    this.reporter = reporter;
   }
 
   public void addKeyValue(int recordOffset, int keyLength, int valLength) {
@@ -97,20 +97,19 @@ abstract class BasicTypeSorterBase implements BufferSorter {
   }
 
   public long getMemoryUtilized() {
-    //the total length of the arrays + the max{Key,Val}Length (this will be the 
+    //the total length of the arrays + the max{Key,Val}Length (this will be the
     //max size of the DataOutputBuffers during the iteration of the sorted
     //keys).
     if (startOffsets != null) {
-      return (startOffsets.length) * BUFFERED_KEY_VAL_OVERHEAD + 
-              maxKeyLength + maxValLength;
-    }
-    else { //nothing from this yet
+      return (startOffsets.length) * BUFFERED_KEY_VAL_OVERHEAD +
+             maxKeyLength + maxValLength;
+    } else { //nothing from this yet
       return 0;
     }
   }
 
   public abstract RawKeyValueIterator sort();
-  
+
   public void close() {
     //set count to 0; also, we don't reuse the arrays since we want to maintain
     //consistency in the memory model
@@ -121,12 +120,12 @@ abstract class BasicTypeSorterBase implements BufferSorter {
     pointers = null;
     maxKeyLength = 0;
     maxValLength = 0;
-    
+
     //release the large key-value buffer so that the GC, if necessary,
     //can collect it away
     keyValBuffer = null;
   }
-  
+
   private void grow() {
     int currLength = 0;
     if (startOffsets != null) {
@@ -138,10 +137,10 @@ abstract class BasicTypeSorterBase implements BufferSorter {
     valueLengths = grow(valueLengths, newLength);
     pointers = grow(pointers, newLength);
   }
-  
+
   private int[] grow(int[] old, int newLength) {
     int[] result = new int[newLength];
-    if(old != null) { 
+    if (old != null) {
       System.arraycopy(old, 0, result, 0, old.length);
     }
     return result;
@@ -152,7 +151,7 @@ abstract class BasicTypeSorterBase implements BufferSorter {
 //methods must be invoked to iterate over key/vals after sort is done.
 //
 class MRSortResultIterator implements RawKeyValueIterator {
-  
+
   private int count;
   private int[] pointers;
   private int[] startOffsets;
@@ -163,10 +162,8 @@ class MRSortResultIterator implements RawKeyValueIterator {
   private OutputBuffer keyValBuffer;
   private DataOutputBuffer key = new DataOutputBuffer();
   private InMemUncompressedBytes value = new InMemUncompressedBytes();
-  
-  public MRSortResultIterator(OutputBuffer keyValBuffer, 
-                              int []pointers, int []startOffsets,
-                              int []keyLengths, int []valLengths) {
+
+  public MRSortResultIterator(OutputBuffer keyValBuffer, int []pointers, int []startOffsets, int []keyLengths, int []valLengths) {
     this.count = pointers.length;
     this.pointers = pointers;
     this.startOffsets = startOffsets;
@@ -174,11 +171,11 @@ class MRSortResultIterator implements RawKeyValueIterator {
     this.valLengths = valLengths;
     this.keyValBuffer = keyValBuffer;
   }
-  
+
   public Progress getProgress() {
     return null;
   }
-  
+
   public DataOutputBuffer getKey() throws IOException {
     int currKeyOffset = startOffsets[currStartOffsetIndex];
     int currKeyLength = keyLengths[currStartOffsetIndex];
@@ -191,9 +188,7 @@ class MRSortResultIterator implements RawKeyValueIterator {
   public ValueBytes getValue() throws IOException {
     //value[i] is stored in the following byte range:
     //startOffsets[i] + keyLengths[i] through valLengths[i]
-    value.reset(keyValBuffer,
-                startOffsets[currStartOffsetIndex] + keyLengths[currStartOffsetIndex],
-                valLengths[currStartOffsetIndex]);
+    value.reset(keyValBuffer, startOffsets[currStartOffsetIndex] + keyLengths[currStartOffsetIndex], valLengths[currStartOffsetIndex]);
     return value;
   }
 
@@ -204,39 +199,35 @@ class MRSortResultIterator implements RawKeyValueIterator {
     currIndexInPointers++;
     return true;
   }
-  
+
   public void close() {
     return;
   }
-  
+
   //An implementation of the ValueBytes interface for the in-memory value
-  //buffers. 
+  //buffers.
   private static class InMemUncompressedBytes implements ValueBytes {
     private byte[] data;
     int start;
     int dataSize;
-    private void reset(OutputBuffer d, int start, int length) 
-      throws IOException {
+    private void reset(OutputBuffer d, int start, int length) throws IOException {
       data = d.getData();
       this.start = start;
       dataSize = length;
     }
-            
+
     public int getSize() {
       return dataSize;
     }
-            
-    public void writeUncompressedBytes(DataOutputStream outStream)
-      throws IOException {
+
+    public void writeUncompressedBytes(DataOutputStream outStream) throws IOException {
       outStream.write(data, start, dataSize);
     }
 
-    public void writeCompressedBytes(DataOutputStream outStream) 
-      throws IllegalArgumentException, IOException {
-      throw
-        new IllegalArgumentException("UncompressedBytes cannot be compressed!");
+    public void writeCompressedBytes(DataOutputStream outStream) throws IllegalArgumentException, IOException {
+      throw new IllegalArgumentException("UncompressedBytes cannot be compressed!");
     }
-  
+
   } // InMemUncompressedBytes
 
 } //MRSortResultIterator
