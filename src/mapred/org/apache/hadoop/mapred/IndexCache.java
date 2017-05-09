@@ -33,16 +33,15 @@ class IndexCache {
   private AtomicInteger totalMemoryUsed = new AtomicInteger();
   private static final Log LOG = LogFactory.getLog(IndexCache.class);
 
-  private final ConcurrentHashMap<String,IndexInformation> cache =
-    new ConcurrentHashMap<String,IndexInformation>();
-  
-  private final LinkedBlockingQueue<String> queue = 
+  private final ConcurrentHashMap<String, IndexInformation> cache =
+    new ConcurrentHashMap<String, IndexInformation>();
+
+  private final LinkedBlockingQueue<String> queue =
     new LinkedBlockingQueue<String>();
 
   public IndexCache(JobConf conf) {
     this.conf = conf;
-    totalMemoryAllowed =
-      conf.getInt("mapred.tasktracker.indexcache.mb", 10) * 1024 * 1024;
+    totalMemoryAllowed = conf.getInt("mapred.tasktracker.indexcache.mb", 10) * 1024 * 1024;
     LOG.info("IndexCache created with max memory = " + totalMemoryAllowed);
   }
 
@@ -58,10 +57,8 @@ class IndexCache {
    * @throws IOException
    */
   public IndexRecord getIndexInformation(String mapId, int reduce,
-      Path fileName, String expectedIndexOwner) throws IOException {
-
+                                         Path fileName, String expectedIndexOwner) throws IOException {
     IndexInformation info = cache.get(mapId);
-
     if (info == null) {
       info = readIndexFileToCache(fileName, mapId, expectedIndexOwner);
     } else {
@@ -77,11 +74,9 @@ class IndexCache {
       LOG.debug("IndexCache HIT: MapId " + mapId + " found");
     }
 
-    if (info.mapSpillRecord.size() == 0 ||
-        info.mapSpillRecord.size() < reduce) {
-      throw new IOException("Invalid request " +
-        " Map Id = " + mapId + " Reducer = " + reduce +
-        " Index Info Length = " + info.mapSpillRecord.size());
+    if (info.mapSpillRecord.size() == 0 || info.mapSpillRecord.size() < reduce) {
+      throw new IOException("Invalid request " + " Map Id = " + mapId + " Reducer = " + reduce +
+                            " Index Info Length = " + info.mapSpillRecord.size());
     }
     return info.mapSpillRecord.getIndex(reduce);
   }
@@ -105,20 +100,19 @@ class IndexCache {
     }
     LOG.debug("IndexCache MISS: MapId " + mapId + " not found") ;
     SpillRecord tmp = null;
-    try { 
+    try {
       tmp = new SpillRecord(indexFileName, conf, expectedIndexOwner);
-    } catch (Throwable e) { 
+    } catch (Throwable e) {
       tmp = new SpillRecord(0);
       cache.remove(mapId);
       throw new IOException("Error Reading IndexFile", e);
-    } finally { 
-      synchronized (newInd) { 
+    } finally {
+      synchronized (newInd) {
         newInd.mapSpillRecord = tmp;
         newInd.notifyAll();
-      } 
-    } 
+      }
+    }
     queue.add(mapId);
-    
     if (totalMemoryUsed.addAndGet(newInd.getSize()) > totalMemoryAllowed) {
       freeIndexInformation();
     }
@@ -157,11 +151,9 @@ class IndexCache {
 
   private static class IndexInformation {
     SpillRecord mapSpillRecord;
-
     int getSize() {
-      return mapSpillRecord == null
-        ? 0
-        : mapSpillRecord.size() * MapTask.MAP_OUTPUT_INDEX_RECORD_LENGTH;
+      return mapSpillRecord == null ? 0
+             : mapSpillRecord.size() * MapTask.MAP_OUTPUT_INDEX_RECORD_LENGTH;
     }
   }
 }

@@ -42,27 +42,27 @@ import org.apache.hadoop.io.serializer.Serializer;
 /**
  * <code>IFile</code> is the simple <key-len, value-len, key, value> format
  * for the intermediate map-outputs in Map-Reduce.
- * 
- * There is a <code>Writer</code> to write out map-outputs in this format and 
+ *
+ * There is a <code>Writer</code> to write out map-outputs in this format and
  * a <code>Reader</code> to read files of this format.
  */
 class IFile {
 
   private static final int EOF_MARKER = -1;
-  
+
   /**
-   * <code>IFile.Writer</code> to write out intermediate map-outputs. 
+   * <code>IFile.Writer</code> to write out intermediate map-outputs.
    */
   public static class Writer<K extends Object, V extends Object> {
     FSDataOutputStream out;
     boolean ownOutputStream = false;
     long start = 0;
     FSDataOutputStream rawOut;
-    
+
     CompressionOutputStream compressedOut;
     Compressor compressor;
     boolean compressOutput = false;
-    
+
     long decompressedBytesWritten = 0;
     long compressedBytesWritten = 0;
 
@@ -76,27 +76,25 @@ class IFile {
     Class<V> valueClass;
     Serializer<K> keySerializer;
     Serializer<V> valueSerializer;
-    
+
     DataOutputBuffer buffer = new DataOutputBuffer();
 
-    public Writer(Configuration conf, FileSystem fs, Path file, 
+    public Writer(Configuration conf, FileSystem fs, Path file,
                   Class<K> keyClass, Class<V> valueClass,
                   CompressionCodec codec,
                   Counters.Counter writesCounter) throws IOException {
-      this(conf, fs.create(file), keyClass, valueClass, codec,
-           writesCounter);
+      this(conf, fs.create(file), keyClass, valueClass, codec, writesCounter);
       ownOutputStream = true;
     }
-    
-    public Writer(Configuration conf, FSDataOutputStream out, 
-        Class<K> keyClass, Class<V> valueClass,
-        CompressionCodec codec, Counters.Counter writesCounter)
-        throws IOException {
+
+    public Writer(Configuration conf, FSDataOutputStream out,
+                  Class<K> keyClass, Class<V> valueClass,
+                  CompressionCodec codec, Counters.Counter writesCounter) throws IOException {
       this.writtenRecordsCounter = writesCounter;
       this.checksumOut = new IFileOutputStream(out);
       this.rawOut = out;
       this.start = this.rawOut.getPos();
-      
+
       if (codec != null) {
         this.compressor = CodecPool.getCompressor(codec);
         this.compressor.reset();
@@ -104,9 +102,9 @@ class IFile {
         this.out = new FSDataOutputStream(this.compressedOut,  null);
         this.compressOutput = true;
       } else {
-        this.out = new FSDataOutputStream(checksumOut,null);
+        this.out = new FSDataOutputStream(checksumOut, null);
       }
-      
+
       this.keyClass = keyClass;
       this.valueClass = valueClass;
       SerializationFactory serializationFactory = new SerializationFactory(conf);
@@ -117,36 +115,28 @@ class IFile {
     }
 
     public void close() throws IOException {
-
       // Close the serializers
       keySerializer.close();
       valueSerializer.close();
-
       // Write EOF_MARKER for key/value length
       WritableUtils.writeVInt(out, EOF_MARKER);
       WritableUtils.writeVInt(out, EOF_MARKER);
       decompressedBytesWritten += 2 * WritableUtils.getVIntSize(EOF_MARKER);
-      
       //Flush the stream
       out.flush();
-  
       if (compressOutput) {
         // Flush
         compressedOut.finish();
         compressedOut.resetState();
       }
-      
       // Close the underlying stream iff we own it...
       if (ownOutputStream) {
         out.close();
-      }
-      else {
+      } else {
         // Write the checksum
         checksumOut.finish();
       }
-
       compressedBytesWritten = rawOut.getPos() - start;
-
       if (compressOutput) {
         // Return back the compressor
         CodecPool.returnCompressor(compressor);
@@ -154,35 +144,31 @@ class IFile {
       }
 
       out = null;
-      if(writtenRecordsCounter != null) {
+      if (writtenRecordsCounter != null) {
         writtenRecordsCounter.increment(numRecordsWritten);
       }
     }
 
     public void append(K key, V value) throws IOException {
       if (key.getClass() != keyClass)
-        throw new IOException("wrong key class: "+ key.getClass()
-                              +" is not "+ keyClass);
+        throw new IOException("wrong key class: " + key.getClass() + " is not " + keyClass);
       if (value.getClass() != valueClass)
-        throw new IOException("wrong value class: "+ value.getClass()
-                              +" is not "+ valueClass);
+        throw new IOException("wrong value class: " + value.getClass() + " is not " + valueClass);
 
       // Append the 'key'
       keySerializer.serialize(key);
       int keyLength = buffer.getLength();
       if (keyLength < 0) {
-        throw new IOException("Negative key-length not allowed: " + keyLength + 
-                              " for " + key);
+        throw new IOException("Negative key-length not allowed: " + keyLength + " for " + key);
       }
 
       // Append the 'value'
       valueSerializer.serialize(value);
       int valueLength = buffer.getLength() - keyLength;
       if (valueLength < 0) {
-        throw new IOException("Negative value-length not allowed: " + 
-                              valueLength + " for " + value);
+        throw new IOException("Negative value-length not allowed: " + valueLength + " for " + value);
       }
-      
+
       // Write the record out
       WritableUtils.writeVInt(out, keyLength);                  // key length
       WritableUtils.writeVInt(out, valueLength);                // value length
@@ -190,54 +176,51 @@ class IFile {
 
       // Reset
       buffer.reset();
-      
+
       // Update bytes written
-      decompressedBytesWritten += keyLength + valueLength + 
-                                  WritableUtils.getVIntSize(keyLength) + 
+      decompressedBytesWritten += keyLength + valueLength +
+                                  WritableUtils.getVIntSize(keyLength) +
                                   WritableUtils.getVIntSize(valueLength);
       ++numRecordsWritten;
     }
-    
-    public void append(DataInputBuffer key, DataInputBuffer value)
-    throws IOException {
+
+    public void append(DataInputBuffer key, DataInputBuffer value) throws IOException {
       int keyLength = key.getLength() - key.getPosition();
       if (keyLength < 0) {
-        throw new IOException("Negative key-length not allowed: " + keyLength + 
-                              " for " + key);
+        throw new IOException("Negative key-length not allowed: " + keyLength + " for " + key);
       }
-      
+
       int valueLength = value.getLength() - value.getPosition();
       if (valueLength < 0) {
-        throw new IOException("Negative value-length not allowed: " + 
-                              valueLength + " for " + value);
+        throw new IOException("Negative value-length not allowed: " + valueLength + " for " + value);
       }
 
       WritableUtils.writeVInt(out, keyLength);
       WritableUtils.writeVInt(out, valueLength);
-      out.write(key.getData(), key.getPosition(), keyLength); 
-      out.write(value.getData(), value.getPosition(), valueLength); 
+      out.write(key.getData(), key.getPosition(), keyLength);
+      out.write(value.getData(), value.getPosition(), valueLength);
 
       // Update bytes written
-      decompressedBytesWritten += keyLength + valueLength + 
-                      WritableUtils.getVIntSize(keyLength) + 
-                      WritableUtils.getVIntSize(valueLength);
+      decompressedBytesWritten += keyLength + valueLength +
+                                  WritableUtils.getVIntSize(keyLength) +
+                                  WritableUtils.getVIntSize(valueLength);
       ++numRecordsWritten;
     }
-    
+
     public long getRawLength() {
       return decompressedBytesWritten;
     }
-    
+
     public long getCompressedLength() {
       return compressedBytesWritten;
     }
   }
 
   /**
-   * <code>IFile.Reader</code> to read intermediate map-outputs. 
+   * <code>IFile.Reader</code> to read intermediate map-outputs.
    */
   public static class Reader<K extends Object, V extends Object> {
-    private static final int DEFAULT_BUFFER_SIZE = 128*1024;
+    private static final int DEFAULT_BUFFER_SIZE = 128 * 1024;
     private static final int MAX_VINT_SIZE = 9;
 
     // Count records read from disk
@@ -250,17 +233,17 @@ class IFile {
     final long fileLength;
     boolean eof = false;
     final IFileInputStream checksumIn;
-    
+
     byte[] buffer = null;
     int bufferSize = DEFAULT_BUFFER_SIZE;
     DataInputBuffer dataIn = new DataInputBuffer();
 
     int recNo = 1;
-    
+
     /**
      * Construct an IFile Reader.
-     * 
-     * @param conf Configuration File 
+     *
+     * @param conf Configuration File
      * @param fs  FileSystem
      * @param file Path of the file to be opened. This file should have
      *             checksum bytes for the data at the end of the file.
@@ -271,15 +254,13 @@ class IFile {
     public Reader(Configuration conf, FileSystem fs, Path file,
                   CompressionCodec codec,
                   Counters.Counter readsCounter) throws IOException {
-      this(conf, fs.open(file), 
-           fs.getFileStatus(file).getLen(),
-           codec, readsCounter);
+      this(conf, fs.open(file), fs.getFileStatus(file).getLen(), codec, readsCounter);
     }
 
     /**
      * Construct an IFile Reader.
-     * 
-     * @param conf Configuration File 
+     *
+     * @param conf Configuration File
      * @param in   The input stream
      * @param length Length of the data in the stream, including the checksum
      *               bytes.
@@ -287,11 +268,10 @@ class IFile {
      * @param readsCounter Counter for records read from disk
      * @throws IOException
      */
-    public Reader(Configuration conf, FSDataInputStream in, long length, 
-                  CompressionCodec codec,
-                  Counters.Counter readsCounter) throws IOException {
+    public Reader(Configuration conf, FSDataInputStream in, long length,
+                  CompressionCodec codec, Counters.Counter readsCounter) throws IOException {
       readRecordsCounter = readsCounter;
-      checksumIn = new IFileInputStream(in,length);
+      checksumIn = new IFileInputStream(in, length);
       if (codec != null) {
         decompressor = CodecPool.getDecompressor(codec);
         this.in = codec.createInputStream(checksumIn, decompressor);
@@ -299,24 +279,24 @@ class IFile {
         this.in = checksumIn;
       }
       this.fileLength = length;
-      
+
       if (conf != null) {
         bufferSize = conf.getInt("io.file.buffer.size", DEFAULT_BUFFER_SIZE);
       }
     }
-    
-    public long getLength() { 
+
+    public long getLength() {
       return fileLength - checksumIn.getSize();
     }
-    
-    public long getPosition() throws IOException {    
-      return checksumIn.getPosition(); 
+
+    public long getPosition() throws IOException {
+      return checksumIn.getPosition();
     }
-    
+
     /**
      * Read upto len bytes into buf starting at offset off.
-     * 
-     * @param buf buffer 
+     *
+     * @param buf buffer
      * @param off offset
      * @param len length of buffer
      * @return the no. of bytes read
@@ -325,7 +305,7 @@ class IFile {
     private int readData(byte[] buf, int off, int len) throws IOException {
       int bytesRead = 0;
       while (bytesRead < len) {
-        int n = in.read(buf, off+bytesRead, len-bytesRead);
+        int n = in.read(buf, off + bytesRead, len - bytesRead);
         if (n < 0) {
           return bytesRead;
         }
@@ -333,102 +313,89 @@ class IFile {
       }
       return len;
     }
-    
+
     void readNextBlock(int minSize) throws IOException {
       if (buffer == null) {
         buffer = new byte[bufferSize];
         dataIn.reset(buffer, 0, 0);
       }
-      buffer = 
-        rejigData(buffer, 
-                  (bufferSize < minSize) ? new byte[minSize << 1] : buffer);
+      buffer = rejigData(buffer, (bufferSize < minSize) ? new byte[minSize << 1] : buffer);
       bufferSize = buffer.length;
     }
-    
-    private byte[] rejigData(byte[] source, byte[] destination) 
-    throws IOException{
+
+    private byte[] rejigData(byte[] source, byte[] destination)
+    throws IOException {
       // Copy remaining data into the destination array
-      int bytesRemaining = dataIn.getLength()-dataIn.getPosition();
+      int bytesRemaining = dataIn.getLength() - dataIn.getPosition();
       if (bytesRemaining > 0) {
-        System.arraycopy(source, dataIn.getPosition(), 
-            destination, 0, bytesRemaining);
+        System.arraycopy(source, dataIn.getPosition(), destination, 0, bytesRemaining);
       }
-      
-      // Read as much data as will fit from the underlying stream 
-      int n = readData(destination, bytesRemaining, 
-                       (destination.length - bytesRemaining));
+
+      // Read as much data as will fit from the underlying stream
+      int n = readData(destination, bytesRemaining, (destination.length - bytesRemaining));
       dataIn.reset(destination, 0, (bytesRemaining + n));
-      
+
       return destination;
     }
-    
-    public boolean next(DataInputBuffer key, DataInputBuffer value) 
+
+    public boolean next(DataInputBuffer key, DataInputBuffer value)
     throws IOException {
       // Sanity check
       if (eof) {
         throw new EOFException("Completed reading " + bytesRead);
       }
-      
+
       // Check if we have enough data to read lengths
-      if ((dataIn.getLength() - dataIn.getPosition()) < 2*MAX_VINT_SIZE) {
-        readNextBlock(2*MAX_VINT_SIZE);
+      if ((dataIn.getLength() - dataIn.getPosition()) < 2 * MAX_VINT_SIZE) {
+        readNextBlock(2 * MAX_VINT_SIZE);
       }
-      
+
       // Read key and value lengths
       int oldPos = dataIn.getPosition();
       int keyLength = WritableUtils.readVInt(dataIn);
       int valueLength = WritableUtils.readVInt(dataIn);
       int pos = dataIn.getPosition();
       bytesRead += pos - oldPos;
-      
+
       // Check for EOF
       if (keyLength == EOF_MARKER && valueLength == EOF_MARKER) {
         eof = true;
         return false;
       }
-      
+
       // Sanity check
       if (keyLength < 0) {
-        throw new IOException("Rec# " + recNo + ": Negative key-length: " + 
-                              keyLength);
+        throw new IOException("Rec# " + recNo + ": Negative key-length: " + keyLength);
       }
       if (valueLength < 0) {
-        throw new IOException("Rec# " + recNo + ": Negative value-length: " + 
-                              valueLength);
-      }
-      
-      final int recordLength = keyLength + valueLength;
-      
-      // Check if we have the raw key/value in the buffer
-      if ((dataIn.getLength()-pos) < recordLength) {
-        readNextBlock(recordLength);
-        
-        // Sanity check
-        if ((dataIn.getLength() - dataIn.getPosition()) < recordLength) {
-          throw new EOFException("Rec# " + recNo + ": Could read the next " +
-          		                   " record");
-        }
+        throw new IOException("Rec# " + recNo + ": Negative value-length: " + valueLength);
       }
 
+      final int recordLength = keyLength + valueLength;
+
+      // Check if we have the raw key/value in the buffer
+      if ((dataIn.getLength() - pos) < recordLength) {
+        readNextBlock(recordLength);
+
+        // Sanity check
+        if ((dataIn.getLength() - dataIn.getPosition()) < recordLength) {
+          throw new EOFException("Rec# " + recNo + ": Could read the next " + " record");
+        }
+      }
       // Setup the key and value
       pos = dataIn.getPosition();
       byte[] data = dataIn.getData();
       key.reset(data, pos, keyLength);
       value.reset(data, (pos + keyLength), valueLength);
-      
       // Position for the next record
       long skipped = dataIn.skip(recordLength);
       if (skipped != recordLength) {
-        throw new IOException("Rec# " + recNo + ": Failed to skip past record " +
-        		                  "of length: " + recordLength);
+        throw new IOException("Rec# " + recNo + ": Failed to skip past record " + "of length: " + recordLength);
       }
-      
       // Record the bytes read
       bytesRead += recordLength;
-
       ++recNo;
       ++numRecordsRead;
-
       return true;
     }
 
@@ -439,38 +406,36 @@ class IFile {
         CodecPool.returnDecompressor(decompressor);
         decompressor = null;
       }
-      
+
       // Close the underlying stream
       in.close();
-      
+
       // Release the buffer
       dataIn = null;
       buffer = null;
-      if(readRecordsCounter != null) {
+      if (readRecordsCounter != null) {
         readRecordsCounter.increment(numRecordsRead);
       }
     }
-  }    
-  
+  }
+
   /**
    * <code>IFile.InMemoryReader</code> to read map-outputs present in-memory.
    */
   public static class InMemoryReader<K, V> extends Reader<K, V> {
     RamManager ramManager;
     TaskAttemptID taskAttemptId;
-    
+
     public InMemoryReader(RamManager ramManager, TaskAttemptID taskAttemptId,
-                          byte[] data, int start, int length)
-                          throws IOException {
+                          byte[] data, int start, int length) throws IOException {
       super(null, null, length - start, null, null);
       this.ramManager = ramManager;
       this.taskAttemptId = taskAttemptId;
-      
       buffer = data;
       bufferSize = (int)fileLength;
       dataIn.reset(buffer, start, length);
     }
-    
+
     @Override
     public long getPosition() throws IOException {
       // InMemoryReader does not initialize streams like Reader, so in.getPos()
@@ -478,15 +443,15 @@ class IFile {
       // which will be correct since in-memory data is not compressed.
       return bytesRead;
     }
-    
+
     @Override
-    public long getLength() { 
+    public long getLength() {
       return fileLength;
     }
-    
+
     private void dumpOnError() {
       File dumpFile = new File("../output/" + taskAttemptId + ".dump");
-      System.err.println("Dumping corrupt map-output of " + taskAttemptId + 
+      System.err.println("Dumping corrupt map-output of " + taskAttemptId +
                          " to " + dumpFile.getAbsolutePath());
       try {
         FileOutputStream fos = new FileOutputStream(dumpFile);
@@ -496,70 +461,57 @@ class IFile {
         System.err.println("Failed to dump map-output of " + taskAttemptId);
       }
     }
-    
-    public boolean next(DataInputBuffer key, DataInputBuffer value) 
-    throws IOException {
+
+    public boolean next(DataInputBuffer key, DataInputBuffer value) throws IOException {
       try {
-      // Sanity check
-      if (eof) {
-        throw new EOFException("Completed reading " + bytesRead);
-      }
-      
-      // Read key and value lengths
-      int oldPos = dataIn.getPosition();
-      int keyLength = WritableUtils.readVInt(dataIn);
-      int valueLength = WritableUtils.readVInt(dataIn);
-      int pos = dataIn.getPosition();
-      bytesRead += pos - oldPos;
-      
-      // Check for EOF
-      if (keyLength == EOF_MARKER && valueLength == EOF_MARKER) {
-        eof = true;
-        return false;
-      }
-      
-      // Sanity check
-      if (keyLength < 0) {
-        throw new IOException("Rec# " + recNo + ": Negative key-length: " + 
-                              keyLength);
-      }
-      if (valueLength < 0) {
-        throw new IOException("Rec# " + recNo + ": Negative value-length: " + 
-                              valueLength);
-      }
+        // Sanity check
+        if (eof) {
+          throw new EOFException("Completed reading " + bytesRead);
+        }
+        // Read key and value lengths
+        int oldPos = dataIn.getPosition();
+        int keyLength = WritableUtils.readVInt(dataIn);
+        int valueLength = WritableUtils.readVInt(dataIn);
+        int pos = dataIn.getPosition();
+        bytesRead += pos - oldPos;
+        // Check for EOF
+        if (keyLength == EOF_MARKER && valueLength == EOF_MARKER) {
+          eof = true;
+          return false;
+        }
+        // Sanity check
+        if (keyLength < 0) {
+          throw new IOException("Rec# " + recNo + ": Negative key-length: " + keyLength);
+        }
+        if (valueLength < 0) {
+          throw new IOException("Rec# " + recNo + ": Negative value-length: " + valueLength);
+        }
+        final int recordLength = keyLength + valueLength;
+        // Setup the key and value
+        pos = dataIn.getPosition();
+        byte[] data = dataIn.getData();
+        key.reset(data, pos, keyLength);
+        value.reset(data, (pos + keyLength), valueLength);
 
-      final int recordLength = keyLength + valueLength;
-      
-      // Setup the key and value
-      pos = dataIn.getPosition();
-      byte[] data = dataIn.getData();
-      key.reset(data, pos, keyLength);
-      value.reset(data, (pos + keyLength), valueLength);
-      
-      // Position for the next record
-      long skipped = dataIn.skip(recordLength);
-      if (skipped != recordLength) {
-        throw new IOException("Rec# " + recNo + ": Failed to skip past record of length: " + 
-                              recordLength);
-      }
-      
-      // Record the byte
-      bytesRead += recordLength;
-
-      ++recNo;
-      
-      return true;
+        // Position for the next record
+        long skipped = dataIn.skip(recordLength);
+        if (skipped != recordLength) {
+          throw new IOException("Rec# " + recNo + ": Failed to skip past record of length: " + recordLength);
+        }
+        // Record the byte
+        bytesRead += recordLength;
+        ++recNo;
+        return true;
       } catch (IOException ioe) {
         dumpOnError();
         throw ioe;
       }
     }
-      
+
     public void close() {
       // Release
       dataIn = null;
       buffer = null;
-      
       // Inform the RamManager
       ramManager.unreserve(bufferSize);
     }
