@@ -32,43 +32,43 @@ import org.apache.hadoop.util.Progressable;
  * happen based on the memory consumed so far by the buffer and the data
  * structures maintained by an implementation of this interface. That is why
  * a method is provided to get the memory consumed so far by the datastructures
- * in the interface implementation.  
+ * in the interface implementation.
  */
 interface BufferSorter extends JobConfigurable {
-  
+
   /** Pass the Progressable object so that sort can call progress while it is sorting
    * @param reporter the Progressable object reference
    */
-  public void setProgressable(Progressable reporter);
-    
-  /** When a key/value is added at a particular offset in the key/value buffer, 
-   * this method is invoked by the user class so that the impl of this sort 
-   * interface can update its datastructures. 
+  void setProgressable(Progressable reporter);
+
+  /** When a key/value is added at a particular offset in the key/value buffer,
+   * this method is invoked by the user class so that the impl of this sort
+   * interface can update its datastructures.
    * @param recordOffset the offset of the key in the buffer
    * @param keyLength the length of the key
    * @param valLength the length of the val in the buffer
    */
-  public void addKeyValue(int recordoffset, int keyLength, int valLength);
-  
-  /** The user class invokes this method to set the buffer that the specific 
-   * sort algorithm should "indirectly" sort (generally, sort algorithm impl 
+  void addKeyValue(int recordoffset, int keyLength, int valLength);
+
+  /** The user class invokes this method to set the buffer that the specific
+   * sort algorithm should "indirectly" sort (generally, sort algorithm impl
    * should access this buffer via comparators and sort offset-indices to the
    * buffer).
    * @param buffer the map output buffer
    */
-  public void setInputBuffer(OutputBuffer buffer);
-  
+  void setInputBuffer(OutputBuffer buffer);
+
   /** The framework invokes this method to get the memory consumed so far
    * by an implementation of this interface.
-   * @return memoryUsed in bytes 
+   * @return memoryUsed in bytes
    */
-  public long getMemoryUtilized();
-  
+  long getMemoryUtilized();
+
   /** Framework decides when to actually sort
    */
-  public RawKeyValueIterator sort();
-  
+  RawKeyValueIterator sort();
+
   /** Framework invokes this to signal the sorter to cleanup
    */
-  public void close();
+  void close();
 }
