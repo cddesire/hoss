@@ -35,8 +35,7 @@ import java.util.Iterator;
  * This class is used to talk to a C++ reduce task.
  */
 class PipesReducer<K2 extends WritableComparable, V2 extends Writable,
-    K3 extends WritableComparable, V3 extends Writable>
-    implements Reducer<K2, V2, K3, V3> {
+    K3 extends WritableComparable, V3 extends Writable> implements Reducer<K2, V2, K3, V3> {
   private static final Log LOG= LogFactory.getLog(PipesReducer.class.getName());
   private JobConf job;
   private Application<K2, V2, K3, V3> application = null;
@@ -57,8 +56,7 @@ class PipesReducer<K2 extends WritableComparable, V2 extends Writable,
    * started it yet.
    */
   public void reduce(K2 key, Iterator<V2> values, 
-                     OutputCollector<K3, V3> output, Reporter reporter
-                     ) throws IOException {
+                     OutputCollector<K3, V3> output, Reporter reporter) throws IOException {
     isOk = false;
     startApplication(output, reporter);
     downlink.reduceKey(key);
@@ -99,8 +97,7 @@ class PipesReducer<K2 extends WritableComparable, V2 extends Writable,
     // if we haven't started the application, we have nothing to do
     if (isOk) {
       OutputCollector<K3, V3> nullCollector = new OutputCollector<K3, V3>() {
-        public void collect(K3 key, 
-                            V3 value) throws IOException {
+        public void collect(K3 key, V3 value) throws IOException {
           // NULL
         }
       };
