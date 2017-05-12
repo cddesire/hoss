@@ -28,17 +28,14 @@ import org.apache.hadoop.util.ReflectionUtils;
  * This partitioner is one that can either be set manually per a record or it
  * can fall back onto a Java partitioner that was set by the user.
  */
-class PipesPartitioner<K extends WritableComparable,
-                       V extends Writable>
-  implements Partitioner<K, V> {
-  
+class PipesPartitioner<K extends WritableComparable, V extends Writable> implements Partitioner<K, V> {
+
   private static ThreadLocal<Integer> cache = new ThreadLocal<Integer>();
   private Partitioner<K, V> part = null;
-  
+
   @SuppressWarnings("unchecked")
   public void configure(JobConf conf) {
-    part =
-      ReflectionUtils.newInstance(Submitter.getJavaPartitioner(conf), conf);
+    part = ReflectionUtils.newInstance(Submitter.getJavaPartitioner(conf), conf);
   }
 
   /**
@@ -56,8 +53,7 @@ class PipesPartitioner<K extends WritableComparable,
    * @param value the value to partition
    * @param numPartitions the number of reduces
    */
-  public int getPartition(K key, V value, 
-                          int numPartitions) {
+  public int getPartition(K key, V value, int numPartitions) {
     Integer result = cache.get();
     if (result == null) {
       return part.getPartition(key, value, numPartitions);
