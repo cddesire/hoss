@@ -36,24 +36,22 @@ import org.apache.hadoop.util.ReflectionUtils;
  *
  * The only useful thing this does is set up the Map-Reduce job to get the
  * {@link PipesDummyRecordReader}, everything else left for the 'actual'
- * InputFormat specified by the user which is given by 
+ * InputFormat specified by the user which is given by
  * <i>mapred.pipes.user.inputformat</i>.
  */
-class PipesNonJavaInputFormat 
-implements InputFormat<FloatWritable, NullWritable> {
+class PipesNonJavaInputFormat implements InputFormat<FloatWritable, NullWritable> {
 
   public RecordReader<FloatWritable, NullWritable> getRecordReader(
-      InputSplit genericSplit, JobConf job, Reporter reporter)
-      throws IOException {
+    InputSplit genericSplit, JobConf job, Reporter reporter) throws IOException {
     return new PipesDummyRecordReader(job, genericSplit);
   }
-  
+
   public InputSplit[] getSplits(JobConf job, int numSplits) throws IOException {
     // Delegate the generation of input splits to the 'original' InputFormat
     return ReflectionUtils.newInstance(
-        job.getClass("mapred.pipes.user.inputformat", 
-                     TextInputFormat.class, 
-                     InputFormat.class), job).getSplits(job, numSplits);
+             job.getClass("mapred.pipes.user.inputformat",
+                          TextInputFormat.class,
+                          InputFormat.class), job).getSplits(job, numSplits);
   }
 
   /**
@@ -68,12 +66,10 @@ implements InputFormat<FloatWritable, NullWritable> {
    */
   static class PipesDummyRecordReader implements RecordReader<FloatWritable, NullWritable> {
     float progress = 0.0f;
-    
-    public PipesDummyRecordReader(Configuration job, InputSplit split)
-    throws IOException{
-    }
 
-    
+    public PipesDummyRecordReader(Configuration job, InputSplit split) throws IOException {}
+
+
     public FloatWritable createKey() {
       return null;
     }
@@ -92,8 +88,7 @@ implements InputFormat<FloatWritable, NullWritable> {
       return progress;
     }
 
-    public synchronized boolean next(FloatWritable key, NullWritable value)
-        throws IOException {
+    public synchronized boolean next(FloatWritable key, NullWritable value) throws IOException {
       progress = key.get();
       return true;
     }
