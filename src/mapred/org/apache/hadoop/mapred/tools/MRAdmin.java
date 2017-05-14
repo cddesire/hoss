@@ -37,7 +37,7 @@ import org.apache.hadoop.util.ToolRunner;
 
 /**
  * Administrative access to Hadoop Map-Reduce.
- * 
+ *
  * Currently it only provides the ability to connect to the {@link JobTracker}
  * and 1) refresh the service-level authorization policy, 2) refresh queue acl
  * properties.
@@ -54,55 +54,55 @@ public class MRAdmin extends Configured implements Tool {
 
   private static void printHelp(String cmd) {
     String summary = "hadoop mradmin is the command to execute Map-Reduce administrative commands.\n" +
-    "The full syntax is: \n\n" +
-    "hadoop mradmin [-refreshServiceAcl] [-refreshQueues] " +
-    "[-refreshNodes] [-refreshUserToGroupsMappings] " +
-    "[-refreshSuperUserGroupsConfiguration] [-help [cmd]]\n";
+                     "The full syntax is: \n\n" +
+                     "hadoop mradmin [-refreshServiceAcl] [-refreshQueues] " +
+                     "[-refreshNodes] [-refreshUserToGroupsMappings] " +
+                     "[-refreshSuperUserGroupsConfiguration] [-help [cmd]]\n";
 
-  String refreshServiceAcl = "-refreshServiceAcl: Reload the service-level authorization policy file\n" +
-    "\t\tJobtracker will reload the authorization policy file.\n";
+    String refreshServiceAcl = "-refreshServiceAcl: Reload the service-level authorization policy file\n" +
+                               "\t\tJobtracker will reload the authorization policy file.\n";
 
-  String refreshQueues = "-refreshQueues: Reload the queue acls and state\n" +
-    "\t\tJobTracker will reload the mapred-queues.xml file.\n";
+    String refreshQueues = "-refreshQueues: Reload the queue acls and state\n" +
+                           "\t\tJobTracker will reload the mapred-queues.xml file.\n";
 
-  String refreshUserToGroupsMappings = 
-    "-refreshUserToGroupsMappings: Refresh user-to-groups mappings\n";
-  
-  String refreshSuperUserGroupsConfiguration = 
-    "-refreshSuperUserGroupsConfiguration: Refresh superuser proxy groups mappings\n";
-  
-  String refreshNodes =
-    "-refreshNodes: Refresh the hosts information at the jobtracker.\n";
-  
-  String help = "-help [cmd]: \tDisplays help for the given command or all commands if none\n" +
-    "\t\tis specified.\n";
+    String refreshUserToGroupsMappings =
+      "-refreshUserToGroupsMappings: Refresh user-to-groups mappings\n";
 
-  if ("refreshServiceAcl".equals(cmd)) {
-    System.out.println(refreshServiceAcl);
-  } else if ("refreshQueues".equals(cmd)) {
-    System.out.println(refreshQueues);
-  } else if ("refreshUserToGroupsMappings".equals(cmd)) {
-    System.out.println(refreshUserToGroupsMappings);
-  } else if ("refreshSuperUserGroupsConfiguration".equals(cmd)) {
-    System.out.println(refreshSuperUserGroupsConfiguration);
-  }  else if ("refreshNodes".equals(cmd)) {
-    System.out.println(refreshNodes);
-  } else if ("help".equals(cmd)) {
-    System.out.println(help);
-  } else {
-    System.out.println(summary);
-    System.out.println(refreshServiceAcl);
-    System.out.println(refreshQueues);
-    System.out.println(refreshUserToGroupsMappings);
-    System.out.println(refreshSuperUserGroupsConfiguration);
-    System.out.println(refreshNodes);
-    System.out.println(help);
-    System.out.println();
-    ToolRunner.printGenericCommandUsage(System.out);
+    String refreshSuperUserGroupsConfiguration =
+      "-refreshSuperUserGroupsConfiguration: Refresh superuser proxy groups mappings\n";
+
+    String refreshNodes =
+      "-refreshNodes: Refresh the hosts information at the jobtracker.\n";
+
+    String help = "-help [cmd]: \tDisplays help for the given command or all commands if none\n" +
+                  "\t\tis specified.\n";
+
+    if ("refreshServiceAcl".equals(cmd)) {
+      System.out.println(refreshServiceAcl);
+    } else if ("refreshQueues".equals(cmd)) {
+      System.out.println(refreshQueues);
+    } else if ("refreshUserToGroupsMappings".equals(cmd)) {
+      System.out.println(refreshUserToGroupsMappings);
+    } else if ("refreshSuperUserGroupsConfiguration".equals(cmd)) {
+      System.out.println(refreshSuperUserGroupsConfiguration);
+    }  else if ("refreshNodes".equals(cmd)) {
+      System.out.println(refreshNodes);
+    } else if ("help".equals(cmd)) {
+      System.out.println(help);
+    } else {
+      System.out.println(summary);
+      System.out.println(refreshServiceAcl);
+      System.out.println(refreshQueues);
+      System.out.println(refreshUserToGroupsMappings);
+      System.out.println(refreshSuperUserGroupsConfiguration);
+      System.out.println(refreshNodes);
+      System.out.println(help);
+      System.out.println();
+      ToolRunner.printGenericCommandUsage(System.out);
+    }
+
   }
 
-}
-  
   /**
    * Displays format of commands.
    * @param cmd The command that is being executed.
@@ -131,84 +131,67 @@ public class MRAdmin extends Configured implements Tool {
       ToolRunner.printGenericCommandUsage(System.err);
     }
   }
-  
-  private static UserGroupInformation getUGI(Configuration conf
-                                             ) throws IOException {
+
+  private static UserGroupInformation getUGI(Configuration conf) throws IOException {
     return UserGroupInformation.getCurrentUser();
   }
 
   private int refreshAuthorizationPolicy() throws IOException {
     // Get the current configuration
     Configuration conf = getConf();
-    
+
     // for security authorization
-    // server principal for this call   
+    // server principal for this call
     // should be JT's one.
     JobConf jConf = new JobConf(conf);
-    conf.set(CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY, 
-        jConf.get(JobTracker.JT_USER_NAME, ""));
-    
-    
+    conf.set(CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY,
+             jConf.get(JobTracker.JT_USER_NAME, ""));
     // Create the client
-    RefreshAuthorizationPolicyProtocol refreshProtocol = 
-      (RefreshAuthorizationPolicyProtocol) 
-      RPC.getProxy(RefreshAuthorizationPolicyProtocol.class, 
-                   RefreshAuthorizationPolicyProtocol.versionID, 
+    RefreshAuthorizationPolicyProtocol refreshProtocol =
+      (RefreshAuthorizationPolicyProtocol) RPC.getProxy(RefreshAuthorizationPolicyProtocol.class,
+                   RefreshAuthorizationPolicyProtocol.versionID,
                    JobTracker.getAddress(conf), getUGI(conf), conf,
-                   NetUtils.getSocketFactory(conf, 
-                                             RefreshAuthorizationPolicyProtocol.class));
-    
-    // Refresh the authorization policy in-effect
+                   NetUtils.getSocketFactory(conf, RefreshAuthorizationPolicyProtocol.class));
+ // Refresh the authorization policy in-effect
     refreshProtocol.refreshServiceAcl();
-    
     return 0;
   }
 
   private int refreshQueues() throws IOException {
     // Get the current configuration
     Configuration conf = getConf();
-    
     // Create the client
-    AdminOperationsProtocol adminOperationsProtocol = 
-      (AdminOperationsProtocol) 
-      RPC.getProxy(AdminOperationsProtocol.class, 
-                   AdminOperationsProtocol.versionID, 
+    AdminOperationsProtocol adminOperationsProtocol =
+      (AdminOperationsProtocol) RPC.getProxy(AdminOperationsProtocol.class,
+                   AdminOperationsProtocol.versionID,
                    JobTracker.getAddress(conf), getUGI(conf), conf,
-                   NetUtils.getSocketFactory(conf, 
-                                             AdminOperationsProtocol.class));
-    
+                   NetUtils.getSocketFactory(conf, AdminOperationsProtocol.class));
     // Refresh the queue properties
     adminOperationsProtocol.refreshQueues();
-    
     return 0;
   }
 
   /**
-   * Command to ask the jobtracker to reread the hosts and excluded hosts 
+   * Command to ask the jobtracker to reread the hosts and excluded hosts
    * file.
    * Usage: java MRAdmin -refreshNodes
-   * @exception IOException 
+   * @exception IOException
    */
   private int refreshNodes() throws IOException {
     // Get the current configuration
     Configuration conf = getConf();
-    
     // Create the client
-    AdminOperationsProtocol adminOperationsProtocol = 
-      (AdminOperationsProtocol) 
-      RPC.getProxy(AdminOperationsProtocol.class, 
-                   AdminOperationsProtocol.versionID, 
+    AdminOperationsProtocol adminOperationsProtocol =
+      (AdminOperationsProtocol) RPC.getProxy(AdminOperationsProtocol.class,
+                   AdminOperationsProtocol.versionID,
                    JobTracker.getAddress(conf), getUGI(conf), conf,
-                   NetUtils.getSocketFactory(conf, 
-                                             AdminOperationsProtocol.class));
-    
+                   NetUtils.getSocketFactory(conf, AdminOperationsProtocol.class));
     // Refresh the queue properties
     adminOperationsProtocol.refreshNodes();
-    
     return 0;
   }
 
-  
+
   /**
    * refreshSuperUserGroupsConfiguration {@link JobTracker}.
    * @return exitcode 0 on success, non-zero on failure
@@ -217,29 +200,24 @@ public class MRAdmin extends Configured implements Tool {
   public int refreshSuperUserGroupsConfiguration() throws IOException {
     // Get the current configuration
     Configuration conf = getConf();
-    
     // for security authorization
-    // server principal for this call   
+    // server principal for this call
     // should be JT's one.
     JobConf jConf = new JobConf(conf);
-    conf.set(CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY, 
-        jConf.get(JobTracker.JT_USER_NAME, ""));
-    
+    conf.set(CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY,
+             jConf.get(JobTracker.JT_USER_NAME, ""));
     // Create the client
-    RefreshUserMappingsProtocol refreshProtocol = 
-      (RefreshUserMappingsProtocol) 
-      RPC.getProxy(RefreshUserMappingsProtocol.class, 
-                   RefreshUserMappingsProtocol.versionID, 
+    RefreshUserMappingsProtocol refreshProtocol =
+      (RefreshUserMappingsProtocol) RPC.getProxy(RefreshUserMappingsProtocol.class,
+                   RefreshUserMappingsProtocol.versionID,
                    JobTracker.getAddress(conf), getUGI(conf), conf,
-                   NetUtils.getSocketFactory(conf, 
-                       RefreshUserMappingsProtocol.class));
-    
+                   NetUtils.getSocketFactory(conf, RefreshUserMappingsProtocol.class));
     // Refresh the user-to-groups mappings
     refreshProtocol.refreshSuperUserGroupsConfiguration();
-    
+
     return 0;
   }
-  
+
   /**
    * Refresh the user-to-groups mappings on the {@link JobTracker}.
    * @return exitcode 0 on success, non-zero on failure
@@ -250,14 +228,11 @@ public class MRAdmin extends Configured implements Tool {
     Configuration conf = getConf();
 
     // for security authorization
-    // server principal for this call   
+    // server principal for this call
     // should be JT's one.
     JobConf jConf = new JobConf(conf);
-    conf.set(CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY, 
-        jConf.get(JobTracker.JT_USER_NAME, ""));
-    
-    
-    
+    conf.set(CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY,
+             jConf.get(JobTracker.JT_USER_NAME, ""));
     // Create the client
     RefreshUserMappingsProtocol refreshProtocol =
       (RefreshUserMappingsProtocol)
@@ -265,11 +240,9 @@ public class MRAdmin extends Configured implements Tool {
                    RefreshUserMappingsProtocol.versionID,
                    JobTracker.getAddress(conf), getUGI(conf), conf,
                    NetUtils.getSocketFactory(conf,
-                                             RefreshUserMappingsProtocol.class));
-
+                       RefreshUserMappingsProtocol.class));
     // Refresh the user-to-groups mappings
     refreshProtocol.refreshUserToGroupsMappings();
-
     return 0;
   }
 
@@ -291,13 +264,13 @@ public class MRAdmin extends Configured implements Tool {
         || "-refreshNodes".equals(cmd) ||
         "-refreshUserToGroupsMappings".equals(cmd) ||
         "-refreshSuperUserGroupsConfiguration".equals(cmd)
-        ) {
+       ) {
       if (args.length != 1) {
         printUsage(cmd);
         return exitCode;
       }
     }
-    
+
     exitCode = 0;
     try {
       if ("-refreshServiceAcl".equals(cmd)) {
@@ -334,17 +307,14 @@ public class MRAdmin extends Configured implements Tool {
       try {
         String[] content;
         content = e.getLocalizedMessage().split("\n");
-        System.err.println(cmd.substring(1) + ": "
-                           + content[0]);
+        System.err.println(cmd.substring(1) + ": " + content[0]);
       } catch (Exception ex) {
-        System.err.println(cmd.substring(1) + ": "
-                           + ex.getLocalizedMessage());
+        System.err.println(cmd.substring(1) + ": " + ex.getLocalizedMessage());
       }
     } catch (Exception e) {
       exitCode = -1;
-      System.err.println(cmd.substring(1) + ": "
-                         + e.getLocalizedMessage());
-    } 
+      System.err.println(cmd.substring(1) + ": " + e.getLocalizedMessage());
+    }
     return exitCode;
   }
 
