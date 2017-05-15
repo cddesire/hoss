@@ -44,62 +44,61 @@ import org.apache.log4j.spi.LoggingEvent;
  * internal scheduler variables, rather than trying to make the log human
  * readable. The fair scheduler also logs human readable messages in the
  * JobTracker's main log.
- * 
+ *
  * Constructing this class creates a disabled log. It must be initialized
  * using {@link FairSchedulerEventLog#init(Configuration, String)} to begin
  * writing to the file.
  */
 class FairSchedulerEventLog {
   private static final Log LOG = LogFactory.getLog(
-    "org.apache.hadoop.mapred.FairSchedulerEventLog");
-  
+                                   "org.apache.hadoop.mapred.FairSchedulerEventLog");
+
   /** Set to true if logging is disabled due to an error. */
   private boolean logDisabled = true;
-  
+
   /**
    * Log directory, set by mapred.fairscheduler.eventlog.location in conf file;
    * defaults to {hadoop.log.dir}/fairscheduler.
    */
   private String logDir;
-  
-  /** 
+
+  /**
    * Active log file, which is {LOG_DIR}/hadoop-{user}-fairscheduler.{host}.log.
    * Older files are also stored as {LOG_FILE}.date (date format YYYY-MM-DD).
-   */ 
+   */
   private String logFile;
-  
+
   /** Log4j appender used to write to the log file */
   private DailyRollingFileAppender appender;
 
   boolean init(Configuration conf, String jobtrackerHostname) {
     try {
       logDir = conf.get("mapred.fairscheduler.eventlog.location",
-          new File(System.getProperty("hadoop.log.dir")).getAbsolutePath()
-          + File.separator + "fairscheduler");
+                        new File(System.getProperty("hadoop.log.dir")).getAbsolutePath()
+                        + File.separator + "fairscheduler");
       Path logDirPath = new Path(logDir);
       FileSystem fs = logDirPath.getFileSystem(conf);
       if (!fs.exists(logDirPath)) {
         if (!fs.mkdirs(logDirPath)) {
           throw new IOException(
-              "Mkdirs failed to create " + logDirPath.toString());
+            "Mkdirs failed to create " + logDirPath.toString());
         }
       }
       String username = System.getProperty("user.name");
       logFile = String.format("%s%shadoop-%s-fairscheduler-%s.log",
-          logDir, File.separator, username, jobtrackerHostname);
+                              logDir, File.separator, username, jobtrackerHostname);
       logDisabled = false;
       PatternLayout layout = new PatternLayout("%d{ISO8601}\t%m%n");
       appender = new DailyRollingFileAppender(layout, logFile, "'.'yyyy-MM-dd");
       appender.activateOptions();
       LOG.info("Initialized fair scheduler event log, logging to " + logFile);
     } catch (IOException e) {
-      LOG.error(
-          "Failed to initialize fair scheduler event log. Disabling it.", e);
+      LOG.error("Failed to initialize fair scheduler event log. Disabling it.", e);
       logDisabled = true;
     }
     return !(logDisabled);
   }
-  
+
   /**
    * Log an event, writing a line in the log file of the form
    * <pre>
@@ -112,7 +111,7 @@ class FairSchedulerEventLog {
         return;
       StringBuffer buffer = new StringBuffer();
       buffer.append(eventType);
-      for (Object param: params) {
+      for (Object param : params) {
         buffer.append("\t");
         buffer.append(param);
       }
@@ -124,7 +123,7 @@ class FairSchedulerEventLog {
       logDisabled = true;
     }
   }
-  
+
   /**
    * Flush and close the log.
    */

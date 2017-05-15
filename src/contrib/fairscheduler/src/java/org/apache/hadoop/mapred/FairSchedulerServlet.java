@@ -46,18 +46,17 @@ import org.apache.hadoop.util.StringUtils;
 /**
  * Servlet for displaying fair scheduler information, installed at
  * [job tracker URL]/scheduler when the {@link FairScheduler} is in use.
- * 
+ *
  * The main features are viewing each job's task count and fair share,
  * and admin controls to change job priorities and pools from the UI.
- * 
+ *
  * There is also an "advanced" view for debugging that can be turned on by
  * going to [job tracker URL]/scheduler?advanced.
  */
 public class FairSchedulerServlet extends HttpServlet {
   private static final long serialVersionUID = 9104070533067306659L;
-  private static final DateFormat DATE_FORMAT = 
-    new SimpleDateFormat("MMM dd, HH:mm");
-  
+  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd, HH:mm");
+
   private FairScheduler scheduler;
   private JobTracker jobTracker;
   private static long lastId = 0; // Used to generate unique element IDs
@@ -69,16 +68,15 @@ public class FairSchedulerServlet extends HttpServlet {
     this.scheduler = (FairScheduler) servletContext.getAttribute("scheduler");
     this.jobTracker = (JobTracker) scheduler.taskTrackerManager;
   }
-  
+
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     doGet(req, resp); // Same handler for both GET and POST
   }
-  
+
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+  throws ServletException, IOException {
     // If the request has a set* param, handle that and redirect to the regular
     // view page so that the user won't resubmit the data if they hit refresh.
     boolean advancedView = request.getParameter("advanced") != null;
@@ -91,15 +89,15 @@ public class FairSchedulerServlet extends HttpServlet {
       }
       String pool = request.getParameter("setPool");
       String jobId = request.getParameter("jobid");
-      for (JobInProgress job: runningJobs) {
+      for (JobInProgress job : runningJobs) {
         if (job.getProfile().getJobID().toString().equals(jobId)) {
-          synchronized(scheduler){
+          synchronized (scheduler) {
             poolMgr.setPool(job, pool);
           }
           scheduler.update();
           break;
         }
-      }      
+      }
       response.sendRedirect("/scheduler" + (advancedView ? "?advanced" : ""));
       return;
     }
@@ -107,15 +105,15 @@ public class FairSchedulerServlet extends HttpServlet {
         && request.getParameter("setPriority") != null) {
       Collection<JobInProgress> runningJobs = getInitedJobs();
       JobPriority priority = JobPriority.valueOf(request.getParameter(
-          "setPriority"));
+                               "setPriority"));
       String jobId = request.getParameter("jobid");
-      for (JobInProgress job: runningJobs) {
+      for (JobInProgress job : runningJobs) {
         if (job.getProfile().getJobID().toString().equals(jobId)) {
           job.setPriority(priority);
           scheduler.update();
           break;
         }
-      }      
+      }
       response.sendRedirect("/scheduler" + (advancedView ? "?advanced" : ""));
       return;
     }
@@ -128,14 +126,14 @@ public class FairSchedulerServlet extends HttpServlet {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintWriter out = new PrintWriter(baos);
     String hostname = StringUtils.simpleHostname(
-        jobTracker.getJobTrackerMachine());
+                        jobTracker.getJobTrackerMachine());
     out.print("<html><head>");
     out.printf("<title>%s Fair Scheduler Administration</title>\n", hostname);
-    out.print("<link rel=\"stylesheet\" type=\"text/css\" " + 
-        "href=\"/static/hadoop.css\">\n");
+    out.print("<link rel=\"stylesheet\" type=\"text/css\" " +
+              "href=\"/static/hadoop.css\">\n");
     out.print("</head><body>\n");
-    out.printf("<h1><a href=\"/jobtracker.jsp\">%s</a> " + 
-        "Fair Scheduler Administration</h1>\n", hostname);
+    out.printf("<h1><a href=\"/jobtracker.jsp\">%s</a> " +
+               "Fair Scheduler Administration</h1>\n", hostname);
     showPools(out, advancedView);
     showJobs(out, advancedView);
     out.print("</body></html>\n");
@@ -151,18 +149,18 @@ public class FairSchedulerServlet extends HttpServlet {
    * Print a view of pools to the given output writer.
    */
   private void showPools(PrintWriter out, boolean advancedView) {
-    synchronized(scheduler) {
+    synchronized (scheduler) {
       boolean warnInverted = false;
       PoolManager poolManager = scheduler.getPoolManager();
       out.print("<h2>Pools</h2>\n");
       out.print("<table border=\"2\" cellpadding=\"5\" cellspacing=\"2\">\n");
       out.print("<tr><th rowspan=2>Pool</th>" +
-          "<th rowspan=2>Running Jobs</th>" + 
-          "<th colspan=4>Map Tasks</th>" + 
-          "<th colspan=4>Reduce Tasks</th>" +
-          "<th rowspan=2>Scheduling Mode</th></tr>\n<tr>" + 
-          "<th>Min Share</th><th>Max Share</th><th>Running</th><th>Fair Share</th>" + 
-          "<th>Min Share</th><th>Max Share</th><th>Running</th><th>Fair Share</th></tr>\n");
+                "<th rowspan=2>Running Jobs</th>" +
+                "<th colspan=4>Map Tasks</th>" +
+                "<th colspan=4>Reduce Tasks</th>" +
+                "<th rowspan=2>Scheduling Mode</th></tr>\n<tr>" +
+                "<th>Min Share</th><th>Max Share</th><th>Running</th><th>Fair Share</th>" +
+                "<th>Min Share</th><th>Max Share</th><th>Running</th><th>Fair Share</th></tr>\n");
       List<Pool> pools = new ArrayList<Pool>(poolManager.getPools());
       Collections.sort(pools, new Comparator<Pool>() {
         public int compare(Pool p1, Pool p2) {
@@ -171,8 +169,9 @@ public class FairSchedulerServlet extends HttpServlet {
           else if (p2.isDefaultPool())
             return -1;
           else return p1.getName().compareTo(p2.getName());
-        }});
-      for (Pool pool: pools) {
+        }
+      });
+      for (Pool pool : pools) {
         String name = pool.getName();
         int runningMaps = pool.getMapSchedulable().getRunningTasks();
         int runningReduces = pool.getReduceSchedulable().getRunningTasks();
@@ -186,14 +185,14 @@ public class FairSchedulerServlet extends HttpServlet {
         out.printf("<td>%d</td>", pool.getJobs().size());
         // Map Tasks
         out.printf("<td>%d</td>", poolManager.getAllocation(name,
-            TaskType.MAP));
+                   TaskType.MAP));
         out.print("<td>");
-        if(maxMaps == Integer.MAX_VALUE) {
+        if (maxMaps == Integer.MAX_VALUE) {
           out.print("-");
         } else {
           out.print(maxMaps);
         }
-        if(invertedMaps) {
+        if (invertedMaps) {
           out.print("*");
         }
         out.print("</td>");
@@ -201,14 +200,14 @@ public class FairSchedulerServlet extends HttpServlet {
         out.printf("<td>%.1f</td>", pool.getMapSchedulable().getFairShare());
         // Reduce Tasks
         out.printf("<td>%d</td>", poolManager.getAllocation(name,
-            TaskType.REDUCE));
+                   TaskType.REDUCE));
         out.print("<td>");
-        if(maxReduces == Integer.MAX_VALUE) {
+        if (maxReduces == Integer.MAX_VALUE) {
           out.print("-");
         } else {
           out.print(maxReduces);
         }
-        if(invertedReduces) {
+        if (invertedReduces) {
           out.print("*");
         }
         out.print("</td>");
@@ -218,7 +217,7 @@ public class FairSchedulerServlet extends HttpServlet {
         out.print("</tr>\n");
       }
       out.print("</table>\n");
-      if(warnInverted) {
+      if (warnInverted) {
         out.print("<p>* One or more pools have max share set lower than min share. Max share will be used and minimum will be treated as if set equal to max.</p>");
       }
     }
@@ -231,25 +230,25 @@ public class FairSchedulerServlet extends HttpServlet {
     out.print("<h2>Running Jobs</h2>\n");
     out.print("<table border=\"2\" cellpadding=\"5\" cellspacing=\"2\">\n");
     int colsPerTaskType = advancedView ? 4 : 3;
-    out.printf("<tr><th rowspan=2>Submitted</th>" + 
-        "<th rowspan=2>JobID</th>" +
-        "<th rowspan=2>User</th>" +
-        "<th rowspan=2>Name</th>" +
-        "<th rowspan=2>Pool</th>" +
-        "<th rowspan=2>Priority</th>" +
-        "<th colspan=%d>Map Tasks</th>" +
-        "<th colspan=%d>Reduce Tasks</th>",
-        colsPerTaskType, colsPerTaskType);
+    out.printf("<tr><th rowspan=2>Submitted</th>" +
+               "<th rowspan=2>JobID</th>" +
+               "<th rowspan=2>User</th>" +
+               "<th rowspan=2>Name</th>" +
+               "<th rowspan=2>Pool</th>" +
+               "<th rowspan=2>Priority</th>" +
+               "<th colspan=%d>Map Tasks</th>" +
+               "<th colspan=%d>Reduce Tasks</th>",
+               colsPerTaskType, colsPerTaskType);
     out.print("</tr><tr>\n");
     out.print("<th>Finished</th><th>Running</th><th>Fair Share</th>" +
-        (advancedView ? "<th>Weight</th>" : ""));
+              (advancedView ? "<th>Weight</th>" : ""));
     out.print("<th>Finished</th><th>Running</th><th>Fair Share</th>" +
-        (advancedView ? "<th>Weight</th>" : ""));
+              (advancedView ? "<th>Weight</th>" : ""));
     out.print("</tr>\n");
     synchronized (jobTracker) {
       Collection<JobInProgress> runningJobs = getInitedJobs();
       synchronized (scheduler) {
-        for (JobInProgress job: runningJobs) {
+        for (JobInProgress job : runningJobs) {
           JobProfile profile = job.getProfile();
           JobInfo info = scheduler.infos.get(job);
           if (info == null) { // Job finished, but let's show 0's for info
@@ -257,41 +256,42 @@ public class FairSchedulerServlet extends HttpServlet {
           }
           out.print("<tr>\n");
           out.printf("<td>%s</td>\n", DATE_FORMAT.format(
-              new Date(job.getStartTime())));
+                       new Date(job.getStartTime())));
           out.printf("<td><a href=\"jobdetails.jsp?jobid=%s\">%s</a></td>",
-              profile.getJobID(), profile.getJobID());
+                     profile.getJobID(), profile.getJobID());
           out.printf("<td>%s</td>\n", profile.getUser());
           out.printf("<td>%s</td>\n", profile.getJobName());
           if (JSPUtil.privateActionsAllowed(jobTracker.conf)) {
             out.printf("<td>%s</td>\n", generateSelect(scheduler
-                .getPoolManager().getPoolNames(), scheduler.getPoolManager()
-                .getPoolName(job), "/scheduler?setPool=<CHOICE>&jobid="
-                + profile.getJobID() + (advancedView ? "&advanced" : "")));
+                       .getPoolManager().getPoolNames(), scheduler.getPoolManager()
+                       .getPoolName(job), "/scheduler?setPool=<CHOICE>&jobid="
+                       + profile.getJobID() + (advancedView ? "&advanced" : "")));
             out.printf("<td>%s</td>\n", generateSelect(Arrays
-                .asList(new String[] { "VERY_LOW", "LOW", "NORMAL", "HIGH",
-                    "VERY_HIGH" }), job.getPriority().toString(),
-                "/scheduler?setPriority=<CHOICE>&jobid=" + profile.getJobID()
-                    + (advancedView ? "&advanced" : "")));
+                       .asList(new String[] { "VERY_LOW", "LOW", "NORMAL", "HIGH",
+                                              "VERY_HIGH"
+                                            }), job.getPriority().toString(),
+                       "/scheduler?setPriority=<CHOICE>&jobid=" + profile.getJobID()
+                       + (advancedView ? "&advanced" : "")));
           } else {
             out.printf("<td>%s</td>\n", scheduler.getPoolManager().getPoolName(job));
             out.printf("<td>%s</td>\n", job.getPriority().toString());
           }
           Pool pool = scheduler.getPoolManager().getPool(job);
           String mapShare = (pool.getSchedulingMode() == SchedulingMode.FAIR) ?
-              String.format("%.1f", info.mapSchedulable.getFairShare()) : "NA";
+                            String.format("%.1f", info.mapSchedulable.getFairShare()) : "NA";
           out.printf("<td>%d / %d</td><td>%d</td><td>%s</td>\n",
-              job.finishedMaps(), job.desiredMaps(), 
-              info.mapSchedulable.getRunningTasks(),
-              mapShare);
+                     job.finishedMaps(), job.desiredMaps(),
+                     info.mapSchedulable.getRunningTasks(),
+                     mapShare);
           if (advancedView) {
             out.printf("<td>%.1f</td>\n", info.mapSchedulable.getWeight());
           }
           String reduceShare = (pool.getSchedulingMode() == SchedulingMode.FAIR) ?
-              String.format("%.1f", info.reduceSchedulable.getFairShare()) : "NA";
+                               String.format("%.1f", info.reduceSchedulable.getFairShare()) : "NA";
           out.printf("<td>%d / %d</td><td>%d</td><td>%s</td>\n",
-              job.finishedReduces(), job.desiredReduces(), 
-              info.reduceSchedulable.getRunningTasks(),
-              reduceShare);
+                     job.finishedReduces(), job.desiredReduces(),
+                     info.reduceSchedulable.getRunningTasks(),
+                     reduceShare);
           if (advancedView) {
             out.printf("<td>%.1f</td>\n", info.reduceSchedulable.getWeight());
           }
@@ -309,17 +309,17 @@ public class FairSchedulerServlet extends HttpServlet {
    * the option selected -- the first occurrence of the substring
    * <code>&lt;CHOICE&gt;</code> will be replaced by the option chosen.
    */
-  private String generateSelect(Iterable<String> choices, 
-      String selectedChoice, String submitUrl) {
+  private String generateSelect(Iterable<String> choices,
+                                String selectedChoice, String submitUrl) {
     StringBuilder html = new StringBuilder();
     String id = "select" + lastId++;
-    html.append("<select id=\"" + id + "\" name=\"" + id + "\" " + 
-        "onchange=\"window.location = '" + submitUrl + 
-        "'.replace('<CHOICE>', document.getElementById('" + id +
-        "').value);\">\n");
-    for (String choice: choices) {
+    html.append("<select id=\"" + id + "\" name=\"" + id + "\" " +
+                "onchange=\"window.location = '" + submitUrl +
+                "'.replace('<CHOICE>', document.getElementById('" + id +
+                "').value);\">\n");
+    for (String choice : choices) {
       html.append(String.format("<option value=\"%s\"%s>%s</option>\n",
-          choice, (choice.equals(selectedChoice) ? " selected" : ""), choice));
+                                choice, (choice.equals(selectedChoice) ? " selected" : ""), choice));
     }
     html.append("</select>\n");
     return html.toString();

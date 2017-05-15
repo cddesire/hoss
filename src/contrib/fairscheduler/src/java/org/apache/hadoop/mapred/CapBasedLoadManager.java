@@ -27,16 +27,16 @@ import org.apache.hadoop.conf.Configuration;
  * load management algorithm in Hadoop.
  */
 public class CapBasedLoadManager extends LoadManager {
-  
+
   float maxDiff = 0.0f;
-  
+
   public void setConf(Configuration conf) {
     super.setConf(conf);
     maxDiff = conf.getFloat("mapred.fairscheduler.load.max.diff", 0.0f);
   }
-  
+
   /**
-   * Determine how many tasks of a given type we want to run on a TaskTracker. 
+   * Determine how many tasks of a given type we want to run on a TaskTracker.
    * This cap is chosen based on how many tasks of that type are outstanding in
    * total, so that when the cluster is used below capacity, tasks are spread
    * out uniformly across the nodes rather than being clumped up on whichever
@@ -48,22 +48,19 @@ public class CapBasedLoadManager extends LoadManager {
   }
 
   @Override
-  public boolean canAssignMap(TaskTrackerStatus tracker,
-      int totalRunnableMaps, int totalMapSlots) {
+  public boolean canAssignMap(TaskTrackerStatus tracker, int totalRunnableMaps, int totalMapSlots) {
     return tracker.countMapTasks() < getCap(totalRunnableMaps,
-        tracker.getMaxMapSlots(), totalMapSlots);
+                                            tracker.getMaxMapSlots(), totalMapSlots);
   }
 
   @Override
-  public boolean canAssignReduce(TaskTrackerStatus tracker,
-      int totalRunnableReduces, int totalReduceSlots) {
+  public boolean canAssignReduce(TaskTrackerStatus tracker, int totalRunnableReduces, int totalReduceSlots) {
     return tracker.countReduceTasks() < getCap(totalRunnableReduces,
-        tracker.getMaxReduceSlots(), totalReduceSlots);
+           tracker.getMaxReduceSlots(), totalReduceSlots);
   }
 
   @Override
-  public boolean canLaunchTask(TaskTrackerStatus tracker,
-      JobInProgress job,  TaskType type) {
+  public boolean canLaunchTask(TaskTrackerStatus tracker, JobInProgress job,  TaskType type) {
     return true;
   }
 }

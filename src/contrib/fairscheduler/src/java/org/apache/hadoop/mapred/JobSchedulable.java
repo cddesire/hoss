@@ -30,20 +30,18 @@ public class JobSchedulable extends Schedulable {
   private TaskType taskType;
   private int demand = 0;
 
-  public JobSchedulable(FairScheduler scheduler, JobInProgress job, 
-      TaskType taskType) {
+  public JobSchedulable(FairScheduler scheduler, JobInProgress job, TaskType taskType) {
     this.scheduler = scheduler;
     this.job = job;
     this.taskType = taskType;
-    
     initMetrics();
   }
-  
+
   @Override
   public TaskType getTaskType() {
     return taskType;
   }
-  
+
   @Override
   public String getName() {
     return job.getJobID().toString();
@@ -52,7 +50,7 @@ public class JobSchedulable extends Schedulable {
   public JobInProgress getJob() {
     return job;
   }
-  
+
   @Override
   public void updateDemand() {
     demand = 0;
@@ -64,14 +62,11 @@ public class JobSchedulable extends Schedulable {
       // - have no attempts running, in which case it demands 1 slot
       // - have N attempts running, in which case it demands N slots, and may
       //   potentially demand one more slot if it needs to be speculated
-      TaskInProgress[] tips = (taskType == TaskType.MAP ? 
-          job.getTasks(TaskType.MAP) : job.getTasks(TaskType.REDUCE));
-      boolean speculationEnabled = (taskType == TaskType.MAP ?
-          job.getMapSpeculativeExecution() : job.getReduceSpeculativeExecution());
-      double avgProgress = (taskType == TaskType.MAP ?
-          job.getStatus().mapProgress() : job.getStatus().reduceProgress());
+      TaskInProgress[] tips = (taskType == TaskType.MAP ? job.getTasks(TaskType.MAP) : job.getTasks(TaskType.REDUCE));
+      boolean speculationEnabled = (taskType == TaskType.MAP ? job.getMapSpeculativeExecution() : job.getReduceSpeculativeExecution());
+      double avgProgress = (taskType == TaskType.MAP ? job.getStatus().mapProgress() : job.getStatus().reduceProgress());
       long time = scheduler.getClock().getTime();
-      for (TaskInProgress tip: tips) {
+      for (TaskInProgress tip : tips) {
         if (!tip.isComplete()) {
           if (tip.isRunning()) {
             // Count active tasks and any speculative task we want to launch
@@ -97,7 +92,7 @@ public class JobSchedulable extends Schedulable {
   public int getDemand() {
     return demand;
   }
-  
+
   @Override
   public void redistributeShare() {}
 
@@ -118,12 +113,12 @@ public class JobSchedulable extends Schedulable {
   public long getStartTime() {
     return job.startTime;
   }
-  
+
   @Override
   public double getWeight() {
     return scheduler.getJobWeight(job, taskType);
   }
-  
+
   @Override
   public int getMinShare() {
     return 0;
@@ -131,54 +126,49 @@ public class JobSchedulable extends Schedulable {
 
   @Override
   public Task assignTask(TaskTrackerStatus tts, long currentTime,
-      Collection<JobInProgress> visited) throws IOException {
+                         Collection<JobInProgress> visited) throws IOException {
     if (isRunnable()) {
       visited.add(job);
       TaskTrackerManager ttm = scheduler.taskTrackerManager;
       ClusterStatus clusterStatus = ttm.getClusterStatus();
       int numTaskTrackers = clusterStatus.getTaskTrackers();
 
-      // check with the load manager whether it is safe to 
+      // check with the load manager whether it is safe to
       // launch this task on this taskTracker.
       LoadManager loadMgr = scheduler.getLoadManager();
       if (!loadMgr.canLaunchTask(tts, job, taskType)) {
         return null;
       }
       if (taskType == TaskType.MAP) {
-        LocalityLevel localityLevel = scheduler.getAllowedLocalityLevel(
-            job, currentTime);
+        LocalityLevel localityLevel = scheduler.getAllowedLocalityLevel(job, currentTime);
         scheduler.getEventLog().log(
-            "ALLOWED_LOC_LEVEL", job.getJobID(), localityLevel);
+          "ALLOWED_LOC_LEVEL", job.getJobID(), localityLevel);
         switch (localityLevel) {
-          case NODE:
-            return job.obtainNewNodeLocalMapTask(tts, numTaskTrackers,
-                ttm.getNumberOfUniqueHosts());
-          case RACK:
-            return job.obtainNewNodeOrRackLocalMapTask(tts, numTaskTrackers,
-                ttm.getNumberOfUniqueHosts());
-          default:
-            return job.obtainNewMapTask(tts, numTaskTrackers,
-                ttm.getNumberOfUniqueHosts());
+        case NODE:
+          return job.obtainNewNodeLocalMapTask(tts, numTaskTrackers, ttm.getNumberOfUniqueHosts());
+        case RACK:
+          return job.obtainNewNodeOrRackLocalMapTask(tts, numTaskTrackers,
+                 ttm.getNumberOfUniqueHosts());
+        default:
+          return job.obtainNewMapTask(tts, numTaskTrackers, ttm.getNumberOfUniqueHosts());
         }
       } else {
-        return job.obtainNewReduceTask(tts, numTaskTrackers,
-            ttm.getNumberOfUniqueHosts());
+        return job.obtainNewReduceTask(tts, numTaskTrackers, ttm.getNumberOfUniqueHosts());
       }
     } else {
       return null;
     }
   }
 
-  
+
   @Override
   protected String getMetricsContextName() {
     return "jobs";
   }
-  
+
   @Override
   void updateMetrics() {
     assert metrics != null;
-    
     super.setMetricValues(metrics);
     metrics.update();
   }
