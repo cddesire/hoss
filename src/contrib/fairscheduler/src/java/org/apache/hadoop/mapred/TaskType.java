@@ -22,5 +22,5 @@ package org.apache.hadoop.mapred;
  * Utility enum for map and reduce task types.
  */
 public enum TaskType {
-  MAP, REDUCE
+	MAP, REDUCE
 }
