@@ -32,16 +32,15 @@ import org.apache.hadoop.mapred.FairScheduler.JobInfo;
 import org.apache.hadoop.mapreduce.TaskType;
 
 public class PoolSchedulable extends Schedulable {
-  public static final Log LOG = LogFactory.getLog(
-      PoolSchedulable.class.getName());
-  
+  public static final Log LOG = LogFactory.getLog(PoolSchedulable.class.getName());
+
   private FairScheduler scheduler;
   private Pool pool;
   private TaskType taskType;
   private PoolManager poolMgr;
   private List<JobSchedulable> jobScheds = new LinkedList<JobSchedulable>();
   private int demand = 0;
-  
+
   // Variables used for preemption
   long lastTimeAtMinShare;
   long lastTimeAtHalfFairShare;
@@ -54,16 +53,15 @@ public class PoolSchedulable extends Schedulable {
     long currentTime = scheduler.getClock().getTime();
     this.lastTimeAtMinShare = currentTime;
     this.lastTimeAtHalfFairShare = currentTime;
-    
+
     initMetrics();
   }
 
   public void addJob(JobInProgress job) {
     JobInfo info = scheduler.getJobInfo(job);
-    jobScheds.add(taskType == TaskType.MAP ?
-        info.mapSchedulable : info.reduceSchedulable);
+    jobScheds.add(taskType == TaskType.MAP ? info.mapSchedulable : info.reduceSchedulable);
   }
-  
+
   public void removeJob(JobInProgress job) {
     for (Iterator<JobSchedulable> it = jobScheds.iterator(); it.hasNext();) {
       JobSchedulable jobSched = it.next();
@@ -80,17 +78,17 @@ public class PoolSchedulable extends Schedulable {
   @Override
   public void updateDemand() {
     demand = 0;
-    for (JobSchedulable sched: jobScheds) {
+    for (JobSchedulable sched : jobScheds) {
       sched.updateDemand();
       demand += sched.getDemand();
     }
     // if demand exceeds the cap for this pool, limit to the max
     int maxTasks = poolMgr.getMaxSlots(pool.getName(), taskType);
-    if(demand > maxTasks) {
+    if (demand > maxTasks) {
       demand = maxTasks;
     }
   }
-  
+
   /**
    * Distribute the pool's fair share among its jobs
    */
@@ -99,10 +97,10 @@ public class PoolSchedulable extends Schedulable {
     if (pool.getSchedulingMode() == SchedulingMode.FAIR) {
       SchedulingAlgorithms.computeFairShares(jobScheds, getFairShare());
     } else {
-      for (JobSchedulable sched: jobScheds) {
+      for (JobSchedulable sched : jobScheds) {
         sched.setFairShare(0);
       }
-    } 
+    }
   }
 
   @Override
@@ -128,7 +126,7 @@ public class PoolSchedulable extends Schedulable {
   @Override
   public int getRunningTasks() {
     int ans = 0;
-    for (JobSchedulable sched: jobScheds) {
+    for (JobSchedulable sched : jobScheds) {
       ans += sched.getRunningTasks();
     }
     return ans;
@@ -141,7 +139,7 @@ public class PoolSchedulable extends Schedulable {
 
   @Override
   public Task assignTask(TaskTrackerStatus tts, long currentTime,
-      Collection<JobInProgress> visited) throws IOException {
+                         Collection<JobInProgress> visited) throws IOException {
     int runningTasks = getRunningTasks();
     if (runningTasks >= poolMgr.getMaxSlots(pool.getName(), taskType)) {
       return null;
@@ -156,14 +154,14 @@ public class PoolSchedulable extends Schedulable {
       throw new RuntimeException("Unsupported pool scheduling mode " + mode);
     }
     Collections.sort(jobScheds, comparator);
-    for (JobSchedulable sched: jobScheds) {
+    for (JobSchedulable sched : jobScheds) {
       Task task = sched.assignTask(tts, currentTime, visited);
       if (task != null)
         return task;
     }
     return null;
   }
-  
+
   @Override
   public String getName() {
     return pool.getName();
@@ -177,23 +175,23 @@ public class PoolSchedulable extends Schedulable {
   public TaskType getTaskType() {
     return taskType;
   }
-  
+
   public Collection<JobSchedulable> getJobSchedulables() {
     return jobScheds;
   }
-  
+
   public long getLastTimeAtMinShare() {
     return lastTimeAtMinShare;
   }
-  
+
   public void setLastTimeAtMinShare(long lastTimeAtMinShare) {
     this.lastTimeAtMinShare = lastTimeAtMinShare;
   }
-  
+
   public long getLastTimeAtHalfFairShare() {
     return lastTimeAtHalfFairShare;
   }
-  
+
   public void setLastTimeAtHalfFairShare(long lastTimeAtHalfFairShare) {
     this.lastTimeAtHalfFairShare = lastTimeAtHalfFairShare;
   }
@@ -201,11 +199,11 @@ public class PoolSchedulable extends Schedulable {
   protected String getMetricsContextName() {
     return "pools";
   }
-  
+
   @Override
   public void updateMetrics() {
     super.setMetricValues(metrics);
-    
+
     if (scheduler.isPreemptionEnabled()) {
       // These won't be set if preemption is off
       long lastCheck = scheduler.getLastPreemptionUpdateTime();

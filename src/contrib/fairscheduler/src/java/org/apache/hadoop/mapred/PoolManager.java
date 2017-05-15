@@ -50,22 +50,21 @@ import org.xml.sax.SAXException;
  * such as guaranteed share allocations, from the fair scheduler config file.
  */
 public class PoolManager {
-  public static final Log LOG = LogFactory.getLog(
-    "org.apache.hadoop.mapred.PoolManager");
+  public static final Log LOG = LogFactory.getLog("org.apache.hadoop.mapred.PoolManager");
 
   /** Time to wait between checks of the allocation file */
   public static final long ALLOC_RELOAD_INTERVAL = 10 * 1000;
-  
+
   /**
    * Time to wait after the allocation has been modified before reloading it
    * (this is done to prevent loading a file that hasn't been fully written).
    */
-  public static final long ALLOC_RELOAD_WAIT = 5 * 1000; 
+  public static final long ALLOC_RELOAD_WAIT = 5 * 1000;
 
   public static final String EXPLICIT_POOL_PROPERTY = "mapred.fairscheduler.pool";
 
   private final FairScheduler scheduler;
-  
+
   // Map and reduce minimum allocations for each pool
   private Map<String, Integer> mapAllocs = new HashMap<String, Integer>();
   private Map<String, Integer> reduceAllocs = new HashMap<String, Integer>();
@@ -76,7 +75,7 @@ public class PoolManager {
 
   // Sharing weights for each pool
   private Map<String, Double> poolWeights = new HashMap<String, Double>();
-  
+
   // Max concurrent running jobs for each pool and for each user; in addition,
   // for users that have no max specified, we use the userMaxJobsDefault.
   private Map<String, Integer> poolMaxJobs = new HashMap<String, Integer>();
@@ -87,29 +86,28 @@ public class PoolManager {
   // Min share preemption timeout for each pool in seconds. If a job in the pool
   // waits this long without receiving its guaranteed share, it is allowed to
   // preempt other jobs' tasks.
-  private Map<String, Long> minSharePreemptionTimeouts =
-    new HashMap<String, Long>();
-  
+  private Map<String, Long> minSharePreemptionTimeouts = new HashMap<String, Long>();
+
   // Default min share preemption timeout for pools where it is not set
   // explicitly.
   private long defaultMinSharePreemptionTimeout = Long.MAX_VALUE;
-  
+
   // Preemption timeout for jobs below fair share in seconds. If a job remains
   // below half its fair share for this long, it is allowed to preempt tasks.
   private long fairSharePreemptionTimeout = Long.MAX_VALUE;
-  
+
   SchedulingMode defaultSchedulingMode = SchedulingMode.FAIR;
-  
+
   private Object allocFile; // Path to XML file containing allocations. This
-                            // is either a URL to specify a classpath resource
-                            // (if the fair-scheduler.xml on the classpath is
-                            // used) or a String to specify an absolute path (if
-                            // mapred.fairscheduler.allocation.file is used).
+  // is either a URL to specify a classpath resource
+  // (if the fair-scheduler.xml on the classpath is
+  // used) or a String to specify an absolute path (if
+  // mapred.fairscheduler.allocation.file is used).
   private String poolNameProperty; // Jobconf property to use for determining a
-                                   // job's pool name (default: user.name)
-  
+  // job's pool name (default: user.name)
+
   private Map<String, Pool> pools = new HashMap<String, Pool>();
-  
+
   private long lastReloadAttempt; // Last time we tried to reload the pools file
   private long lastSuccessfulReload; // Last time we successfully reloaded pools
   private boolean lastReloadAttemptFailed = false;
@@ -117,12 +115,11 @@ public class PoolManager {
   public PoolManager(FairScheduler scheduler) {
     this.scheduler = scheduler;
   }
-  
+
   public void initialize() throws IOException, SAXException,
-      AllocationConfigurationException, ParserConfigurationException {
+    AllocationConfigurationException, ParserConfigurationException {
     Configuration conf = scheduler.getConf();
-    this.poolNameProperty = conf.get(
-        "mapred.fairscheduler.poolnameproperty", "user.name");
+    this.poolNameProperty = conf.get("mapred.fairscheduler.poolnameproperty", "user.name");
     this.allocFile = conf.get("mapred.fairscheduler.allocation.file");
     if (allocFile == null) {
       // No allocation file specified in jobconf. Use the default allocation
@@ -130,8 +127,8 @@ public class PoolManager {
       allocFile = new Configuration().getResource("fair-scheduler.xml");
       if (allocFile == null) {
         LOG.error("The fair scheduler allocation file fair-scheduler.xml was "
-            + "not found on the classpath, and no other config file is given "
-            + "through mapred.fairscheduler.allocation.file.");
+                  + "not found on the classpath, and no other config file is given "
+                  + "through mapred.fairscheduler.allocation.file.");
       }
     }
     reloadAllocs();
@@ -140,7 +137,7 @@ public class PoolManager {
     // Create the default pool so that it shows up in the web UI
     getPool(Pool.DEFAULT_POOL_NAME);
   }
-  
+
   /**
    * Get a pool by name, creating it if necessary
    */
@@ -153,7 +150,7 @@ public class PoolManager {
     }
     return pool;
   }
-  
+
   /**
    * Get the pool that a given job is in.
    */
@@ -196,32 +193,32 @@ public class PoolManager {
         // JobTracker's log with these messages.
         if (!lastReloadAttemptFailed) {
           LOG.error("Failed to reload fair scheduler config file - " +
-              "will use existing allocations.", e);
+                    "will use existing allocations.", e);
         }
         lastReloadAttemptFailed = true;
       }
     }
   }
-  
+
   /**
    * Updates the allocation list from the allocation config file. This file is
    * expected to be in the following whitespace-separated format:
-   * 
+   *
    * <code>
    * poolName1 mapAlloc reduceAlloc
    * poolName2 mapAlloc reduceAlloc
    * ...
    * </code>
-   * 
+   *
    * Blank lines and lines starting with # are ignored.
-   *  
+   *
    * @throws IOException if the config file cannot be read.
    * @throws AllocationConfigurationException if allocations are invalid.
    * @throws ParserConfigurationException if XML parser is misconfigured.
    * @throws SAXException if config file is malformed.
    */
-  public void reloadAllocs() throws IOException, ParserConfigurationException, 
-      SAXException, AllocationConfigurationException {
+  public void reloadAllocs() throws IOException, ParserConfigurationException,
+    SAXException, AllocationConfigurationException {
     if (allocFile == null) return;
     // Create some temporary hashmaps to hold the new allocs, and we only save
     // them in our fields if we have parsed the entire allocs file successfully.
@@ -239,10 +236,10 @@ public class PoolManager {
     long fairSharePreemptionTimeout = Long.MAX_VALUE;
     long defaultMinSharePreemptionTimeout = Long.MAX_VALUE;
     SchedulingMode defaultSchedulingMode = SchedulingMode.FAIR;
-    
+
     // Remember all pool names so we can display them on web UI, etc.
     List<String> poolNamesInAllocFile = new ArrayList<String>();
-    
+
     // Read and parse the allocations file.
     DocumentBuilderFactory docBuilderFactory =
       DocumentBuilderFactory.newInstance();
@@ -256,7 +253,7 @@ public class PoolManager {
     }
     Element root = doc.getDocumentElement();
     if (!"allocations".equals(root.getTagName()))
-      throw new AllocationConfigurationException("Bad fair scheduler config " + 
+      throw new AllocationConfigurationException("Bad fair scheduler config " +
           "file: top-level element not <allocations>");
     NodeList elements = root.getChildNodes();
     for (int i = 0; i < elements.getLength(); i++) {
@@ -309,12 +306,12 @@ public class PoolManager {
         if (poolMaxMaps.containsKey(poolName) && mapAllocs.containsKey(poolName)
             && poolMaxMaps.get(poolName) < mapAllocs.get(poolName)) {
           LOG.warn(String.format("Pool %s has max maps %d less than min maps %d",
-              poolName, poolMaxMaps.get(poolName), mapAllocs.get(poolName)));        
+                                 poolName, poolMaxMaps.get(poolName), mapAllocs.get(poolName)));
         }
-        if(poolMaxReduces.containsKey(poolName) && reduceAllocs.containsKey(poolName)
+        if (poolMaxReduces.containsKey(poolName) && reduceAllocs.containsKey(poolName)
             && poolMaxReduces.get(poolName) < reduceAllocs.get(poolName)) {
           LOG.warn(String.format("Pool %s has max reduces %d less than min reduces %d",
-              poolName, poolMaxReduces.get(poolName), reduceAllocs.get(poolName)));        
+                                 poolName, poolMaxReduces.get(poolName), reduceAllocs.get(poolName)));
         }
       } else if ("user".equals(element.getTagName())) {
         String userName = element.getAttribute("name");
@@ -353,10 +350,10 @@ public class PoolManager {
         LOG.warn("Bad element in allocations file: " + element.getTagName());
       }
     }
-    
+
     // Commit the reload; also create any pool defined in the alloc file
     // if it does not already exist, so it can be displayed on the web UI.
-    synchronized(this) {
+    synchronized (this) {
       this.mapAllocs = mapAllocs;
       this.reduceAllocs = reduceAllocs;
       this.poolMaxMaps = poolMaxMaps;
@@ -370,7 +367,7 @@ public class PoolManager {
       this.fairSharePreemptionTimeout = fairSharePreemptionTimeout;
       this.defaultMinSharePreemptionTimeout = defaultMinSharePreemptionTimeout;
       this.defaultSchedulingMode = defaultSchedulingMode;
-      for (String name: poolNamesInAllocFile) {
+      for (String name : poolNamesInAllocFile) {
         Pool pool = getPool(name);
         if (poolModes.containsKey(name)) {
           pool.setSchedulingMode(poolModes.get(name));
@@ -383,7 +380,7 @@ public class PoolManager {
 
   /**
    * Does the pool have incompatible max and min allocation set.
-   * 
+   *
    * @param type
    *          {@link TaskType#MAP} or {@link TaskType#REDUCE}
    * @param pool
@@ -401,7 +398,7 @@ public class PoolManager {
   }
 
   private SchedulingMode parseSchedulingMode(String text)
-      throws AllocationConfigurationException {
+  throws AllocationConfigurationException {
     text = text.toLowerCase();
     if (text.equals("fair")) {
       return SchedulingMode.FAIR;
@@ -409,7 +406,7 @@ public class PoolManager {
       return SchedulingMode.FIFO;
     } else {
       throw new AllocationConfigurationException(
-          "Unknown scheduling mode : " + text + "; expected 'fifo' or 'fair'");
+        "Unknown scheduling mode : " + text + "; expected 'fifo' or 'fair'");
     }
   }
 
@@ -418,7 +415,7 @@ public class PoolManager {
    */
   public int getAllocation(String pool, TaskType taskType) {
     Map<String, Integer> allocationMap = (taskType == TaskType.MAP ?
-        mapAllocs : reduceAllocs);
+                                          mapAllocs : reduceAllocs);
     Integer alloc = allocationMap.get(pool);
     return (alloc == null ? 0 : alloc);
   }
@@ -435,21 +432,21 @@ public class PoolManager {
       return Integer.MAX_VALUE;
     }
   }
- 
+
   /**
    * Add a job in the appropriate pool
    */
   public synchronized void addJob(JobInProgress job) {
     getPool(getPoolName(job)).addJob(job);
   }
-  
+
   /**
    * Remove a job
    */
   public synchronized void removeJob(JobInProgress job) {
     getPool(getPoolName(job)).removeJob(job);
   }
-  
+
   /**
    * Change the pool of a particular job
    */
@@ -465,18 +462,18 @@ public class PoolManager {
   public synchronized Collection<Pool> getPools() {
     return pools.values();
   }
-  
+
   /**
    * Get the pool name for a JobInProgress from its configuration.  This uses
-   * the value of mapred.fairscheduler.pool if specified, otherwise the value 
+   * the value of mapred.fairscheduler.pool if specified, otherwise the value
    * of the property named in mapred.fairscheduler.poolnameproperty if that is
-   * specified.  Otherwise if neither is specified it uses the "user.name" property 
+   * specified.  Otherwise if neither is specified it uses the "user.name" property
    * in the jobconf by default.
    */
   public String getPoolName(JobInProgress job) {
     Configuration conf = job.getJobConf();
     return conf.get(EXPLICIT_POOL_PROPERTY,
-      conf.get(poolNameProperty, Pool.DEFAULT_POOL_NAME)).trim();
+                    conf.get(poolNameProperty, Pool.DEFAULT_POOL_NAME)).trim();
   }
 
   /**
@@ -485,7 +482,7 @@ public class PoolManager {
    */
   public synchronized Collection<String> getPoolNames() {
     List<String> list = new ArrayList<String>();
-    for (Pool pool: getPools()) {
+    for (Pool pool : getPools()) {
       list.add(pool.getName());
     }
     Collections.sort(list);
@@ -528,7 +525,7 @@ public class PoolManager {
       return defaultMinSharePreemptionTimeout;
     }
   }
-  
+
   /**
    * Get the fair share preemption, in milliseconds. This is the time
    * after which any job may kill other jobs' tasks if it is below half
