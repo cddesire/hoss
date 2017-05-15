@@ -34,7 +34,7 @@ public class DefaultTaskSelector extends TaskSelector {
     int count = 0;
     long time = System.currentTimeMillis();
     double avgProgress = job.getStatus().mapProgress();
-    for (TaskInProgress tip: job.maps) {
+    for (TaskInProgress tip : job.maps) {
       if (tip.isRunning() && tip.hasSpeculativeTask(time, avgProgress)) {
         count++;
       }
@@ -47,7 +47,7 @@ public class DefaultTaskSelector extends TaskSelector {
     int count = 0;
     long time = System.currentTimeMillis();
     double avgProgress = job.getStatus().reduceProgress();
-    for (TaskInProgress tip: job.reduces) {
+    for (TaskInProgress tip : job.reduces) {
       if (tip.isRunning() && tip.hasSpeculativeTask(time, avgProgress)) {
         count++;
       }
@@ -57,29 +57,27 @@ public class DefaultTaskSelector extends TaskSelector {
 
   @Override
   public Task obtainNewMapTask(TaskTrackerStatus taskTracker, JobInProgress job,
-      int localityLevel) throws IOException {
+                               int localityLevel) throws IOException {
     ClusterStatus clusterStatus = taskTrackerManager.getClusterStatus();
     int numTaskTrackers = clusterStatus.getTaskTrackers();
     switch (localityLevel) {
-      case 1:
-        return job.obtainNewNodeLocalMapTask(taskTracker, numTaskTrackers,
-          taskTrackerManager.getNumberOfUniqueHosts());
-      case 2:
-        return job.obtainNewNodeOrRackLocalMapTask(taskTracker, numTaskTrackers,
-          taskTrackerManager.getNumberOfUniqueHosts());
-      default:
-        return job.obtainNewMapTask(taskTracker, numTaskTrackers,
-          taskTrackerManager.getNumberOfUniqueHosts());
+    case 1:
+      return job.obtainNewNodeLocalMapTask(taskTracker, numTaskTrackers,
+                                           taskTrackerManager.getNumberOfUniqueHosts());
+    case 2:
+      return job.obtainNewNodeOrRackLocalMapTask(taskTracker, numTaskTrackers,
+             taskTrackerManager.getNumberOfUniqueHosts());
+    default:
+      return job.obtainNewMapTask(taskTracker, numTaskTrackers,
+                                  taskTrackerManager.getNumberOfUniqueHosts());
     }
   }
 
   @Override
-  public Task obtainNewReduceTask(TaskTrackerStatus taskTracker, JobInProgress job)
-      throws IOException {
+  public Task obtainNewReduceTask(TaskTrackerStatus taskTracker, JobInProgress job) throws IOException {
     ClusterStatus clusterStatus = taskTrackerManager.getClusterStatus();
     int numTaskTrackers = clusterStatus.getTaskTrackers();
-    return job.obtainNewReduceTask(taskTracker, numTaskTrackers,
-        taskTrackerManager.getNumberOfUniqueHosts());
+    return job.obtainNewReduceTask(taskTracker, numTaskTrackers, taskTrackerManager.getNumberOfUniqueHosts());
   }
 
 }
