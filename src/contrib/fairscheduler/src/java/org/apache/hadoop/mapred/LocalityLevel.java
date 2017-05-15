@@ -27,7 +27,7 @@ package org.apache.hadoop.mapred;
  * not have the task's input data, but share a rack with a node that does).
  * Finally, after a further wait, jobs are allowed to launch tasks anywhere
  * in the cluster.
- * 
+ *
  * This enum defines three levels - NODE, RACK and ANY (for allowing tasks
  * to be launched on any node). A map task's level can be obtained from
  * its job through {@link #fromTask(JobInProgress, Task, TaskTrackerStatus)}. In
@@ -38,9 +38,8 @@ package org.apache.hadoop.mapred;
  */
 public enum LocalityLevel {
   NODE, RACK, ANY;
-  
-  public static LocalityLevel fromTask(JobInProgress job, Task mapTask,
-      TaskTrackerStatus tracker) {
+
+  public static LocalityLevel fromTask(JobInProgress job, Task mapTask, TaskTrackerStatus tracker) {
     TaskID tipID = mapTask.getTaskID().getTaskID();
     TaskInProgress tip = job.getTaskInProgress(tipID);
     switch (job.getLocalityLevel(tip, tracker)) {
@@ -49,14 +48,14 @@ public enum LocalityLevel {
     default: return LocalityLevel.ANY;
     }
   }
-  
+
   /**
    * Obtain a JobInProgress cache level cap to pass to
    * {@link JobInProgress#obtainNewMapTask(TaskTrackerStatus, int, int, int)}
    * to ensure that only tasks of this locality level and lower are launched.
    */
   public int toCacheLevelCap() {
-    switch(this) {
+    switch (this) {
     case NODE: return 1;
     case RACK: return 2;
     default: return Integer.MAX_VALUE;
