@@ -29,13 +29,13 @@ import org.apache.hadoop.metrics.MetricsUtil;
 /**
  * A Schedulable represents an entity that can launch tasks, such as a job
  * or a pool. It provides a common interface so that algorithms such as fair
- * sharing can be applied both within a pool and across pools. There are 
+ * sharing can be applied both within a pool and across pools. There are
  * currently two types of Schedulables: JobSchedulables, which represent a
  * single job, and PoolSchedulables, which allocate among jobs in their pool.
- * 
+ *
  * Separate sets of Schedulables are used for maps and reduces. Each pool has
  * both a mapSchedulable and a reduceSchedulable, and so does each job.
- * 
+ *
  * A Schedulable is responsible for three roles:
  * 1) It can launch tasks through assignTask().
  * 2) It provides information about the job/pool to the scheduler, including:
@@ -45,7 +45,7 @@ import org.apache.hadoop.metrics.MetricsUtil;
  *    - Job/pool weight (for fair sharing)
  *    - Start time and priority (for FIFO)
  * 3) It can be assigned a fair share, for use with fair scheduling.
- * 
+ *
  * Schedulable also contains two methods for performing scheduling computations:
  * - updateDemand() is called periodically to compute the demand of the various
  *   jobs and pools, which may be expensive (e.g. jobs must iterate through all
@@ -59,60 +59,60 @@ abstract class Schedulable {
   /** Fair share assigned to this Schedulable */
   private double fairShare = 0;
   protected MetricsRecord metrics;
-  
+
   /**
    * Name of job/pool, used for debugging as well as for breaking ties in
-   * scheduling order deterministically. 
+   * scheduling order deterministically.
    */
   public abstract String getName();
-  
+
   /**
    * @return the type of tasks that this pool schedules
    */
   public abstract TaskType getTaskType();
-  
+
   /**
    * Maximum number of tasks required by this Schedulable. This is defined as
    * number of currently running tasks + number of unlaunched tasks (tasks that
    * are either not yet launched or need to be speculated).
    */
   public abstract int getDemand();
-  
+
   /** Number of tasks the schedulable is currently running. */
   public abstract int getRunningTasks();
-  
+
   /** Minimum share slots assigned to the schedulable. */
   public abstract int getMinShare();
-  
+
   /** Job/pool weight in fair sharing. */
   public abstract double getWeight();
-  
+
   /** Job priority for jobs in FIFO pools; meaningless for PoolSchedulables. */
   public abstract JobPriority getPriority();
-  
+
   /** Start time for jobs in FIFO pools; meaningless for PoolSchedulables. */
   public abstract long getStartTime();
-  
+
   /** Refresh the Schedulable's demand and those of its children if any. */
   public abstract void updateDemand();
-  
-  /** 
-   * Distribute the fair share assigned to this Schedulable among its 
-   * children (used in pools where the internal scheduler is fair sharing). 
+
+  /**
+   * Distribute the fair share assigned to this Schedulable among its
+   * children (used in pools where the internal scheduler is fair sharing).
    */
   public abstract void redistributeShare();
-  
+
   /**
    * Obtain a task for a given TaskTracker, or null if the Schedulable has
    * no tasks to launch at this moment or does not wish to launch a task on
-   * this TaskTracker (e.g. is waiting for a TaskTracker with local data). 
+   * this TaskTracker (e.g. is waiting for a TaskTracker with local data).
    * In addition, if a job is skipped during this search because it is waiting
    * for a TaskTracker with local data, this method is expected to add it to
    * the <tt>visited</tt> collection passed in, so that the scheduler can
    * properly mark it as skipped during this heartbeat. Please see
    * {@link FairScheduler#getAllowedLocalityLevel(JobInProgress, long)}
    * for details of delay scheduling (waiting for trackers with local data).
-   * 
+   *
    * @param tts      TaskTracker that the task will be launched on
    * @param currentTime Cached time (to prevent excessive calls to gettimeofday)
    * @param visited  A Collection to which this method must add all jobs that
@@ -121,28 +121,28 @@ abstract class Schedulable {
    * @throws IOException Possible if obtainNew(Map|Reduce)Task throws exception.
    */
   public abstract Task assignTask(TaskTrackerStatus tts, long currentTime,
-      Collection<JobInProgress> visited) throws IOException;
+                                  Collection<JobInProgress> visited) throws IOException;
 
   /** Assign a fair share to this Schedulable. */
   public void setFairShare(double fairShare) {
     this.fairShare = fairShare;
   }
-  
+
   /** Get the fair share assigned to this Schedulable. */
   public double getFairShare() {
     return fairShare;
   }
-  
+
   /** Return the name of the metrics context for this schedulable */
   protected abstract String getMetricsContextName();
-  
+
   /**
    * Set up metrics context
    */
   protected void initMetrics() {
     MetricsContext metricsContext = MetricsUtil.getContext("fairscheduler");
     this.metrics = MetricsUtil.createRecord(metricsContext,
-        getMetricsContextName());
+                                            getMetricsContextName());
     metrics.setTag("name", getName());
     metrics.setTag("taskType", getTaskType().toString());
   }
@@ -159,13 +159,13 @@ abstract class Schedulable {
     metrics.setMetric("weight", (float)getWeight());
     metrics.setMetric("runningTasks", getRunningTasks());
   }
-  
+
   abstract void updateMetrics();
-  
+
   /** Convenient toString implementation for debugging. */
   @Override
   public String toString() {
     return String.format("[%s, demand=%d, running=%d, share=%.1f, w=%.1f]",
-        getName(), getDemand(), getRunningTasks(), fairShare, getWeight());
+                         getName(), getDemand(), getRunningTasks(), fairShare, getWeight());
   }
 }
