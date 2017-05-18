@@ -1012,8 +1012,7 @@ class CapacityTaskScheduler extends TaskScheduler {
    *  
    */
   @Override
-  public synchronized List<Task> assignTasks(TaskTracker taskTracker)
-  throws IOException {    
+  public synchronized List<Task> assignTasks(TaskTracker taskTracker) throws IOException {
     TaskTrackerStatus taskTrackerStatus = taskTracker.getStatus();
     ClusterStatus c = taskTrackerManager.getClusterStatus();
     int mapClusterCapacity = c.getMaxMapTasks();
