@@ -40,11 +40,11 @@ import org.apache.hadoop.mapred.JobStatusChangeEvent.EventType;
 class JobQueuesManager extends JobInProgressListener {
   
   private static final Log LOG = LogFactory.getLog(JobQueuesManager.class);
+  
   private CapacityTaskScheduler scheduler;
   // Queues in the system
   private Collection<String> jobQueueNames;
-  private Map<String, CapacitySchedulerQueue> jobQueues = 
-    new HashMap<String, CapacitySchedulerQueue>();
+  private Map<String, CapacitySchedulerQueue> jobQueues = new HashMap<String, CapacitySchedulerQueue>();
 
   
   JobQueuesManager(CapacityTaskScheduler s) {
