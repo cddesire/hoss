@@ -22,7 +22,6 @@
 
 _hadoop() {
   local script cur prev temp
-
   COMPREPLY=()
   cur=${COMP_WORDS[COMP_CWORD]}
   prev=${COMP_WORDS[COMP_CWORD-1]}  
