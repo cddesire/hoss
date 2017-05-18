@@ -32,14 +32,10 @@ class MemoryMatcher {
   }
 
   boolean isSchedulingBasedOnMemEnabled() {
-    if (scheduler.getLimitMaxMemForMapSlot()
-                                  == JobConf.DISABLED_MEMORY_LIMIT
-        || scheduler.getLimitMaxMemForReduceSlot()
-                                  == JobConf.DISABLED_MEMORY_LIMIT
-        || scheduler.getMemSizeForMapSlot()
-                                  == JobConf.DISABLED_MEMORY_LIMIT
-        || scheduler.getMemSizeForReduceSlot()
-                                  == JobConf.DISABLED_MEMORY_LIMIT) {
+    if (scheduler.getLimitMaxMemForMapSlot() == JobConf.DISABLED_MEMORY_LIMIT
+        || scheduler.getLimitMaxMemForReduceSlot() == JobConf.DISABLED_MEMORY_LIMIT
+        || scheduler.getMemSizeForMapSlot() == JobConf.DISABLED_MEMORY_LIMIT
+        || scheduler.getMemSizeForReduceSlot() == JobConf.DISABLED_MEMORY_LIMIT) {
       return false;
     }
     return true;
@@ -58,8 +54,7 @@ class MemoryMatcher {
    */
   synchronized long getMemReservedForTasks(
       TaskTrackerStatus taskTracker, TaskType taskType, int availableSlots) {
-    int currentlyScheduled = 
-      currentlyScheduled(taskTracker, taskType, availableSlots);
+    int currentlyScheduled = currentlyScheduled(taskTracker, taskType, availableSlots);
     long vmem = 0;
 
     for (TaskStatus task : taskTracker.getTaskReports()) {
