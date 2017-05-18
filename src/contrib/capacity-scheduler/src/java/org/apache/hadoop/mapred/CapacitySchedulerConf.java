@@ -40,8 +40,7 @@ class CapacitySchedulerConf {
   
   private boolean defaultSupportPriority;
   
-  private static final String QUEUE_CONF_PROPERTY_NAME_PREFIX = 
-    "mapred.capacity-scheduler.queue.";
+  private static final String QUEUE_CONF_PROPERTY_NAME_PREFIX = "mapred.capacity-scheduler.queue.";
 
   /**
    * If {@link JobConf#MAPRED_TASK_MAXPMEM_PROPERTY} is set to
@@ -74,8 +73,7 @@ class CapacitySchedulerConf {
    * @deprecated
    */
   @Deprecated
-  static final String UPPER_LIMIT_ON_TASK_PMEM_PROPERTY =
-    "mapred.capacity-scheduler.task.limit.maxpmem";
+  static final String UPPER_LIMIT_ON_TASK_PMEM_PROPERTY = "mapred.capacity-scheduler.task.limit.maxpmem";
 
 
   private static final String CAPACITY_PROPERTY = "capacity";
@@ -84,7 +82,7 @@ class CapacitySchedulerConf {
     * A maximum capacity defines a limit beyond which a queue
     * cannot expand .
    */
-   static final String MAX_CAPACITY_PROPERTY ="maximum-capacity";
+   static final String MAX_CAPACITY_PROPERTY = "maximum-capacity";
 
   /**
    * The constant which defines the default initialization thread
@@ -104,8 +102,7 @@ class CapacitySchedulerConf {
   private int defaultMaxActiveTasksPerUserToInitialize;
   private int defaultMaxActiveTasksPerQueueToInitialize;
   
-  static final String MAX_SYSTEM_JOBS_KEY = 
-    "mapred.capacity-scheduler.maximum-system-jobs";
+  static final String MAX_SYSTEM_JOBS_KEY = "mapred.capacity-scheduler.maximum-system-jobs";
   
   static final int DEFAULT_MAX_SYSTEM_JOBS = 5000;
   
@@ -141,24 +138,19 @@ class CapacitySchedulerConf {
    * which is used by the Capacity Scheduler.
    */
   private void initializeDefaults() {
-    defaultUlimitMinimum = 
-      rmConf.getInt(
+    defaultUlimitMinimum = rmConf.getInt(
           "mapred.capacity-scheduler.default-minimum-user-limit-percent", 100);
-    defaultUserLimitFactor = 
-      rmConf.getFloat("mapred.capacity-scheduler.default-user-limit-factor", 
+    defaultUserLimitFactor = rmConf.getFloat("mapred.capacity-scheduler.default-user-limit-factor",
           1.0f);
     defaultSupportPriority = rmConf.getBoolean(
         "mapred.capacity-scheduler.default-supports-priority", false);
     defaultMaxActiveTasksPerQueueToInitialize = 
-      rmConf.getInt(
-          "mapred.capacity-scheduler.default-maximum-active-tasks-per-queue", 
+      rmConf.getInt("mapred.capacity-scheduler.default-maximum-active-tasks-per-queue",
           200000);
-    defaultMaxActiveTasksPerUserToInitialize = 
-      rmConf.getInt(
+    defaultMaxActiveTasksPerUserToInitialize = rmConf.getInt(
           "mapred.capacity-scheduler.default-maximum-active-tasks-per-user", 
           100000);
-    defaultInitToAcceptJobsFactor =
-      rmConf.getInt("mapred.capacity-scheduler.default-init-accept-jobs-factor", 
+    defaultInitToAcceptJobsFactor = rmConf.getInt("mapred.capacity-scheduler.default-init-accept-jobs-factor",
           10);
   }
   
