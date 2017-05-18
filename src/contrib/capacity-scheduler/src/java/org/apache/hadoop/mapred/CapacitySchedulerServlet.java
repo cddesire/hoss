@@ -62,14 +62,12 @@ public class CapacitySchedulerServlet extends HttpServlet {
   }
 
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     doGet(req, resp); // Same handler for both GET and POST
   }
 
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     // Print out the normal response
     response.setContentType("text/html");
 
@@ -103,8 +101,7 @@ public class CapacitySchedulerServlet extends HttpServlet {
    * Print a view of pools to the given output writer.
    */
 
-  private void showQueues(PrintWriter out) 
-      throws IOException {
+  private void showQueues(PrintWriter out) throws IOException {
     synchronized(scheduler) {
       out.print("<h2>Queues</h2>\n");
       out.print("<table border=\"2\" cellpadding=\"5\" " + 
