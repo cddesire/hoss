@@ -20,7 +20,7 @@ package org.apache.hadoop.hdfs.hoss.bloomfilter;
 /**
  * Used for the Bloom filter. To simulate having multiple hash functions, we
  * just take the linear combination of two runs of the MurmurHash
- * (http://www.eecs.harvard.edu/~kirsch/pubs/bbbf/esa06.pdf says this is
+ * (https://www.eecs.harvard.edu/~michaelm/postscripts/tr-02-05.pdf says this is
  * alright). The core hashOnce fn is just a port of the C++ MurmurHash at
  * http://code.google.com/p/smhasher/
  */
