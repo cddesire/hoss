@@ -138,25 +138,19 @@ class CapacitySchedulerQueue {
     @Override
     public String toString() {
       float occupiedSlotsAsPercent =
-          getCapacity() != 0 ?
-            ((float) numSlotsOccupied * 100 / getCapacity()) : 0;
+          getCapacity() != 0 ? ((float) numSlotsOccupied * 100 / getCapacity()) : 0;
       StringBuffer sb = new StringBuffer();
-      
       sb.append("Capacity: " + capacity + " slots\n");
-      
       if(getMaxCapacity() >= 0) {
         sb.append("Maximum capacity: " + getMaxCapacity() +" slots\n");
       }
       sb.append(String.format("Used capacity: %d (%.1f%% of Capacity)\n",
-          Integer.valueOf(numSlotsOccupied), Float
-              .valueOf(occupiedSlotsAsPercent)));
-      sb.append(String.format("Running tasks: %d\n", Integer
-          .valueOf(numRunningTasks)));
+          Integer.valueOf(numSlotsOccupied), Float.valueOf(occupiedSlotsAsPercent)));
+      sb.append(String.format("Running tasks: %d\n", Integer.valueOf(numRunningTasks)));
       // include info on active users
       if (numSlotsOccupied != 0) {
         sb.append("Active users:\n");
-        for (Map.Entry<String, Integer> entry : numSlotsOccupiedByUser
-            .entrySet()) {
+        for (Map.Entry<String, Integer> entry : numSlotsOccupiedByUser.entrySet()) {
           if ((entry.getValue() == null) || (entry.getValue().intValue() <= 0)) {
             // user has no tasks running
             continue;
@@ -186,11 +180,9 @@ class CapacitySchedulerQueue {
     }
 
 
-    void updateCapacities(float capacityPercent, float maxCapacityPercent, 
-                          int clusterCapacity) {
+    void updateCapacities(float capacityPercent, float maxCapacityPercent, int clusterCapacity) {
       //compute new capacity
-      setCapacity((int)(capacityPercent*clusterCapacity/100));
-
+      setCapacity((int)(capacityPercent * clusterCapacity / 100));
       //compute new max map capacities
       if(maxCapacityPercent > 0) {
         setMaxCapacity((int)(maxCapacityPercent*clusterCapacity / 100));
