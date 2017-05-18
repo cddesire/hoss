@@ -504,8 +504,7 @@ public class JobInitializationPoller extends Thread {
    * 
    */
   void cleanUpInitializedJobsList() {
-    Iterator<Entry<JobID, JobInProgress>> jobsIterator = 
-      initializedJobs.entrySet().iterator();
+    Iterator<Entry<JobID, JobInProgress>> jobsIterator = initializedJobs.entrySet().iterator();
     while(jobsIterator.hasNext()) {
       Entry<JobID,JobInProgress> entry = jobsIterator.next();
       JobInProgress job = entry.getValue();
@@ -534,8 +533,7 @@ public class JobInitializationPoller extends Thread {
    * @return
    */
   private boolean isScheduled(JobInProgress job) {
-    return ((job.pendingMaps() < job.desiredMaps()) 
-        || (job.pendingReduces() < job.desiredReduces()));
+    return ((job.pendingMaps() < job.desiredMaps()) || (job.pendingReduces() < job.desiredReduces()));
   }
 
   void terminate() {
