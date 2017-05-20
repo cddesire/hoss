@@ -64,8 +64,7 @@ public class ProxyUtil {
   // warning
 
   private static enum UtilityOption {
-    RELOAD("-reloadPermFiles"), GET("-get"), CHECKCERTS(
-        "-checkcerts");
+    RELOAD("-reloadPermFiles"), GET("-get"), CHECKCERTS("-checkcerts");
 
     private String name = null;
 
@@ -91,11 +90,9 @@ public class ProxyUtil {
    * Dummy trustmanager that is used to bypass server certificate checking
    */
   private static class DummyTrustManager implements X509TrustManager {
-    public void checkClientTrusted(X509Certificate[] chain, String authType) {
-    }
+    public void checkClientTrusted(X509Certificate[] chain, String authType) {}
 
-    public void checkServerTrusted(X509Certificate[] chain, String authType) {
-    }
+    public void checkServerTrusted(X509Certificate[] chain, String authType) {}
 
     public X509Certificate[] getAcceptedIssuers() {
       return null;
@@ -105,8 +102,7 @@ public class ProxyUtil {
   private static HttpsURLConnection openConnection(String hostname, int port,
       String path) throws IOException {
     try {
-      final URL url = new URI("https", null, hostname, port, path, null, null)
-          .toURL();
+      final URL url = new URI("https", null, hostname, port, path, null, null).toURL();
       HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
       // bypass hostname verification
       conn.setHostnameVerifier(new DummyHostnameVerifier());
