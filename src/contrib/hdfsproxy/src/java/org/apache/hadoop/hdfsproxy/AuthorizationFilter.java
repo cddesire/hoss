@@ -40,8 +40,7 @@ public class AuthorizationFilter implements Filter {
       .compile("(^hdfs://([\\w\\-]+(\\.)?)+:\\d+|^hdfs://([\\w\\-]+(\\.)?)+)");
 
   /** Pattern for a filter to find out if a request is HFTP/HSFTP request */
-  protected static final Pattern HFTP_PATTERN = Pattern
-      .compile("^(/listPaths|/data|/streamFile|/file)$");
+  protected static final Pattern HFTP_PATTERN = Pattern.compile("^(/listPaths|/data|/streamFile|/file)$");
 
   protected String contextPath;
 
@@ -58,26 +57,17 @@ public class AuthorizationFilter implements Filter {
 
   /** {@inheritDoc} **/
   @SuppressWarnings("unchecked")
-  public void doFilter(ServletRequest request,
-                       ServletResponse response,
-                       FilterChain chain)
-      throws IOException, ServletException {
-
+  public void doFilter(ServletRequest request, ServletResponse response,
+                       FilterChain chain) throws IOException, ServletException {
     HttpServletResponse rsp = (HttpServletResponse) response;
     HttpServletRequest rqst = (HttpServletRequest) request;
-
     String userId = getUserId(request);
     String groups = getGroups(request);
     List<Path> allowedPaths = getAllowedPaths(request);
-
-    UserGroupInformation ugi =
-        UserGroupInformation.createRemoteUser(userId);
-
+    UserGroupInformation ugi = UserGroupInformation.createRemoteUser(userId);
     String filePath = getPathFromRequest(rqst);
-
     if (filePath == null || !checkHdfsPath(filePath, allowedPaths)) {
-      String msg = "User " + userId + " (" + groups
-          + ") is not authorized to access path " + filePath;
+      String msg = "User " + userId + " (" + groups + ") is not authorized to access path " + filePath;
       LOG.warn(msg);
       rsp.sendError(HttpServletResponse.SC_FORBIDDEN, msg);
       return;
@@ -88,19 +78,16 @@ public class AuthorizationFilter implements Filter {
   }
 
   protected String getUserId(ServletRequest request) {
-     return (String)request.
-         getAttribute("org.apache.hadoop.hdfsproxy.authorized.userID");
+     return (String)request.getAttribute("org.apache.hadoop.hdfsproxy.authorized.userID");
   }
 
    protected String getGroups(ServletRequest request) {
-     UserGroupInformation ugi = UserGroupInformation.
-         createRemoteUser(getUserId(request));
+     UserGroupInformation ugi = UserGroupInformation.createRemoteUser(getUserId(request));
      return Arrays.toString(ugi.getGroupNames());
    }
 
   protected List<Path> getAllowedPaths(ServletRequest request) {
-     return (List<Path>)request.
-         getAttribute("org.apache.hadoop.hdfsproxy.authorized.paths");
+     return (List<Path>)request.getAttribute("org.apache.hadoop.hdfsproxy.authorized.paths");
   }
   
    private String getPathFromRequest(HttpServletRequest rqst) {
@@ -118,8 +105,7 @@ public class AuthorizationFilter implements Filter {
    * @param pathInfo - Path to check access
    * @param ldapPaths - List of paths allowed access
    * @return true if access allowed, false otherwise */
-  public boolean checkHdfsPath(String pathInfo,
-                               List<Path> ldapPaths) {
+  public boolean checkHdfsPath(String pathInfo, List<Path> ldapPaths) {
     if (pathInfo == null || pathInfo.length() == 0) {
       LOG.info("Can't get file path from the request");
       return false;
